@@ -1,4 +1,4 @@
-import { RouteRecognizer } from '../lib/index';
+import { RouteRecognizer } from '../src/index';
 
 describe('route recognizer', () => {
   it('should have some tests', () => {

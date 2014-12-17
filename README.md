@@ -8,6 +8,10 @@ This library is part of the [Aurelia](http://www.aurelia.io/) platform and conta
 
 This library has **NO** external dependencies.
 
+## Used By
+
+* [aurelia-router](https://github.com/aurelia/router)
+
 ## Platform Support
 
 This library can be used in the **browser** as well as on the **server**.
