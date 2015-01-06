@@ -1,6 +1,6 @@
 "use strict";
 
-var map = require('./dsl').map;
+var map = require("./dsl").map;
 
 
 var specials = ["/", ".", "*", "+", "?", "|", "(", ")", "[", "]", "{", "}", "\\"];
