@@ -31,9 +31,11 @@ System.register(["./dsl"], function (_export) {
       route = route.substr(1);
     }
 
-    var segments = route.split("/"), results = [];
+    var segments = route.split("/"),
+        results = [];
 
-    for (var i = 0, l = segments.length; i < l; i++) {
+    for (var i = 0,
+        l = segments.length; i < l; i++) {
       var segment = segments[i], match;
 
       if (match = segment.match(/^:([^\/]+)$/)) {
@@ -89,7 +91,8 @@ System.register(["./dsl"], function (_export) {
   function recognizeChar(states, ch) {
     var nextStates = [];
 
-    for (var i = 0, l = states.length; i < l; i++) {
+    for (var i = 0,
+        l = states.length; i < l; i++) {
       var state = states[i];
 
       nextStates = nextStates.concat(state.match(ch));
@@ -104,14 +107,20 @@ System.register(["./dsl"], function (_export) {
 
 
   function findHandler(state, path, queryParams) {
-    var handlers = state.handlers, regex = state.regex;
-    var captures = path.match(regex), currentCapture = 1;
+    var handlers = state.handlers,
+        regex = state.regex;
+    var captures = path.match(regex),
+        currentCapture = 1;
     var result = new RecognizeResults(queryParams);
 
-    for (var i = 0, l = handlers.length; i < l; i++) {
-      var handler = handlers[i], names = handler.names, params = {};
+    for (var i = 0,
+        l = handlers.length; i < l; i++) {
+      var handler = handlers[i],
+          names = handler.names,
+          params = {};
 
-      for (var j = 0, m = names.length; j < m; j++) {
+      for (var j = 0,
+          m = names.length; j < m; j++) {
         params[names[j]] = captures[currentCapture++];
       }
 
@@ -142,7 +151,8 @@ System.register(["./dsl"], function (_export) {
         eachChar: function (callback) {
           var string = this.string, ch;
 
-          for (var i = 0, l = string.length; i < l; i++) {
+          for (var i = 0,
+              l = string.length; i < l; i++) {
             ch = string.charAt(i);
             callback({ validChars: ch });
           }
@@ -191,7 +201,8 @@ System.register(["./dsl"], function (_export) {
         get: function (charSpec) {
           var nextStates = this.nextStates;
 
-          for (var i = 0, l = nextStates.length; i < l; i++) {
+          for (var i = 0,
+              l = nextStates.length; i < l; i++) {
             var child = nextStates[i];
 
             var isEqual = child.charSpec.validChars === charSpec.validChars;
@@ -225,7 +236,8 @@ System.register(["./dsl"], function (_export) {
 
           var returned = [];
 
-          for (var i = 0, l = nextStates.length; i < l; i++) {
+          for (var i = 0,
+              l = nextStates.length; i < l; i++) {
             child = nextStates[i];
 
             charSpec = child.charSpec;
@@ -266,18 +278,26 @@ System.register(["./dsl"], function (_export) {
 
       RouteRecognizer.prototype = {
         add: function (routes, options) {
-          var currentState = this.rootState, regex = "^", types = { statics: 0, dynamics: 0, stars: 0 }, handlers = [], allSegments = [], name;
+          var currentState = this.rootState,
+              regex = "^",
+              types = { statics: 0, dynamics: 0, stars: 0 },
+              handlers = [],
+              allSegments = [],
+              name;
 
           var isEmpty = true;
 
-          for (var i = 0, l = routes.length; i < l; i++) {
-            var route = routes[i], names = [];
+          for (var i = 0,
+              l = routes.length; i < l; i++) {
+            var route = routes[i],
+                names = [];
 
             var segments = parse(route.path, names, types);
 
             allSegments = allSegments.concat(segments);
 
-            for (var j = 0, m = segments.length; j < m; j++) {
+            for (var j = 0,
+                m = segments.length; j < m; j++) {
               var segment = segments[j];
 
               if (segment instanceof EpsilonSegment) {
@@ -315,12 +335,14 @@ System.register(["./dsl"], function (_export) {
         },
 
         handlersFor: function (name) {
-          var route = this.names[name], result = [];
+          var route = this.names[name],
+              result = [];
           if (!route) {
             throw new Error("There is no route named " + name);
           }
 
-          for (var i = 0, l = route.handlers.length; i < l; i++) {
+          for (var i = 0,
+              l = route.handlers.length; i < l; i++) {
             result.push(route.handlers[i]);
           }
 
@@ -332,14 +354,16 @@ System.register(["./dsl"], function (_export) {
         },
 
         generate: function (name, params) {
-          var route = this.names[name], output = "";
+          var route = this.names[name],
+              output = "";
           if (!route) {
             throw new Error("There is no route named " + name);
           }
 
           var segments = route.segments;
 
-          for (var i = 0, l = segments.length; i < l; i++) {
+          for (var i = 0,
+              l = segments.length; i < l; i++) {
             var segment = segments[i];
 
             if (segment instanceof EpsilonSegment) {
@@ -370,7 +394,8 @@ System.register(["./dsl"], function (_export) {
             }
           }
           keys.sort();
-          for (var i = 0, len = keys.length; i < len; i++) {
+          for (var i = 0,
+              len = keys.length; i < len; i++) {
             key = keys[i];
             var value = params[key];
             if (value === null) {
@@ -378,7 +403,8 @@ System.register(["./dsl"], function (_export) {
             }
             var pair = encodeURIComponent(key);
             if (isArray(value)) {
-              for (var j = 0, l = value.length; j < l; j++) {
+              for (var j = 0,
+                  l = value.length; j < l; j++) {
                 var arrayPair = key + "[]" + "=" + encodeURIComponent(value[j]);
                 pairs.push(arrayPair);
               }
@@ -396,9 +422,14 @@ System.register(["./dsl"], function (_export) {
         },
 
         parseQueryString: function (queryString) {
-          var pairs = queryString.split("&"), queryParams = {};
+          var pairs = queryString.split("&"),
+              queryParams = {};
           for (var i = 0; i < pairs.length; i++) {
-            var pair = pairs[i].split("="), key = decodeURIComponent(pair[0]), keyLength = key.length, isArray = false, value;
+            var pair = pairs[i].split("="),
+                key = decodeURIComponent(pair[0]),
+                keyLength = key.length,
+                isArray = false,
+                value;
             if (pair.length === 1) {
               value = "true";
             } else {
