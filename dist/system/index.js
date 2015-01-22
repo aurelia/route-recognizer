@@ -34,9 +34,9 @@ System.register(["./dsl"], function (_export) {
     var segments = route.split("/"),
         results = [];
 
-    for (var i = 0,
-        l = segments.length; i < l; i++) {
-      var segment = segments[i], match;
+    for (var i = 0, l = segments.length; i < l; i++) {
+      var segment = segments[i],
+          match;
 
       if (match = segment.match(/^:([^\/]+)$/)) {
         results.push(new DynamicSegment(match[1]));
@@ -91,8 +91,7 @@ System.register(["./dsl"], function (_export) {
   function recognizeChar(states, ch) {
     var nextStates = [];
 
-    for (var i = 0,
-        l = states.length; i < l; i++) {
+    for (var i = 0, l = states.length; i < l; i++) {
       var state = states[i];
 
       nextStates = nextStates.concat(state.match(ch));
@@ -113,14 +112,12 @@ System.register(["./dsl"], function (_export) {
         currentCapture = 1;
     var result = new RecognizeResults(queryParams);
 
-    for (var i = 0,
-        l = handlers.length; i < l; i++) {
+    for (var i = 0, l = handlers.length; i < l; i++) {
       var handler = handlers[i],
           names = handler.names,
           params = {};
 
-      for (var j = 0,
-          m = names.length; j < m; j++) {
+      for (var j = 0, m = names.length; j < m; j++) {
         params[names[j]] = captures[currentCapture++];
       }
 
@@ -149,10 +146,10 @@ System.register(["./dsl"], function (_export) {
       escapeRegex = new RegExp("(\\" + specials.join("|\\") + ")", "g");
       StaticSegment.prototype = {
         eachChar: function (callback) {
-          var string = this.string, ch;
+          var string = this.string,
+              ch;
 
-          for (var i = 0,
-              l = string.length; i < l; i++) {
+          for (var i = 0, l = string.length; i < l; i++) {
             ch = string.charAt(i);
             callback({ validChars: ch });
           }
@@ -201,8 +198,7 @@ System.register(["./dsl"], function (_export) {
         get: function (charSpec) {
           var nextStates = this.nextStates;
 
-          for (var i = 0,
-              l = nextStates.length; i < l; i++) {
+          for (var i = 0, l = nextStates.length; i < l; i++) {
             var child = nextStates[i];
 
             var isEqual = child.charSpec.validChars === charSpec.validChars;
@@ -232,12 +228,14 @@ System.register(["./dsl"], function (_export) {
           return state;
         },
         match: function (ch) {
-          var nextStates = this.nextStates, child, charSpec, chars;
+          var nextStates = this.nextStates,
+              child,
+              charSpec,
+              chars;
 
           var returned = [];
 
-          for (var i = 0,
-              l = nextStates.length; i < l; i++) {
+          for (var i = 0, l = nextStates.length; i < l; i++) {
             child = nextStates[i];
 
             charSpec = child.charSpec;
@@ -259,7 +257,8 @@ System.register(["./dsl"], function (_export) {
       };
 
       oCreate = Object.create || function (proto) {
-        function F() {}
+        var F = function () {};
+
         F.prototype = proto;
         return new F();
       };
@@ -287,8 +286,7 @@ System.register(["./dsl"], function (_export) {
 
           var isEmpty = true;
 
-          for (var i = 0,
-              l = routes.length; i < l; i++) {
+          for (var i = 0, l = routes.length; i < l; i++) {
             var route = routes[i],
                 names = [];
 
@@ -296,8 +294,7 @@ System.register(["./dsl"], function (_export) {
 
             allSegments = allSegments.concat(segments);
 
-            for (var j = 0,
-                m = segments.length; j < m; j++) {
+            for (var j = 0, m = segments.length; j < m; j++) {
               var segment = segments[j];
 
               if (segment instanceof EpsilonSegment) {
@@ -341,8 +338,7 @@ System.register(["./dsl"], function (_export) {
             throw new Error("There is no route named " + name);
           }
 
-          for (var i = 0,
-              l = route.handlers.length; i < l; i++) {
+          for (var i = 0, l = route.handlers.length; i < l; i++) {
             result.push(route.handlers[i]);
           }
 
@@ -362,8 +358,7 @@ System.register(["./dsl"], function (_export) {
 
           var segments = route.segments;
 
-          for (var i = 0,
-              l = segments.length; i < l; i++) {
+          for (var i = 0, l = segments.length; i < l; i++) {
             var segment = segments[i];
 
             if (segment instanceof EpsilonSegment) {
@@ -394,8 +389,7 @@ System.register(["./dsl"], function (_export) {
             }
           }
           keys.sort();
-          for (var i = 0,
-              len = keys.length; i < len; i++) {
+          for (var i = 0, len = keys.length; i < len; i++) {
             key = keys[i];
             var value = params[key];
             if (value === null) {
@@ -403,8 +397,7 @@ System.register(["./dsl"], function (_export) {
             }
             var pair = encodeURIComponent(key);
             if (isArray(value)) {
-              for (var j = 0,
-                  l = value.length; j < l; j++) {
+              for (var j = 0, l = value.length; j < l; j++) {
                 var arrayPair = key + "[]" + "=" + encodeURIComponent(value[j]);
                 pairs.push(arrayPair);
               }
@@ -452,7 +445,13 @@ System.register(["./dsl"], function (_export) {
         },
 
         recognize: function (path) {
-          var states = [this.rootState], pathLen, i, l, queryStart, queryParams = {}, isSlashDropped = false;
+          var states = [this.rootState],
+              pathLen,
+              i,
+              l,
+              queryStart,
+              queryParams = {},
+              isSlashDropped = false;
 
           queryStart = path.indexOf("?");
           if (queryStart !== -1) {

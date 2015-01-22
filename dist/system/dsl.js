@@ -29,8 +29,7 @@ System.register([], function (_export) {
 
   function addRoute(routeArray, path, handler) {
     var len = 0;
-    for (var i = 0,
-        l = routeArray.length; i < l; i++) {
+    for (var i = 0, l = routeArray.length; i < l; i++) {
       len += routeArray[i].path.length;
     }
 
