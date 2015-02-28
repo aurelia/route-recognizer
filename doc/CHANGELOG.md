@@ -1,3 +1,11 @@
+### 0.2.4 (2015-02-28)
+
+
+#### Bug Fixes
+
+* **package:** change jspm directories ([43b094ce](http://github.com/aurelia/route-recognizer/commit/43b094ce4343f47436bb44d72d55e0750fbd85d6))
+
+
 ### 0.2.3 (2015-02-28)
 
 
