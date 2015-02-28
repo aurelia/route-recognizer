@@ -1,3 +1,11 @@
+### 0.2.3 (2015-02-28)
+
+
+#### Bug Fixes
+
+* **build:** add missing bower bump ([600b7409](http://github.com/aurelia/route-recognizer/commit/600b7409d92557444c4c855340089b8b8c39f980))
+
+
 ### 0.2.2 (2015-01-22)
 
 * Update compiler.

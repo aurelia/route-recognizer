@@ -1,32 +1,44 @@
 System.register(["./dsl"], function (_export) {
-  "use strict";
-
   var map, specials, escapeRegex, oCreate, RouteRecognizer;
-
 
   function isArray(test) {
     return Object.prototype.toString.call(test) === "[object Array]";
   }
 
+  // A Segment represents a segment in the original route description.
+  // Each Segment type provides an `eachChar` and `regex` method.
+  //
+  // The `eachChar` method invokes the callback with one or more character
+  // specifications. A character specification consumes one or more input
+  // characters.
+  //
+  // The `regex` method returns a regex fragment for the segment. If the
+  // segment is a dynamic of star segment, the regex fragment also includes
+  // a capture.
+  //
+  // A character specification contains:
+  //
+  // * `validChars`: a String with a list of all valid characters, or
+  // * `invalidChars`: a String with a list of all invalid characters
+  // * `repeat`: true if the character specification can repeat
+
   function StaticSegment(string) {
     this.string = string;
   }
-
 
   function DynamicSegment(name) {
     this.name = name;
   }
 
-
   function StarSegment(name) {
     this.name = name;
   }
 
-
   function EpsilonSegment() {}
 
-
   function parse(route, names, types) {
+    // normalize route as not starting with a "/". Recognition will
+    // also normalize.
     if (route.charAt(0) === "/") {
       route = route.substr(1);
     }
@@ -57,11 +69,51 @@ System.register(["./dsl"], function (_export) {
     return results;
   }
 
+  // A State has a character specification and (`charSpec`) and a list of possible
+  // subsequent states (`nextStates`).
+  //
+  // If a State is an accepting state, it will also have several additional
+  // properties:
+  //
+  // * `regex`: A regular expression that is used to extract parameters from paths
+  //   that reached this accepting state.
+  // * `handlers`: Information on how to convert the list of captures into calls
+  //   to registered handlers with the specified parameters
+  // * `types`: How many static, dynamic or star segments in this route. Used to
+  //   decide which route to use if multiple registered routes match a path.
+  //
+  // Currently, State is implemented naively by looping over `nextStates` and
+  // comparing a character specification against a character. A more efficient
+  // implementation would use a hash of keys pointing at one or more next states.
+
   function State(charSpec) {
     this.charSpec = charSpec;
     this.nextStates = [];
   }
 
+  /** IF DEBUG
+  function debug(log) {
+    console.log(log);
+  }
+  
+  function debugState(state) {
+    return state.nextStates.map(function(n) {
+      if (n.nextStates.length === 0) { return "( " + n.debug() + " [accepting] )"; }
+      return "( " + n.debug() + " <then> " + n.nextStates.map(function(s) { return s.debug() }).join(" or ") + " )";
+    }).join(", ")
+  }
+  END IF **/
+
+  // This is a somewhat naive strategy, but should work in a lot of cases
+  // A better strategy would properly resolve /posts/:id/new and /posts/edit/:id.
+  //
+  // This strategy generally prefers more static and less dynamic matching.
+  // Specifically, it
+  //
+  //  * prefers fewer stars to more, then
+  //  * prefers using stars for less of the match to more, then
+  //  * prefers fewer dynamic segments to more, then
+  //  * prefers more static segments to more
   function sortSolutions(states) {
     return states.sort(function (a, b) {
       if (a.types.stars !== b.types.stars) {
@@ -104,7 +156,6 @@ System.register(["./dsl"], function (_export) {
     this.queryParams = queryParams || {};
   }
 
-
   function findHandler(state, path, queryParams) {
     var handlers = state.handlers,
         regex = state.regex;
@@ -142,10 +193,12 @@ System.register(["./dsl"], function (_export) {
       map = _dsl.map;
     }],
     execute: function () {
+      "use strict";
+
       specials = ["/", ".", "*", "+", "?", "|", "(", ")", "[", "]", "{", "}", "\\"];
       escapeRegex = new RegExp("(\\" + specials.join("|\\") + ")", "g");
       StaticSegment.prototype = {
-        eachChar: function (callback) {
+        eachChar: function eachChar(callback) {
           var string = this.string,
               ch;
 
@@ -155,47 +208,47 @@ System.register(["./dsl"], function (_export) {
           }
         },
 
-        regex: function () {
+        regex: function regex() {
           return this.string.replace(escapeRegex, "\\$1");
         },
 
-        generate: function () {
+        generate: function generate() {
           return this.string;
         }
       };DynamicSegment.prototype = {
-        eachChar: function (callback) {
+        eachChar: function eachChar(callback) {
           callback({ invalidChars: "/", repeat: true });
         },
 
-        regex: function () {
+        regex: function regex() {
           return "([^/]+)";
         },
 
-        generate: function (params) {
+        generate: function generate(params) {
           return params[this.name];
         }
       };StarSegment.prototype = {
-        eachChar: function (callback) {
+        eachChar: function eachChar(callback) {
           callback({ invalidChars: "", repeat: true });
         },
 
-        regex: function () {
+        regex: function regex() {
           return "(.+)";
         },
 
-        generate: function (params) {
+        generate: function generate(params) {
           return params[this.name];
         }
       };EpsilonSegment.prototype = {
-        eachChar: function () {},
-        regex: function () {
+        eachChar: function eachChar() {},
+        regex: function regex() {
           return "";
         },
-        generate: function () {
+        generate: function generate() {
           return "";
         }
       };State.prototype = {
-        get: function (charSpec) {
+        get: function get(charSpec) {
           var nextStates = this.nextStates;
 
           for (var i = 0, l = nextStates.length; i < l; i++) {
@@ -210,29 +263,41 @@ System.register(["./dsl"], function (_export) {
           }
         },
 
-        put: function (charSpec) {
+        put: function put(charSpec) {
           var state;
 
+          // If the character specification already exists in a child of the current
+          // state, just return that state.
           if (state = this.get(charSpec)) {
             return state;
           }
 
+          // Make a new state for the character spec
           state = new State(charSpec);
 
+          // Insert the new state as a child of the current state
           this.nextStates.push(state);
 
+          // If this character specification repeats, insert the new state as a child
+          // of itself. Note that this will not trigger an infinite loop because each
+          // transition during recognition consumes a character.
           if (charSpec.repeat) {
             state.nextStates.push(state);
           }
 
+          // Return the new state
           return state;
         },
-        match: function (ch) {
+
+        // Find a list of child states matching the next character
+        match: function match(ch) {
+          // DEBUG "Processing `" + ch + "`:"
           var nextStates = this.nextStates,
               child,
               charSpec,
               chars;
 
+          // DEBUG "  " + debugState(this)
           var returned = [];
 
           for (var i = 0, l = nextStates.length; i < l; i++) {
@@ -254,29 +319,40 @@ System.register(["./dsl"], function (_export) {
           return returned;
         }
 
+        /** IF DEBUG
+        , debug: function() {
+          var charSpec = this.charSpec,
+              debug = "[",
+              chars = charSpec.validChars || charSpec.invalidChars;
+           if (charSpec.invalidChars) { debug += "^"; }
+          debug += chars;
+          debug += "]";
+           if (charSpec.repeat) { debug += "+"; }
+           return debug;
+        }
+        END IF **/
       };
-
       oCreate = Object.create || function (proto) {
-        var F = function () {};
-
+        function F() {}
         F.prototype = proto;
         return new F();
       };
+
       RecognizeResults.prototype = oCreate({
         splice: Array.prototype.splice,
         slice: Array.prototype.slice,
         push: Array.prototype.push,
         length: 0,
         queryParams: null
-      });RouteRecognizer = _export("RouteRecognizer", function () {
+      }); // The main interface
+
+      RouteRecognizer = _export("RouteRecognizer", function RouteRecognizer() {
         this.rootState = new State();
         this.names = {};
       });
 
-
-
       RouteRecognizer.prototype = {
-        add: function (routes, options) {
+        add: function add(routes, options) {
           var currentState = this.rootState,
               regex = "^",
               types = { statics: 0, dynamics: 0, stars: 0 },
@@ -303,9 +379,11 @@ System.register(["./dsl"], function (_export) {
 
               isEmpty = false;
 
+              // Add a "/" for the new segment
               currentState = currentState.put({ validChars: "/" });
               regex += "/";
 
+              // Add a representation of the segment to the NFA and regex
               currentState = addSegment(currentState, segment);
               regex += segment.regex();
             }
@@ -331,7 +409,7 @@ System.register(["./dsl"], function (_export) {
           }
         },
 
-        handlersFor: function (name) {
+        handlersFor: function handlersFor(name) {
           var route = this.names[name],
               result = [];
           if (!route) {
@@ -345,11 +423,11 @@ System.register(["./dsl"], function (_export) {
           return result;
         },
 
-        hasRoute: function (name) {
+        hasRoute: function hasRoute(name) {
           return !!this.names[name];
         },
 
-        generate: function (name, params) {
+        generate: function generate(name, params) {
           var route = this.names[name],
               output = "";
           if (!route) {
@@ -380,7 +458,7 @@ System.register(["./dsl"], function (_export) {
           return output;
         },
 
-        generateQueryString: function (params, handlers) {
+        generateQueryString: function generateQueryString(params, handlers) {
           var pairs = [];
           var keys = [];
           for (var key in params) {
@@ -414,7 +492,7 @@ System.register(["./dsl"], function (_export) {
           return "?" + pairs.join("&");
         },
 
-        parseQueryString: function (queryString) {
+        parseQueryString: function parseQueryString(queryString) {
           var pairs = queryString.split("&"),
               queryParams = {};
           for (var i = 0; i < pairs.length; i++) {
@@ -426,6 +504,7 @@ System.register(["./dsl"], function (_export) {
             if (pair.length === 1) {
               value = "true";
             } else {
+              //Handle arrays
               if (keyLength > 2 && key.slice(keyLength - 2) === "[]") {
                 isArray = true;
                 key = key.slice(0, keyLength - 2);
@@ -444,7 +523,7 @@ System.register(["./dsl"], function (_export) {
           return queryParams;
         },
 
-        recognize: function (path) {
+        recognize: function recognize(path) {
           var states = [this.rootState],
               pathLen,
               i,
@@ -461,6 +540,8 @@ System.register(["./dsl"], function (_export) {
           }
 
           path = decodeURI(path);
+
+          // DEBUG GROUP path
 
           if (path.charAt(0) !== "/") {
             path = "/" + path;
@@ -479,6 +560,8 @@ System.register(["./dsl"], function (_export) {
             }
           }
 
+          // END DEBUG GROUP
+
           var solutions = [];
           for (i = 0, l = states.length; i < l; i++) {
             if (states[i].handlers) {
@@ -491,6 +574,8 @@ System.register(["./dsl"], function (_export) {
           var state = solutions[0];
 
           if (state && state.handlers) {
+            // if a trailing slash was dropped and a star segment is the last segment
+            // specified, put the trailing slash back
             if (isSlashDropped && state.regex.source.slice(-5) === "(.+)$") {
               path = path + "/";
             }

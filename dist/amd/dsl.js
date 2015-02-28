@@ -9,7 +9,7 @@ define(["exports"], function (exports) {
   }
 
   Target.prototype = {
-    to: function (target, callback) {
+    to: function to(target, callback) {
       var delegate = this.delegate;
 
       if (delegate && delegate.willAddRoute) {
@@ -35,11 +35,11 @@ define(["exports"], function (exports) {
   }
 
   Matcher.prototype = {
-    add: function (path, handler) {
+    add: function add(path, handler) {
       this.routes[path] = handler;
     },
 
-    addChild: function (path, target, callback, delegate) {
+    addChild: function addChild(path, target, callback, delegate) {
       var matcher = new Matcher(target);
       this.children[path] = matcher;
 
@@ -106,4 +106,8 @@ define(["exports"], function (exports) {
       }
     }, this);
   }
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
 });

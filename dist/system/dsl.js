@@ -1,6 +1,4 @@
 System.register([], function (_export) {
-  "use strict";
-
   _export("map", map);
 
   function Target(path, matcher, delegate) {
@@ -68,11 +66,14 @@ System.register([], function (_export) {
       }
     }, this);
   }
+
   return {
     setters: [],
     execute: function () {
+      "use strict";
+
       Target.prototype = {
-        to: function (target, callback) {
+        to: function to(target, callback) {
           var delegate = this.delegate;
 
           if (delegate && delegate.willAddRoute) {
@@ -90,11 +91,11 @@ System.register([], function (_export) {
           return this;
         }
       };Matcher.prototype = {
-        add: function (path, handler) {
+        add: function add(path, handler) {
           this.routes[path] = handler;
         },
 
-        addChild: function (path, target, callback, delegate) {
+        addChild: function addChild(path, target, callback, delegate) {
           var matcher = new Matcher(target);
           this.children[path] = matcher;
 
