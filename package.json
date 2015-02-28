@@ -18,10 +18,10 @@
     "url": "http://github.com/aurelia/route-recognizer"
   },
   "jspm": {
-    "main": "system/index",
+    "main": "index",
     "format": "register",
     "directories": {
-      "lib": "dist"
+      "lib": "dist/system"
     }
   },
   "devDependencies": {
