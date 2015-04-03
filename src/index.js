@@ -19,7 +19,7 @@ function isArray(test) {
 // characters.
 //
 // The `regex` method returns a regex fragment for the segment. If the
-// segment is a dynamic of star segment, the regex fragment also includes
+// segment is a dynamic or star segment, the regex fragment also includes
 // a capture.
 //
 // A character specification contains:
@@ -123,8 +123,8 @@ function parse(route, names, types) {
 // * `regex`: A regular expression that is used to extract parameters from paths
 //   that reached this accepting state.
 // * `handlers`: Information on how to convert the list of captures into calls
-//   to registered handlers with the specified parameters
-// * `types`: How many static, dynamic or star segments in this route. Used to
+//   to registered handlers with the specified parameters.
+// * `types`: How many static, dynamic, or star segments in this route. Used to
 //   decide which route to use if multiple registered routes match a path.
 //
 // Currently, State is implemented naively by looping over `nextStates` and
@@ -320,10 +320,10 @@ export var RouteRecognizer = function() {
 
 
 RouteRecognizer.prototype = {
-  add: function(routes, options) {
+  add: function(routes) {
     var currentState = this.rootState, regex = "^",
         types = { statics: 0, dynamics: 0, stars: 0 },
-        handlers = [], allSegments = [], name;
+        handlers = [], name;
 
     var isEmpty = true;
 
@@ -331,8 +331,6 @@ RouteRecognizer.prototype = {
       var route = routes[i], names = [];
 
       var segments = parse(route.path, names, types);
-
-      allSegments = allSegments.concat(segments);
 
       for (var j=0, m=segments.length; j<m; j++) {
         var segment = segments[j];
@@ -352,6 +350,11 @@ RouteRecognizer.prototype = {
 
       var handler = { handler: route.handler, names: names };
       handlers.push(handler);
+
+      this.names[route.handler.name] = {
+        segments: segments,
+        handlers: handlers
+      };
     }
 
     if (isEmpty) {
@@ -362,13 +365,6 @@ RouteRecognizer.prototype = {
     currentState.handlers = handlers;
     currentState.regex = new RegExp(regex + "$");
     currentState.types = types;
-
-    if (name = options && options.as) {
-      this.names[name] = {
-        segments: allSegments,
-        handlers: handlers
-      };
-    }
   },
 
   handlersFor: function(name) {
@@ -398,7 +394,12 @@ RouteRecognizer.prototype = {
       if (segment instanceof EpsilonSegment) { continue; }
 
       output += "/";
-      output += segment.generate(params);
+      var segmentValue = segment.generate(params);
+      if (segmentValue === undefined) {
+        throw new Error(`A value is required for route parameter '${segment.name}' in route '${name}'.`);
+      }
+
+      output += segmentValue;
     }
 
     if (output.charAt(0) !== '/') { output = '/' + output; }
