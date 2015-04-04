@@ -314,10 +314,6 @@ export class RouteRecognizer {
         names = [], routeName = route.handler.name,
         isEmpty = true;
 
-    if (!routeName) {
-      throw new Error('Route handler must specify a name.');
-    }
-
     var segments = parse(route.path, names, types);
     for (let segment of segments) {
       if (segment instanceof EpsilonSegment) {
@@ -342,10 +338,12 @@ export class RouteRecognizer {
 
     var handlers = [{ handler: route.handler, names: names }];
 
-    this.names[routeName] = {
-      segments: segments,
-      handlers: handlers
-    };
+    if (routeName) {
+      this.names[routeName] = {
+        segments: segments,
+        handlers: handlers
+      };
+    }
 
     currentState.handlers = handlers;
     currentState.regex = new RegExp(regex + '$');
