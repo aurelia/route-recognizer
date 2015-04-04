@@ -397,17 +397,18 @@ RouteRecognizer.prototype = {
     for (var i = 0, len = keys.length; i < len; i++) {
       key = keys[i];
       var value = params[key];
-      if (value === null) {
+      if (value === null || value === undefined) {
         continue;
       }
-      var pair = encodeURIComponent(key);
+
       if (isArray(value)) {
+        var arrayKey = encodeURIComponent(key) + '[]';
         for (var j = 0, l = value.length; j < l; j++) {
-          var arrayPair = key + '[]' + '=' + encodeURIComponent(value[j]);
+          var arrayPair = arrayKey + '=' + encodeURIComponent(value[j]);
           pairs.push(arrayPair);
         }
       } else {
-        pair += "=" + encodeURIComponent(value);
+        var pair = encodeURIComponent(key) + '=' + encodeURIComponent(value);
         pairs.push(pair);
       }
     }
