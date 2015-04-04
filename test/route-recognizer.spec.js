@@ -105,9 +105,9 @@ describe('route recognizer', () => {
     expect(gen({ a: [ 'b', 'c' ]})).toBe('?a[]=b&a[]=c');
     expect(gen({ '&': [ 'b', 'c' ]})).toBe('?%26[]=b&%26[]=c');
 
-    expect(gen({ a: '&'})).toBe('?a=%26');
-    expect(gen({ '&': 'a'})).toBe('?%26=a');
-    expect(gen({ a: true})).toBe('?a=true');
+    expect(gen({ a: '&' })).toBe('?a=%26');
+    expect(gen({ '&': 'a' })).toBe('?%26=a');
+    expect(gen({ a: true })).toBe('?a=true');
   });
 
   it('should parse query strings', () => {
