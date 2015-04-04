@@ -116,12 +116,14 @@ describe('route recognizer', () => {
     expect(parse('&')).toEqual({});
     expect(parse('?')).toEqual({});
 
-    expect(parse('a')).toEqual({ a: 'true' });
-    expect(parse('a=')).toEqual({ a: 'true' });
+    expect(parse('a')).toEqual({ a: true });
+    expect(parse('a&b')).toEqual({ a: true, b: true });
+    expect(parse('a=')).toEqual({ a: '' });
+    expect(parse('a=&b=')).toEqual({ a: '', b: '' });
 
     expect(parse('a=b')).toEqual({ a: 'b' });
     expect(parse('a=b&c=d')).toEqual({ a: 'b', c: 'd' });
-    expect(parse('a=b&&c=d')).toEqual({ a: 'c', c: 'd' });
+    expect(parse('a=b&&c=d')).toEqual({ a: 'b', c: 'd' });
     expect(parse('a=b&a=c')).toEqual({ a: 'c' });
 
     expect(parse('a=%26')).toEqual({ a: '&' });

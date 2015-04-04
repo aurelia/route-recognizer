@@ -415,10 +415,10 @@ RouteRecognizer.prototype = {
     return output;
   },
 
-  generateQueryString: function(params, handlers) {
+  generateQueryString: function(params) {
     var pairs = [];
     var keys = [];
-    for(var key in params) {
+    for (var key in params) {
       if (params.hasOwnProperty(key)) {
         keys.push(key);
       }
@@ -448,15 +448,27 @@ RouteRecognizer.prototype = {
   },
 
   parseQueryString: function(queryString) {
-    var pairs = queryString.split("&"), queryParams = {};
+    var queryParams = {};
+    if (!queryString || typeof queryString !== 'string') {
+      return queryParams;
+    }
+
+    if (queryString.charAt(0) === '?') {
+      queryString = queryString.substr(1);
+    }
+
+    var pairs = queryString.split('&');
     for(var i=0; i < pairs.length; i++) {
       var pair      = pairs[i].split('='),
           key       = decodeURIComponent(pair[0]),
           keyLength = key.length,
           isArray = false,
           value;
-      if (pair.length === 1) {
-        value = 'true';
+
+      if (!key) {
+        continue;
+      } else if (pair.length === 1) {
+        value = true;
       } else {
         //Handle arrays
         if (keyLength > 2 && key.slice(keyLength -2) === '[]') {
