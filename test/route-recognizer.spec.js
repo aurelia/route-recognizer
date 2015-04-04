@@ -1,6 +1,7 @@
 import { RouteRecognizer } from '../src/index';
 
 const staticRoute = {'path': 'static','handler': {'name': 'static'}};
+const dynamicRoute = {'path': 'dynamic/:id','handler': {'name': 'dynamic'}};
 
 const routeTestData = [{
     title: 'empty path routes',
@@ -16,7 +17,7 @@ const routeTestData = [{
     params: {}
   }, {
     title: 'dynamic routes',
-    route: {'path': 'dynamic/:id','handler': {'name': 'dynamic'}},
+    route: dynamicRoute,
     isDynamic: true,
     path: '/dynamic/test',
     params: { id: 'test' }
@@ -79,6 +80,15 @@ describe('route recognizer', () => {
         .toBe(routeTest.path);
     });
   }
+
+  it('should require dynamic segment parameters when generating', () => {
+    let recognizer = new RouteRecognizer();
+    recognizer.add([dynamicRoute]);
+
+    expect(() => recognizer.generate('dynamic')).toThrow();
+    expect(() => recognizer.generate('dynamic', {})).toThrow();
+    expect(() => recognizer.generate('dynamic', { id: null })).toThrow();
+  });
 
   it('should find handlers by route name', () => {
     let recognizer = new RouteRecognizer();

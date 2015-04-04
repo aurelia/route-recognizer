@@ -383,7 +383,7 @@ export class RouteRecognizer {
 
       output += '/';
       var segmentValue = segment.generate(params);
-      if (segmentValue === undefined) {
+      if (segmentValue === null || segmentValue === undefined) {
         throw new Error(`A value is required for route parameter '${segment.name}' in route '${name}'.`);
       }
 
