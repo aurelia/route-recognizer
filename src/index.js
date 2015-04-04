@@ -320,51 +320,52 @@ export var RouteRecognizer = function() {
 
 
 RouteRecognizer.prototype = {
-  add: function(routes) {
+  add: function(route) {
+    if (Array.isArray(route)) {
+      for (let r of route) {
+        this.add(r);
+      }
+
+      return;
+    }
+
     var currentState = this.rootState, regex = "^",
         types = { statics: 0, dynamics: 0, stars: 0 },
-        handlers = [], name;
+        names = [], routeName = route.handler.name,
+        isEmpty = true;
 
-    var isEmpty = true;
+    if (!routeName) {
+      throw new Error("Route handler must specify a name.");
+    }
 
-    for (var i=0, l=routes.length; i<l; i++) {
-      var route = routes[i], names = [], routeName = route.handler.name;
-
-      if (!routeName) {
-        throw new Error('Route handler must specify a name.');
+    var segments = parse(route.path, names, types);
+    for (let segment of segments) {
+      if (segment instanceof EpsilonSegment) {
+        continue;
       }
 
-      var segments = parse(route.path, names, types);
+      isEmpty = false;
 
-      for (var j=0, m=segments.length; j<m; j++) {
-        var segment = segments[j];
+      // Add a "/" for the new segment
+      currentState = currentState.put({ validChars: "/" });
+      regex += "/";
 
-        if (segment instanceof EpsilonSegment) { continue; }
-
-        isEmpty = false;
-
-        // Add a "/" for the new segment
-        currentState = currentState.put({ validChars: "/" });
-        regex += "/";
-
-        // Add a representation of the segment to the NFA and regex
-        currentState = addSegment(currentState, segment);
-        regex += segment.regex();
-      }
-
-      var handler = { handler: route.handler, names: names };
-      handlers.push(handler);
-
-      this.names[routeName] = {
-        segments: segments,
-        handlers: handlers
-      };
+      // Add a representation of the segment to the NFA and regex
+      currentState = addSegment(currentState, segment);
+      regex += segment.regex();
     }
 
     if (isEmpty) {
       currentState = currentState.put({ validChars: "/" });
       regex += "/";
     }
+
+    var handlers = [{ handler: route.handler, names: names }];
+
+    this.names[routeName] = {
+      segments: segments,
+      handlers: handlers
+    };
 
     currentState.handlers = handlers;
     currentState.regex = new RegExp(regex + "$");
