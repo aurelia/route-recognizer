@@ -328,7 +328,11 @@ RouteRecognizer.prototype = {
     var isEmpty = true;
 
     for (var i=0, l=routes.length; i<l; i++) {
-      var route = routes[i], names = [];
+      var route = routes[i], names = [], routeName = route.handler.name;
+
+      if (!routeName) {
+        throw new Error('Route handler must specify a name.');
+      }
 
       var segments = parse(route.path, names, types);
 
@@ -351,7 +355,7 @@ RouteRecognizer.prototype = {
       var handler = { handler: route.handler, names: names };
       handlers.push(handler);
 
-      this.names[route.handler.name] = {
+      this.names[routeName] = {
         segments: segments,
         handlers: handlers
       };

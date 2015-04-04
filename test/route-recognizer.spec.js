@@ -50,6 +50,12 @@ describe('route recognizer', () => {
     expect(recognizer.recognize('/notfound')).toBeUndefined();
   });
 
+  it('should require route names to be specified', () => {
+    let recognizer = new RouteRecognizer();
+
+    expect(() => recognizer.add([{'path': 'b','handler': {}}])).toThrow();
+  });
+
   for (let routeTest of routeTestData) {
     it(`should recognize ${routeTest.title}`, () => {
       let recognizer = new RouteRecognizer();
