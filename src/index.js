@@ -7,10 +7,6 @@ var specials = [
 
 var escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
 
-function isArray(test) {
-  return Object.prototype.toString.call(test) === '[object Array]';
-}
-
 // A Segment represents a segment in the original route description.
 // Each Segment type provides an `eachChar` and `regex` method.
 //
@@ -422,7 +418,7 @@ export class RouteRecognizer {
         continue;
       }
 
-      if (isArray(value)) {
+      if (Array.isArray(value)) {
         var arrayKey = `${encode(key)}[]`;
         for (var j = 0, l = value.length; j < l; j++) {
           pairs.push(`${arrayKey}=${encode(value[j])}`);
