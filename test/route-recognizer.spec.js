@@ -1,4 +1,5 @@
 import { RouteRecognizer } from '../src/index';
+import core from 'core-js';
 
 const staticRoute = {'path': 'static','handler': {'name': 'static'}};
 const dynamicRoute = {'path': 'dynamic/:id','handler': {'name': 'dynamic'}};
@@ -27,6 +28,12 @@ const routeTestData = [{
     isDynamic: true,
     path: '/dynamic/foo/bar',
     params: { id: 'foo', other: 'bar' }
+  }, {
+    title: 'duplicate dynamic routes',
+    route: { 'path': 'dynamic/:id/:id','handler': { 'name': 'dynamic' }},
+    isDynamic: true,
+    path: '/dynamic/foo/foo',
+    params: { id: 'foo' }
   }, {
     title: 'star routes',
     route: { 'path': 'star/*path','handler': { 'name': 'star' }},
@@ -88,6 +95,19 @@ describe('route recognizer', () => {
     expect(() => recognizer.generate('dynamic')).toThrow();
     expect(() => recognizer.generate('dynamic', {})).toThrow();
     expect(() => recognizer.generate('dynamic', { id: null })).toThrow();
+  });
+
+  it('should generate URIs with extra parameters added to the query string', () => {
+    let recognizer = new RouteRecognizer();
+    recognizer.add([staticRoute]);
+    recognizer.add([dynamicRoute]);
+
+    expect(recognizer.generate('static')).toBe('/static');
+    expect(recognizer.generate('static', {})).toBe('/static');
+    expect(recognizer.generate('static', { id: 1 })).toBe('/static?id=1');
+
+    expect(recognizer.generate('dynamic', { id: 1 })).toBe('/dynamic/1');
+    expect(recognizer.generate('dynamic', { id: 1, test: 2 })).toBe('/dynamic/1?test=2');
   });
 
   it('should find handlers by route name', () => {

@@ -57,7 +57,8 @@ class DynamicSegment {
     return '([^/]+)';
   }
 
-  generate(params) {
+  generate(params, consumed) {
+    consumed[this.name] = true;
     return params[this.name];
   }
 }
@@ -75,7 +76,8 @@ class StarSegment {
     return '(.+)';
   }
 
-  generate(params) {
+  generate(params, consumed) {
+    consumed[this.name] = true;
     return params[this.name];
   }
 }
@@ -366,7 +368,10 @@ export class RouteRecognizer {
   }
 
   generate(name, params) {
-    var route = this.names[name], output = '';
+    params = Object.assign({}, params);
+
+    var route = this.names[name],
+        consumed = {}, output = '';
 
     if (!route) {
       throw new Error(`There is no route named ${name}`);
@@ -382,7 +387,7 @@ export class RouteRecognizer {
       }
 
       output += '/';
-      var segmentValue = segment.generate(params);
+      var segmentValue = segment.generate(params, consumed);
       if (segmentValue === null || segmentValue === undefined) {
         throw new Error(`A value is required for route parameter '${segment.name}' in route '${name}'.`);
       }
@@ -394,9 +399,12 @@ export class RouteRecognizer {
       output = '/' + output;
     }
 
-    if (params && params.queryParams) {
-      output += this.generateQueryString(params.queryParams, route.handlers);
+    // remove params used in the path and add the rest to the querystring
+    for (var param in consumed) {
+      delete params[param];
     }
+
+    output += this.generateQueryString(params);
 
     return output;
   }
