@@ -8,7 +8,7 @@ System.config({
 
 System.config({
   "map": {
-    "core-js": "npm:core-js@0.8.1",
+    "core-js": "github:zloirock/core-js@0.8.1",
     "github:jspm/nodelibs-process@0.1.1": {
       "process": "npm:process@0.10.1"
     },

@@ -1,3 +1,5 @@
+import core from 'core-js';
+
 class Target {
   constructor(path, matcher, delegate) {
     this.path = path;

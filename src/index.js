@@ -1,3 +1,4 @@
+import core from 'core-js';
 import {map} from './dsl';
 
 var specials = [

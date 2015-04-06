@@ -24,7 +24,7 @@
       "lib": "dist/system"
     },
     "dependencies": {
-      "core-js": "npm:core-js@^0.8.1"
+      "core-js": "github:zloirock/core-js@^0.8.1"
     }
   },
   "devDependencies": {
