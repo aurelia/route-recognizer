@@ -1,3 +1,4 @@
+import core from 'core-js';
 import {map} from './dsl';
 
 var specials = [
@@ -7,10 +8,6 @@ var specials = [
 
 var escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
 
-function isArray(test) {
-  return Object.prototype.toString.call(test) === "[object Array]";
-}
-
 // A Segment represents a segment in the original route description.
 // Each Segment type provides an `eachChar` and `regex` method.
 //
@@ -19,7 +16,7 @@ function isArray(test) {
 // characters.
 //
 // The `regex` method returns a regex fragment for the segment. If the
-// segment is a dynamic of star segment, the regex fragment also includes
+// segment is a dynamic or star segment, the regex fragment also includes
 // a capture.
 //
 // A character specification contains:
@@ -28,72 +25,81 @@ function isArray(test) {
 // * `invalidChars`: a String with a list of all invalid characters
 // * `repeat`: true if the character specification can repeat
 
-function StaticSegment(string) { this.string = string; }
-StaticSegment.prototype = {
-  eachChar: function(callback) {
-    var string = this.string, ch;
+class StaticSegment {
+  constructor(string) {
+    this.string = string;
+  }
 
-    for (var i=0, l=string.length; i<l; i++) {
-      ch = string.charAt(i);
+  eachChar(callback) {
+    for (let ch of this.string) {
       callback({ validChars: ch });
     }
-  },
+  }
 
-  regex: function() {
+  regex() {
     return this.string.replace(escapeRegex, '\\$1');
-  },
+  }
 
-  generate: function() {
+  generate() {
     return this.string;
   }
-};
+}
 
-function DynamicSegment(name) { this.name = name; }
-DynamicSegment.prototype = {
-  eachChar: function(callback) {
-    callback({ invalidChars: "/", repeat: true });
-  },
+class DynamicSegment {
+  constructor(name) {
+    this.name = name;
+  }
 
-  regex: function() {
-    return "([^/]+)";
-  },
+  eachChar(callback) {
+    callback({ invalidChars: '/', repeat: true });
+  }
 
-  generate: function(params) {
+  regex() {
+    return '([^/]+)';
+  }
+
+  generate(params, consumed) {
+    consumed[this.name] = true;
     return params[this.name];
   }
-};
+}
 
-function StarSegment(name) { this.name = name; }
-StarSegment.prototype = {
-  eachChar: function(callback) {
-    callback({ invalidChars: "", repeat: true });
-  },
+class StarSegment {
+  constructor(name) {
+    this.name = name;
+  }
 
-  regex: function() {
-    return "(.+)";
-  },
+  eachChar(callback) {
+    callback({ invalidChars: '', repeat: true });
+  }
 
-  generate: function(params) {
+  regex() {
+    return '(.+)';
+  }
+
+  generate(params, consumed) {
+    consumed[this.name] = true;
     return params[this.name];
   }
-};
+}
 
-function EpsilonSegment() {}
-EpsilonSegment.prototype = {
-  eachChar: function() {},
-  regex: function() { return ""; },
-  generate: function() { return ""; }
-};
+class EpsilonSegment {
+  eachChar() {}
+  regex() { return ''; }
+  generate() { return ''; }
+}
 
 function parse(route, names, types) {
-  // normalize route as not starting with a "/". Recognition will
+  // normalize route as not starting with a '/'. Recognition will
   // also normalize.
-  if (route.charAt(0) === "/") { route = route.substr(1); }
+  if (route.charAt(0) === '/') {
+    route = route.substr(1);
+  }
 
-  var segments = route.split("/"), results = [];
+  var results = [];
 
-  for (var i=0, l=segments.length; i<l; i++) {
-    var segment = segments[i], match;
+  for (let segment of route.split('/')) {
+    let match;
 
     if (match = segment.match(/^:([^\/]+)$/)) {
       results.push(new DynamicSegment(match[1]));
@@ -103,7 +109,7 @@ function parse(route, names, types) {
       results.push(new StarSegment(match[1]));
       names.push(match[1]);
       types.stars++;
-    } else if(segment === "") {
+    } else if(segment === '') {
       results.push(new EpsilonSegment());
     } else {
       results.push(new StaticSegment(segment));
@@ -123,39 +129,39 @@ function parse(route, names, types) {
 // * `regex`: A regular expression that is used to extract parameters from paths
 //   that reached this accepting state.
 // * `handlers`: Information on how to convert the list of captures into calls
-//   to registered handlers with the specified parameters
-// * `types`: How many static, dynamic or star segments in this route. Used to
+//   to registered handlers with the specified parameters.
+// * `types`: How many static, dynamic, or star segments in this route. Used to
 //   decide which route to use if multiple registered routes match a path.
 //
 // Currently, State is implemented naively by looping over `nextStates` and
 // comparing a character specification against a character. A more efficient
 // implementation would use a hash of keys pointing at one or more next states.
 
-function State(charSpec) {
-  this.charSpec = charSpec;
-  this.nextStates = [];
-}
+class State {
+  constructor(charSpec) {
+    this.charSpec = charSpec;
+    this.nextStates = [];
+  }
 
-State.prototype = {
-  get: function(charSpec) {
-    var nextStates = this.nextStates;
+  get(charSpec) {
+    for (let child of this.nextStates) {
+      var isEqual = child.charSpec.validChars === charSpec.validChars &&
+                    child.charSpec.invalidChars === charSpec.invalidChars;
 
-    for (var i=0, l=nextStates.length; i<l; i++) {
-      var child = nextStates[i];
-
-      var isEqual = child.charSpec.validChars === charSpec.validChars;
-      isEqual = isEqual && child.charSpec.invalidChars === charSpec.invalidChars;
-
-      if (isEqual) { return child; }
+      if (isEqual) {
+        return child;
+      }
     }
-  },
+  }
 
-  put: function(charSpec) {
-    var state;
+  put(charSpec) {
+    var state = this.get(charSpec);
 
     // If the character specification already exists in a child of the current
     // state, just return that state.
-    if (state = this.get(charSpec)) { return state; }
+    if (state) {
+      return state;
+    }
 
     // Make a new state for the character spec
     state = new State(charSpec);
@@ -172,61 +178,32 @@ State.prototype = {
 
     // Return the new state
     return state;
-  },
+  }
 
   // Find a list of child states matching the next character
-  match: function(ch) {
-    // DEBUG "Processing `" + ch + "`:"
-    var nextStates = this.nextStates,
+  match(ch) {
+    var nextStates = this.nextStates, results = [],
         child, charSpec, chars;
 
-    // DEBUG "  " + debugState(this)
-    var returned = [];
-
-    for (var i=0, l=nextStates.length; i<l; i++) {
+    for (var i = 0, l = nextStates.length; i < l; i++) {
       child = nextStates[i];
 
       charSpec = child.charSpec;
 
       if (typeof (chars = charSpec.validChars) !== 'undefined') {
-        if (chars.indexOf(ch) !== -1) { returned.push(child); }
+        if (chars.indexOf(ch) !== -1) {
+          results.push(child);
+        }
       } else if (typeof (chars = charSpec.invalidChars) !== 'undefined') {
-        if (chars.indexOf(ch) === -1) { returned.push(child); }
+        if (chars.indexOf(ch) === -1) {
+          results.push(child);
+        }
       }
     }
 
-    return returned;
+    return results;
   }
-
-  /** IF DEBUG
-  , debug: function() {
-    var charSpec = this.charSpec,
-        debug = "[",
-        chars = charSpec.validChars || charSpec.invalidChars;
-
-    if (charSpec.invalidChars) { debug += "^"; }
-    debug += chars;
-    debug += "]";
-
-    if (charSpec.repeat) { debug += "+"; }
-
-    return debug;
-  }
-  END IF **/
 };
-
-/** IF DEBUG
-function debug(log) {
-  console.log(log);
-}
-
-function debugState(state) {
-  return state.nextStates.map(function(n) {
-    if (n.nextStates.length === 0) { return "( " + n.debug() + " [accepting] )"; }
-    return "( " + n.debug() + " <then> " + n.nextStates.map(function(s) { return s.debug() }).join(" or ") + " )";
-  }).join(", ")
-}
-END IF **/
 
 // This is a somewhat naive strategy, but should work in a lot of cases
 // A better strategy would properly resolve /posts/:id/new and /posts/edit/:id.
@@ -239,16 +216,27 @@ END IF **/
 //  * prefers fewer dynamic segments to more, then
 //  * prefers more static segments to more
 function sortSolutions(states) {
-  return states.sort(function(a, b) {
-    if (a.types.stars !== b.types.stars) { return a.types.stars - b.types.stars; }
-
-    if (a.types.stars) {
-      if (a.types.statics !== b.types.statics) { return b.types.statics - a.types.statics; }
-      if (a.types.dynamics !== b.types.dynamics) { return b.types.dynamics - a.types.dynamics; }
+  return states.sort((a, b) => {
+    if (a.types.stars !== b.types.stars) {
+      return a.types.stars - b.types.stars;
     }
 
-    if (a.types.dynamics !== b.types.dynamics) { return a.types.dynamics - b.types.dynamics; }
-    if (a.types.statics !== b.types.statics) { return b.types.statics - a.types.statics; }
+    if (a.types.stars) {
+      if (a.types.statics !== b.types.statics) {
+        return b.types.statics - a.types.statics;
+      }
+      if (a.types.dynamics !== b.types.dynamics) {
+        return b.types.dynamics - a.types.dynamics;
+      }
+    }
+
+    if (a.types.dynamics !== b.types.dynamics) {
+      return a.types.dynamics - b.types.dynamics;
+    }
+
+    if (a.types.statics !== b.types.statics) {
+      return b.types.statics - a.types.statics;
+    }
 
     return 0;
   });
@@ -257,7 +245,7 @@ function sortSolutions(states) {
 function recognizeChar(states, ch) {
   var nextStates = [];
 
-  for (var i=0, l=states.length; i<l; i++) {
+  for (var i = 0, l = states.length; i < l; i++) {
     var state = states[i];
 
     nextStates = nextStates.concat(state.match(ch));
@@ -266,32 +254,25 @@ function recognizeChar(states, ch) {
   return nextStates;
 }
 
-var oCreate = Object.create || function(proto) {
-  function F() {}
-  F.prototype = proto;
-  return new F();
-};
-
-function RecognizeResults(queryParams) {
-  this.queryParams = queryParams || {};
+class RecognizeResults {
+  constructor(queryParams) {
+    this.splice = Array.prototype.splice;
+    this.slice = Array.prototype.slice;
+    this.push = Array.prototype.push;
+    this.length = 0;
+    this.queryParams = queryParams || {};
+  }
 }
-RecognizeResults.prototype = oCreate({
-  splice: Array.prototype.splice,
-  slice:  Array.prototype.slice,
-  push:   Array.prototype.push,
-  length: 0,
-  queryParams: null
-});
 
 function findHandler(state, path, queryParams) {
   var handlers = state.handlers, regex = state.regex;
   var captures = path.match(regex), currentCapture = 1;
   var result = new RecognizeResults(queryParams);
 
-  for (var i=0, l=handlers.length; i<l; i++) {
+  for (var i = 0, l = handlers.length; i < l; i++) {
     var handler = handlers[i], names = handler.names, params = {};
 
-    for (var j=0, m=names.length; j<m; j++) {
+    for (var j = 0, m = names.length; j < m; j++) {
       params[names[j]] = captures[currentCapture++];
     }
 
@@ -302,9 +283,7 @@ function findHandler(state, path, queryParams) {
 }
 
 function addSegment(currentState, segment) {
-  segment.eachChar(function(ch) {
-    var state;
-
+  segment.eachChar(ch => {
     currentState = currentState.put(ch);
   });
 
@@ -313,145 +292,182 @@ function addSegment(currentState, segment) {
 
 // The main interface
 
-export var RouteRecognizer = function() {
-  this.rootState = new State();
-  this.names = {};
-};
+export class RouteRecognizer {
+  constructor() {
+    this.map = map;
+    this.rootState = new State();
+    this.names = {};
+  }
 
-
-RouteRecognizer.prototype = {
-  add: function(routes, options) {
-    var currentState = this.rootState, regex = "^",
-        types = { statics: 0, dynamics: 0, stars: 0 },
-        handlers = [], allSegments = [], name;
-
-    var isEmpty = true;
-
-    for (var i=0, l=routes.length; i<l; i++) {
-      var route = routes[i], names = [];
-
-      var segments = parse(route.path, names, types);
-
-      allSegments = allSegments.concat(segments);
-
-      for (var j=0, m=segments.length; j<m; j++) {
-        var segment = segments[j];
-
-        if (segment instanceof EpsilonSegment) { continue; }
-
-        isEmpty = false;
-
-        // Add a "/" for the new segment
-        currentState = currentState.put({ validChars: "/" });
-        regex += "/";
-
-        // Add a representation of the segment to the NFA and regex
-        currentState = addSegment(currentState, segment);
-        regex += segment.regex();
+  add(route) {
+    if (Array.isArray(route)) {
+      for (let r of route) {
+        this.add(r);
       }
 
-      var handler = { handler: route.handler, names: names };
-      handlers.push(handler);
+      return;
+    }
+
+    var currentState = this.rootState, regex = '^',
+        types = { statics: 0, dynamics: 0, stars: 0 },
+        names = [], routeName = route.handler.name,
+        isEmpty = true;
+
+    var segments = parse(route.path, names, types);
+    for (let segment of segments) {
+      if (segment instanceof EpsilonSegment) {
+        continue;
+      }
+
+      isEmpty = false;
+
+      // Add a '/' for the new segment
+      currentState = currentState.put({ validChars: '/' });
+      regex += '/';
+
+      // Add a representation of the segment to the NFA and regex
+      currentState = addSegment(currentState, segment);
+      regex += segment.regex();
     }
 
     if (isEmpty) {
-      currentState = currentState.put({ validChars: "/" });
-      regex += "/";
+      currentState = currentState.put({ validChars: '/' });
+      regex += '/';
     }
 
-    currentState.handlers = handlers;
-    currentState.regex = new RegExp(regex + "$");
-    currentState.types = types;
+    var handlers = [{ handler: route.handler, names: names }];
 
-    if (name = options && options.as) {
-      this.names[name] = {
-        segments: allSegments,
+    if (routeName) {
+      this.names[routeName] = {
+        segments: segments,
         handlers: handlers
       };
     }
-  },
 
-  handlersFor: function(name) {
-    var route = this.names[name], result = [];
-    if (!route) { throw new Error("There is no route named " + name); }
+    currentState.handlers = handlers;
+    currentState.regex = new RegExp(regex + '$');
+    currentState.types = types;
+
+    return currentState;
+  }
+
+  handlersFor(name) {
+    var route = this.names[name],
+        result = [];
+
+    if (!route) {
+      throw new Error(`There is no route named ${name}`);
+    }
 
     for (var i=0, l=route.handlers.length; i<l; i++) {
       result.push(route.handlers[i]);
     }
 
     return result;
-  },
+  }
 
-  hasRoute: function(name) {
+  hasRoute(name) {
     return !!this.names[name];
-  },
+  }
 
-  generate: function(name, params) {
-    var route = this.names[name], output = "";
-    if (!route) { throw new Error("There is no route named " + name); }
+  generate(name, params) {
+    params = Object.assign({}, params);
+
+    var route = this.names[name],
+        consumed = {}, output = '';
+
+    if (!route) {
+      throw new Error(`There is no route named ${name}`);
+    }
 
     var segments = route.segments;
 
-    for (var i=0, l=segments.length; i<l; i++) {
+    for (var i = 0, l = segments.length; i < l; i++) {
       var segment = segments[i];
 
-      if (segment instanceof EpsilonSegment) { continue; }
+      if (segment instanceof EpsilonSegment) {
+        continue;
+      }
 
-      output += "/";
-      output += segment.generate(params);
+      output += '/';
+      var segmentValue = segment.generate(params, consumed);
+      if (segmentValue === null || segmentValue === undefined) {
+        throw new Error(`A value is required for route parameter '${segment.name}' in route '${name}'.`);
+      }
+
+      output += segmentValue;
     }
 
-    if (output.charAt(0) !== '/') { output = '/' + output; }
-
-    if (params && params.queryParams) {
-      output += this.generateQueryString(params.queryParams, route.handlers);
+    if (output.charAt(0) !== '/') {
+      output = '/' + output;
     }
+
+    // remove params used in the path and add the rest to the querystring
+    for (var param in consumed) {
+      delete params[param];
+    }
+
+    output += this.generateQueryString(params);
 
     return output;
-  },
+  }
 
-  generateQueryString: function(params, handlers) {
-    var pairs = [];
-    var keys = [];
-    for(var key in params) {
+  generateQueryString(params) {
+    var pairs = [], keys = [], encode = encodeURIComponent;
+
+    for (var key in params) {
       if (params.hasOwnProperty(key)) {
         keys.push(key);
       }
     }
+
     keys.sort();
     for (var i = 0, len = keys.length; i < len; i++) {
       key = keys[i];
       var value = params[key];
-      if (value === null) {
+      if (value === null || value === undefined) {
         continue;
       }
-      var pair = encodeURIComponent(key);
-      if (isArray(value)) {
+
+      if (Array.isArray(value)) {
+        var arrayKey = `${encode(key)}[]`;
         for (var j = 0, l = value.length; j < l; j++) {
-          var arrayPair = key + '[]' + '=' + encodeURIComponent(value[j]);
-          pairs.push(arrayPair);
+          pairs.push(`${arrayKey}=${encode(value[j])}`);
         }
       } else {
-        pair += "=" + encodeURIComponent(value);
-        pairs.push(pair);
+        pairs.push(`${encode(key)}=${encode(value)}`);
       }
     }
 
-    if (pairs.length === 0) { return ''; }
+    if (pairs.length === 0) {
+      return '';
+    }
 
-    return "?" + pairs.join("&");
-  },
+    return '?' + pairs.join('&');
+  }
 
-  parseQueryString: function(queryString) {
-    var pairs = queryString.split("&"), queryParams = {};
-    for(var i=0; i < pairs.length; i++) {
-      var pair      = pairs[i].split('='),
-          key       = decodeURIComponent(pair[0]),
+  parseQueryString(queryString) {
+    var queryParams = {};
+    if (!queryString || typeof queryString !== 'string') {
+      return queryParams;
+    }
+
+    if (queryString.charAt(0) === '?') {
+      queryString = queryString.substr(1);
+    }
+
+    var pairs = queryString.split('&');
+    for(var i = 0; i < pairs.length; i++) {
+      var pair = pairs[i].split('='),
+          key = decodeURIComponent(pair[0]),
           keyLength = key.length,
           isArray = false,
           value;
-      if (pair.length === 1) {
-        value = 'true';
+
+      if (!key) {
+        continue;
+      } else if (pair.length === 1) {
+        value = true;
       } else {
         //Handle arrays
         if (keyLength > 2 && key.slice(keyLength -2) === '[]') {
@@ -470,9 +486,9 @@ RouteRecognizer.prototype = {
       }
     }
     return queryParams;
-  },
+  }
 
-  recognize: function(path) {
+  recognize(path) {
     var states = [ this.rootState ],
         pathLen, i, l, queryStart, queryParams = {},
         isSlashDropped = false;
@@ -486,41 +502,40 @@ RouteRecognizer.prototype = {
 
     path = decodeURI(path);
 
-    // DEBUG GROUP path
-
-    if (path.charAt(0) !== "/") { path = "/" + path; }
+    if (path.charAt(0) !== '/') {
+      path = '/' + path;
+    }
 
     pathLen = path.length;
-    if (pathLen > 1 && path.charAt(pathLen - 1) === "/") {
+    if (pathLen > 1 && path.charAt(pathLen - 1) === '/') {
       path = path.substr(0, pathLen - 1);
       isSlashDropped = true;
     }
 
-    for (i=0, l=path.length; i<l; i++) {
+    for (i = 0, l = path.length; i < l; i++) {
       states = recognizeChar(states, path.charAt(i));
-      if (!states.length) { break; }
+      if (!states.length) {
+        break;
+      }
     }
-
-    // END DEBUG GROUP
 
     var solutions = [];
     for (i=0, l=states.length; i<l; i++) {
-      if (states[i].handlers) { solutions.push(states[i]); }
+      if (states[i].handlers) {
+        solutions.push(states[i]);
+      }
     }
 
     states = sortSolutions(solutions);
 
     var state = solutions[0];
-
     if (state && state.handlers) {
       // if a trailing slash was dropped and a star segment is the last segment
       // specified, put the trailing slash back
-      if (isSlashDropped && state.regex.source.slice(-5) === "(.+)$") {
-        path = path + "/";
+      if (isSlashDropped && state.regex.source.slice(-5) === '(.+)$') {
+        path = path + '/';
       }
       return findHandler(state, path, queryParams);
     }
   }
-};
-
-RouteRecognizer.prototype.map = map;
+}

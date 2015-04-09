@@ -1,56 +1,85 @@
-"use strict";
+'use strict';
 
+var _interopRequireWildcard = function (obj) { return obj && obj.__esModule ? obj : { 'default': obj }; };
+
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
 exports.map = map;
-function Target(path, matcher, delegate) {
-  this.path = path;
-  this.matcher = matcher;
-  this.delegate = delegate;
-}
 
-Target.prototype = {
-  to: function to(target, callback) {
-    var delegate = this.delegate;
+var _core = require('core-js');
 
-    if (delegate && delegate.willAddRoute) {
-      target = delegate.willAddRoute(this.matcher.target, target);
-    }
+var _core2 = _interopRequireWildcard(_core);
 
-    this.matcher.add(this.path, target);
+var Target = (function () {
+  function Target(path, matcher, delegate) {
+    _classCallCheck(this, Target);
 
-    if (callback) {
-      if (callback.length === 0) {
-        throw new Error("You must have an argument in the function passed to `to`");
+    this.path = path;
+    this.matcher = matcher;
+    this.delegate = delegate;
+  }
+
+  _createClass(Target, [{
+    key: 'to',
+    value: function to(target, callback) {
+      var delegate = this.delegate;
+
+      if (delegate && delegate.willAddRoute) {
+        target = delegate.willAddRoute(this.matcher.target, target);
       }
-      this.matcher.addChild(this.path, target, callback, this.delegate);
+
+      this.matcher.add(this.path, target);
+
+      if (callback) {
+        if (callback.length === 0) {
+          throw new Error('You must have an argument in the function passed to `to`');
+        }
+        this.matcher.addChild(this.path, target, callback, this.delegate);
+      }
+      return this;
     }
-    return this;
+  }]);
+
+  return Target;
+})();
+
+var Matcher = (function () {
+  function Matcher(target) {
+    _classCallCheck(this, Matcher);
+
+    this.routes = {};
+    this.children = {};
+    this.target = target;
   }
-};
 
-function Matcher(target) {
-  this.routes = {};
-  this.children = {};
-  this.target = target;
-}
-
-Matcher.prototype = {
-  add: function add(path, handler) {
-    this.routes[path] = handler;
-  },
-
-  addChild: function addChild(path, target, callback, delegate) {
-    var matcher = new Matcher(target);
-    this.children[path] = matcher;
-
-    var match = generateMatch(path, matcher, delegate);
-
-    if (delegate && delegate.contextEntered) {
-      delegate.contextEntered(target, match);
+  _createClass(Matcher, [{
+    key: 'add',
+    value: function add(path, handler) {
+      this.routes[path] = handler;
     }
+  }, {
+    key: 'addChild',
+    value: function addChild(path, target, callback, delegate) {
+      var matcher = new Matcher(target);
+      this.children[path] = matcher;
 
-    callback(match);
-  }
-};
+      var match = generateMatch(path, matcher, delegate);
+
+      if (delegate && delegate.contextEntered) {
+        delegate.contextEntered(target, match);
+      }
+
+      callback(match);
+    }
+  }]);
+
+  return Matcher;
+})();
 
 function generateMatch(startingPath, matcher, delegate) {
   return function (path, nestedCallback) {
@@ -95,7 +124,7 @@ function eachRoute(baseRoute, matcher, callback, binding) {
 function map(callback, addRouteCallback) {
   var matcher = new Matcher();
 
-  callback(generateMatch("", matcher, this.delegate));
+  callback(generateMatch('', matcher, this.delegate));
 
   eachRoute([], matcher, function (route) {
     if (addRouteCallback) {
@@ -105,7 +134,3 @@ function map(callback, addRouteCallback) {
     }
   }, this);
 }
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});

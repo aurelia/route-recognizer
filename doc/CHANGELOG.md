@@ -1,3 +1,25 @@
+## 0.3.0 (2015-04-09)
+
+
+#### Bug Fixes
+
+* **all:** update compiler ([6f834b02](http://github.com/aurelia/route-recognizer/commit/6f834b024305991ceb8878b76456801aacfe590a))
+* **route-recognizer:**
+  * ensure required route segments are specified when generating ([513aeeb7](http://github.com/aurelia/route-recognizer/commit/513aeeb73dc68370d7b6bb0db96eabb37a7b96d0))
+  * allow unnamed routes to be registered ([240a9e2d](http://github.com/aurelia/route-recognizer/commit/240a9e2db07b27623cdebb64ef4a4473a7996317))
+  * fix bug where array keys were not encoded in querystrings ([f5019d95](http://github.com/aurelia/route-recognizer/commit/f5019d9578bdb530def082e2960d4906e42ca784))
+  * adjust querystring parsing for several edge cases ([10664338](http://github.com/aurelia/route-recognizer/commit/10664338180ec01d67ebf62f39794913762280bb))
+  * require route names to be specified ([a62cd3b8](http://github.com/aurelia/route-recognizer/commit/a62cd3b854962576456db82209a1294cc77f4797))
+  * fix bug preventing uri generation from working ([e04351dd](http://github.com/aurelia/route-recognizer/commit/e04351dd27fbc4e8283f3bfd97709263c60d4f1d))
+
+
+#### Features
+
+* **route-recognizer:**
+  * return the registered state from add ([293d8417](http://github.com/aurelia/route-recognizer/commit/293d841797c3b36d2d32b74c2999670db0251e22))
+  * automatically add unused route generation params to the query string ([c3c8a3e7](http://github.com/aurelia/route-recognizer/commit/c3c8a3e767a3ea05cf8e1ed207584f2efa6b1995), closes [#3](http://github.com/aurelia/route-recognizer/issues/3))
+
+
 ### 0.2.4 (2015-02-28)
 
 
