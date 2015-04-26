@@ -1,5 +1,4 @@
 import core from 'core-js';
-import {map} from './dsl';
 
 var specials = [
   '/', '.', '*', '+', '?', '|',
@@ -298,7 +297,6 @@ function addSegment(currentState, segment) {
  */
 export class RouteRecognizer {
   constructor() {
-    this.map = map;
     this.rootState = new State();
     this.names = {};
   }
