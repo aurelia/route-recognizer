@@ -1,304 +1,30 @@
 import core from 'core-js';
-import {map} from './dsl';
+import {State} from './state';
+import {
+  StaticSegment,
+  DynamicSegment,
+  StarSegment,
+  EpsilonSegment
+} from './segments';
 
-var specials = [
-  '/', '.', '*', '+', '?', '|',
-  '(', ')', '[', ']', '{', '}', '\\'
-];
-
-var escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
-
-// A Segment represents a segment in the original route description.
-// Each Segment type provides an `eachChar` and `regex` method.
-//
-// The `eachChar` method invokes the callback with one or more character
-// specifications. A character specification consumes one or more input
-// characters.
-//
-// The `regex` method returns a regex fragment for the segment. If the
-// segment is a dynamic or star segment, the regex fragment also includes
-// a capture.
-//
-// A character specification contains:
-//
-// * `validChars`: a String with a list of all valid characters, or
-// * `invalidChars`: a String with a list of all invalid characters
-// * `repeat`: true if the character specification can repeat
-
-class StaticSegment {
-  constructor(string) {
-    this.string = string;
-  }
-
-  eachChar(callback) {
-    for (let ch of this.string) {
-      callback({ validChars: ch });
-    }
-  }
-
-  regex() {
-    return this.string.replace(escapeRegex, '\\$1');
-  }
-
-  generate() {
-    return this.string;
-  }
-}
-
-class DynamicSegment {
-  constructor(name) {
-    this.name = name;
-  }
-
-  eachChar(callback) {
-    callback({ invalidChars: '/', repeat: true });
-  }
-
-  regex() {
-    return '([^/]+)';
-  }
-
-  generate(params, consumed) {
-    consumed[this.name] = true;
-    return params[this.name];
-  }
-}
-
-class StarSegment {
-  constructor(name) {
-    this.name = name;
-  }
-
-  eachChar(callback) {
-    callback({ invalidChars: '', repeat: true });
-  }
-
-  regex() {
-    return '(.+)';
-  }
-
-  generate(params, consumed) {
-    consumed[this.name] = true;
-    return params[this.name];
-  }
-}
-
-class EpsilonSegment {
-  eachChar() {}
-  regex() { return ''; }
-  generate() { return ''; }
-}
-
-function parse(route, names, types) {
-  // normalize route as not starting with a '/'. Recognition will
-  // also normalize.
-  if (route.charAt(0) === '/') {
-    route = route.substr(1);
-  }
-
-  var results = [];
-
-  for (let segment of route.split('/')) {
-    let match;
-
-    if (match = segment.match(/^:([^\/]+)$/)) {
-      results.push(new DynamicSegment(match[1]));
-      names.push(match[1]);
-      types.dynamics++;
-    } else if (match = segment.match(/^\*([^\/]+)$/)) {
-      results.push(new StarSegment(match[1]));
-      names.push(match[1]);
-      types.stars++;
-    } else if(segment === '') {
-      results.push(new EpsilonSegment());
-    } else {
-      results.push(new StaticSegment(segment));
-      types.statics++;
-    }
-  }
-
-  return results;
-}
-
-// A State has a character specification and (`charSpec`) and a list of possible
-// subsequent states (`nextStates`).
-//
-// If a State is an accepting state, it will also have several additional
-// properties:
-//
-// * `regex`: A regular expression that is used to extract parameters from paths
-//   that reached this accepting state.
-// * `handlers`: Information on how to convert the list of captures into calls
-//   to registered handlers with the specified parameters.
-// * `types`: How many static, dynamic, or star segments in this route. Used to
-//   decide which route to use if multiple registered routes match a path.
-//
-// Currently, State is implemented naively by looping over `nextStates` and
-// comparing a character specification against a character. A more efficient
-// implementation would use a hash of keys pointing at one or more next states.
-
-class State {
-  constructor(charSpec) {
-    this.charSpec = charSpec;
-    this.nextStates = [];
-  }
-
-  get(charSpec) {
-    for (let child of this.nextStates) {
-      var isEqual = child.charSpec.validChars === charSpec.validChars &&
-                    child.charSpec.invalidChars === charSpec.invalidChars;
-
-      if (isEqual) {
-        return child;
-      }
-    }
-  }
-
-  put(charSpec) {
-    var state = this.get(charSpec);
-
-    // If the character specification already exists in a child of the current
-    // state, just return that state.
-    if (state) {
-      return state;
-    }
-
-    // Make a new state for the character spec
-    state = new State(charSpec);
-
-    // Insert the new state as a child of the current state
-    this.nextStates.push(state);
-
-    // If this character specification repeats, insert the new state as a child
-    // of itself. Note that this will not trigger an infinite loop because each
-    // transition during recognition consumes a character.
-    if (charSpec.repeat) {
-      state.nextStates.push(state);
-    }
-
-    // Return the new state
-    return state;
-  }
-
-  // Find a list of child states matching the next character
-  match(ch) {
-    var nextStates = this.nextStates, results = [],
-        child, charSpec, chars;
-
-    for (var i = 0, l = nextStates.length; i < l; i++) {
-      child = nextStates[i];
-
-      charSpec = child.charSpec;
-
-      if (typeof (chars = charSpec.validChars) !== 'undefined') {
-        if (chars.indexOf(ch) !== -1) {
-          results.push(child);
-        }
-      } else if (typeof (chars = charSpec.invalidChars) !== 'undefined') {
-        if (chars.indexOf(ch) === -1) {
-          results.push(child);
-        }
-      }
-    }
-
-    return results;
-  }
-};
-
-// This is a somewhat naive strategy, but should work in a lot of cases
-// A better strategy would properly resolve /posts/:id/new and /posts/edit/:id.
-//
-// This strategy generally prefers more static and less dynamic matching.
-// Specifically, it
-//
-//  * prefers fewer stars to more, then
-//  * prefers using stars for less of the match to more, then
-//  * prefers fewer dynamic segments to more, then
-//  * prefers more static segments to more
-function sortSolutions(states) {
-  return states.sort((a, b) => {
-    if (a.types.stars !== b.types.stars) {
-      return a.types.stars - b.types.stars;
-    }
-
-    if (a.types.stars) {
-      if (a.types.statics !== b.types.statics) {
-        return b.types.statics - a.types.statics;
-      }
-      if (a.types.dynamics !== b.types.dynamics) {
-        return b.types.dynamics - a.types.dynamics;
-      }
-    }
-
-    if (a.types.dynamics !== b.types.dynamics) {
-      return a.types.dynamics - b.types.dynamics;
-    }
-
-    if (a.types.statics !== b.types.statics) {
-      return b.types.statics - a.types.statics;
-    }
-
-    return 0;
-  });
-}
-
-function recognizeChar(states, ch) {
-  var nextStates = [];
-
-  for (var i = 0, l = states.length; i < l; i++) {
-    var state = states[i];
-
-    nextStates = nextStates.concat(state.match(ch));
-  }
-
-  return nextStates;
-}
-
-class RecognizeResults {
-  constructor(queryParams) {
-    this.splice = Array.prototype.splice;
-    this.slice = Array.prototype.slice;
-    this.push = Array.prototype.push;
-    this.length = 0;
-    this.queryParams = queryParams || {};
-  }
-}
-
-function findHandler(state, path, queryParams) {
-  var handlers = state.handlers, regex = state.regex;
-  var captures = path.match(regex), currentCapture = 1;
-  var result = new RecognizeResults(queryParams);
-
-  for (var i = 0, l = handlers.length; i < l; i++) {
-    var handler = handlers[i], names = handler.names, params = {};
-
-    for (var j = 0, m = names.length; j < m; j++) {
-      params[names[j]] = captures[currentCapture++];
-    }
-
-    result.push({ handler: handler.handler, params: params, isDynamic: !!names.length });
-  }
-
-  return result;
-}
-
-function addSegment(currentState, segment) {
-  segment.eachChar(ch => {
-    currentState = currentState.put(ch);
-  });
-
-  return currentState;
-}
-
-// The main interface
-
+/**
+ * Class that parses route patterns and matches path strings.
+ * 
+ * @class RouteRecognizer
+ * @constructor
+ */
 export class RouteRecognizer {
   constructor() {
-    this.map = map;
     this.rootState = new State();
     this.names = {};
   }
 
+  /**
+   * Parse a route pattern and add it to the collection of recognized routes.
+   * 
+   * @method add
+   * @param {Object} route The route to add.
+   */
   add(route) {
     if (Array.isArray(route)) {
       for (let r of route) {
@@ -351,6 +77,13 @@ export class RouteRecognizer {
     return currentState;
   }
 
+  /**
+   * Retrieve the handlers registered for the named route.
+   * 
+   * @method handlersFor
+   * @param {String} name The name of the route.
+   * @return {Array} The handlers.
+   */
   handlersFor(name) {
     var route = this.names[name],
         result = [];
@@ -366,10 +99,26 @@ export class RouteRecognizer {
     return result;
   }
 
+  /**
+   * Check if this RouteRecognizer recognizes a named route.
+   * 
+   * @method hasRoute
+   * @param {String} name The name of the route.
+   * @return {Boolean} True if the named route is recognized.
+   */
   hasRoute(name) {
     return !!this.names[name];
   }
 
+  /**
+   * Generate a path and query string from a route name and params object.
+   * 
+   * @method generate
+   * @param {String} name The name of the route.
+   * @param {Object} params The route params to use when populating the pattern.
+   *  Properties not required by the pattern will be appended to the query string.
+   * @return {String} The generated absolute path and query string.
+   */
   generate(name, params) {
     params = Object.assign({}, params);
 
@@ -412,6 +161,13 @@ export class RouteRecognizer {
     return output;
   }
 
+  /**
+   * Generate a query string from an object.
+   * 
+   * @method generateQueryString
+   * @param {Object} params Object containing the keys and values to be used.
+   * @return {String} The generated query string, including leading '?'.
+   */
   generateQueryString(params) {
     var pairs = [], keys = [], encode = encodeURIComponent;
 
@@ -446,6 +202,13 @@ export class RouteRecognizer {
     return '?' + pairs.join('&');
   }
 
+  /**
+   * Parse a query string.
+   * 
+   * @method parseQueryString
+   * @param {String} The query string to parse.
+   * @return {Object} Object with keys and values mapped from the query string.
+   */
   parseQueryString(queryString) {
     var queryParams = {};
     if (!queryString || typeof queryString !== 'string') {
@@ -488,6 +251,15 @@ export class RouteRecognizer {
     return queryParams;
   }
 
+  /**
+   * Match a path string against registered route patterns.
+   * 
+   * @method recognize
+   * @param {String} path The path to attempt to match.
+   * @return {Array} Array of objects containing `handler`, `params`, and
+   *  `isDynanic` values for the matched route(s), or undefined if no match
+   *  was found.
+   */
   recognize(path) {
     var states = [ this.rootState ],
         pathLen, i, l, queryStart, queryParams = {},
@@ -538,4 +310,120 @@ export class RouteRecognizer {
       return findHandler(state, path, queryParams);
     }
   }
+}
+
+class RecognizeResults {
+  constructor(queryParams) {
+    this.splice = Array.prototype.splice;
+    this.slice = Array.prototype.slice;
+    this.push = Array.prototype.push;
+    this.length = 0;
+    this.queryParams = queryParams || {};
+  }
+}
+
+function parse(route, names, types) {
+  // normalize route as not starting with a '/'. Recognition will
+  // also normalize.
+  if (route.charAt(0) === '/') {
+    route = route.substr(1);
+  }
+
+  var results = [];
+
+  for (let segment of route.split('/')) {
+    let match;
+
+    if (match = segment.match(/^:([^\/]+)$/)) {
+      results.push(new DynamicSegment(match[1]));
+      names.push(match[1]);
+      types.dynamics++;
+    } else if (match = segment.match(/^\*([^\/]+)$/)) {
+      results.push(new StarSegment(match[1]));
+      names.push(match[1]);
+      types.stars++;
+    } else if(segment === '') {
+      results.push(new EpsilonSegment());
+    } else {
+      results.push(new StaticSegment(segment));
+      types.statics++;
+    }
+  }
+
+  return results;
+}
+
+// This is a somewhat naive strategy, but should work in a lot of cases
+// A better strategy would properly resolve /posts/:id/new and /posts/edit/:id.
+//
+// This strategy generally prefers more static and less dynamic matching.
+// Specifically, it
+//
+//  * prefers fewer stars to more, then
+//  * prefers using stars for less of the match to more, then
+//  * prefers fewer dynamic segments to more, then
+//  * prefers more static segments to more
+function sortSolutions(states) {
+  return states.sort((a, b) => {
+    if (a.types.stars !== b.types.stars) {
+      return a.types.stars - b.types.stars;
+    }
+
+    if (a.types.stars) {
+      if (a.types.statics !== b.types.statics) {
+        return b.types.statics - a.types.statics;
+      }
+      if (a.types.dynamics !== b.types.dynamics) {
+        return b.types.dynamics - a.types.dynamics;
+      }
+    }
+
+    if (a.types.dynamics !== b.types.dynamics) {
+      return a.types.dynamics - b.types.dynamics;
+    }
+
+    if (a.types.statics !== b.types.statics) {
+      return b.types.statics - a.types.statics;
+    }
+
+    return 0;
+  });
+}
+
+function recognizeChar(states, ch) {
+  var nextStates = [];
+
+  for (var i = 0, l = states.length; i < l; i++) {
+    var state = states[i];
+
+    nextStates = nextStates.concat(state.match(ch));
+  }
+
+  return nextStates;
+}
+
+function findHandler(state, path, queryParams) {
+  var handlers = state.handlers, regex = state.regex;
+  var captures = path.match(regex), currentCapture = 1;
+  var result = new RecognizeResults(queryParams);
+
+  for (var i = 0, l = handlers.length; i < l; i++) {
+    var handler = handlers[i], names = handler.names, params = {};
+
+    for (var j = 0, m = names.length; j < m; j++) {
+      params[names[j]] = captures[currentCapture++];
+    }
+
+    result.push({ handler: handler.handler, params: params, isDynamic: !!names.length });
+  }
+
+  return result;
+}
+
+function addSegment(currentState, segment) {
+  segment.eachChar(ch => {
+    currentState = currentState.put(ch);
+  });
+
+  return currentState;
 }

@@ -1,6 +1,6 @@
 {
   "name": "aurelia-route-recognizer",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A lightweight JavaScript library that matches paths against registered routes. It includes support for dynamic and star segments and nested handlers.",
   "keywords": [
     "aurelia",
@@ -24,7 +24,12 @@
       "lib": "dist/system"
     },
     "dependencies": {
-      "core-js": "github:zloirock/core-js@^0.8.1"
+      "core-js": "npm:core-js@^0.9.5"
+    },
+    "devDependencies": {
+      "babel": "npm:babel-core@^5.1.13",
+      "babel-runtime": "npm:babel-runtime@^5.1.13",
+      "core-js": "npm:core-js@^0.9.5"
     }
   },
   "devDependencies": {
