@@ -138,6 +138,7 @@ describe('route recognizer', () => {
     expect(gen({ a: '&' })).toBe('?a=%26');
     expect(gen({ '&': 'a' })).toBe('?%26=a');
     expect(gen({ a: true })).toBe('?a=true');
+    expect(gen({ '$test': true })).toBe('?$test=true');
   });
 
   it('should parse query strings', () => {
