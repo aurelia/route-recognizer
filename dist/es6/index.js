@@ -169,7 +169,8 @@ export class RouteRecognizer {
    * @return {String} The generated query string, including leading '?'.
    */
   generateQueryString(params) {
-    var pairs = [], keys = [], encode = encodeURIComponent;
+    var pairs = [], keys = [], encode = encodeURIComponent,
+      encodeKey = k => encode(k).replace('%24', '$');
 
     for (var key in params) {
       if (params.hasOwnProperty(key)) {
@@ -186,12 +187,12 @@ export class RouteRecognizer {
       }
 
       if (Array.isArray(value)) {
-        var arrayKey = `${encode(key)}[]`;
+        var arrayKey = `${encodeKey(key)}[]`;
         for (var j = 0, l = value.length; j < l; j++) {
           pairs.push(`${arrayKey}=${encode(value[j])}`);
         }
       } else {
-        pairs.push(`${encode(key)}=${encode(value)}`);
+        pairs.push(`${encodeKey(key)}=${encode(value)}`);
       }
     }
 

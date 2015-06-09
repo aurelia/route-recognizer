@@ -1,3 +1,11 @@
+## 0.5.0 (2015-06-08)
+
+
+#### Features
+
+* **route-recognizer:** don't encode '$' in query string keys ([b7aca7fd](http://github.com/aurelia/route-recognizer/commit/b7aca7fd2a44998b1708f32807a737dbd23e0f1e))
+
+
 ## 0.4.0 (2015-04-30)
 
 * **all:** update compilation process

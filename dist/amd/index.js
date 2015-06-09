@@ -1,13 +1,13 @@
 define(['exports', 'core-js', './state', './segments'], function (exports, _coreJs, _state, _segments) {
   'use strict';
 
-  var _interopRequire = function (obj) { return obj && obj.__esModule ? obj['default'] : obj; };
-
-  var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } };
-
   exports.__esModule = true;
 
-  var _core = _interopRequire(_coreJs);
+  function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  var _core = _interopRequireDefault(_coreJs);
 
   var RouteRecognizer = (function () {
     function RouteRecognizer() {
@@ -159,7 +159,10 @@ define(['exports', 'core-js', './state', './segments'], function (exports, _core
     RouteRecognizer.prototype.generateQueryString = function generateQueryString(params) {
       var pairs = [],
           keys = [],
-          encode = encodeURIComponent;
+          encode = encodeURIComponent,
+          encodeKey = function encodeKey(k) {
+        return encode(k).replace('%24', '$');
+      };
 
       for (var key in params) {
         if (params.hasOwnProperty(key)) {
@@ -176,12 +179,12 @@ define(['exports', 'core-js', './state', './segments'], function (exports, _core
         }
 
         if (Array.isArray(value)) {
-          var arrayKey = '' + encode(key) + '[]';
+          var arrayKey = '' + encodeKey(key) + '[]';
           for (var j = 0, l = value.length; j < l; j++) {
             pairs.push('' + arrayKey + '=' + encode(value[j]));
           }
         } else {
-          pairs.push('' + encode(key) + '=' + encode(value));
+          pairs.push('' + encodeKey(key) + '=' + encode(value));
         }
       }
 

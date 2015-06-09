@@ -1,24 +1,24 @@
 'use strict';
 
-var _interopRequireDefault = function (obj) { return obj && obj.__esModule ? obj : { 'default': obj }; };
-
-var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } };
-
 exports.__esModule = true;
 
-var _core = require('core-js');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _core2 = _interopRequireDefault(_core);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _State = require('./state');
+var _coreJs = require('core-js');
 
-var _StaticSegment$DynamicSegment$StarSegment$EpsilonSegment = require('./segments');
+var _coreJs2 = _interopRequireDefault(_coreJs);
+
+var _state = require('./state');
+
+var _segments = require('./segments');
 
 var RouteRecognizer = (function () {
   function RouteRecognizer() {
     _classCallCheck(this, RouteRecognizer);
 
-    this.rootState = new _State.State();
+    this.rootState = new _state.State();
     this.names = {};
   }
 
@@ -66,7 +66,7 @@ var RouteRecognizer = (function () {
 
       var segment = _ref2;
 
-      if (segment instanceof _StaticSegment$DynamicSegment$StarSegment$EpsilonSegment.EpsilonSegment) {
+      if (segment instanceof _segments.EpsilonSegment) {
         continue;
       }
 
@@ -135,7 +135,7 @@ var RouteRecognizer = (function () {
     for (var i = 0, l = segments.length; i < l; i++) {
       var segment = segments[i];
 
-      if (segment instanceof _StaticSegment$DynamicSegment$StarSegment$EpsilonSegment.EpsilonSegment) {
+      if (segment instanceof _segments.EpsilonSegment) {
         continue;
       }
 
@@ -164,7 +164,10 @@ var RouteRecognizer = (function () {
   RouteRecognizer.prototype.generateQueryString = function generateQueryString(params) {
     var pairs = [],
         keys = [],
-        encode = encodeURIComponent;
+        encode = encodeURIComponent,
+        encodeKey = function encodeKey(k) {
+      return encode(k).replace('%24', '$');
+    };
 
     for (var key in params) {
       if (params.hasOwnProperty(key)) {
@@ -181,12 +184,12 @@ var RouteRecognizer = (function () {
       }
 
       if (Array.isArray(value)) {
-        var arrayKey = '' + encode(key) + '[]';
+        var arrayKey = '' + encodeKey(key) + '[]';
         for (var j = 0, l = value.length; j < l; j++) {
           pairs.push('' + arrayKey + '=' + encode(value[j]));
         }
       } else {
-        pairs.push('' + encode(key) + '=' + encode(value));
+        pairs.push('' + encodeKey(key) + '=' + encode(value));
       }
     }
 
@@ -330,17 +333,17 @@ function parse(route, names, types) {
     var match = undefined;
 
     if (match = segment.match(/^:([^\/]+)$/)) {
-      results.push(new _StaticSegment$DynamicSegment$StarSegment$EpsilonSegment.DynamicSegment(match[1]));
+      results.push(new _segments.DynamicSegment(match[1]));
       names.push(match[1]);
       types.dynamics++;
     } else if (match = segment.match(/^\*([^\/]+)$/)) {
-      results.push(new _StaticSegment$DynamicSegment$StarSegment$EpsilonSegment.StarSegment(match[1]));
+      results.push(new _segments.StarSegment(match[1]));
       names.push(match[1]);
       types.stars++;
     } else if (segment === '') {
-      results.push(new _StaticSegment$DynamicSegment$StarSegment$EpsilonSegment.EpsilonSegment());
+      results.push(new _segments.EpsilonSegment());
     } else {
-      results.push(new _StaticSegment$DynamicSegment$StarSegment$EpsilonSegment.StaticSegment(segment));
+      results.push(new _segments.StaticSegment(segment));
       types.statics++;
     }
   }
