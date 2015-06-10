@@ -1,3 +1,6 @@
+var path = require('path');
+var paths = require('./paths');
+
 module.exports = {
   filename: '',
   filenameRelative: '',
@@ -5,7 +8,7 @@ module.exports = {
   sourceMap: true,
   sourceMapName: '',
   sourceRoot: '',
-  moduleRoot: '',
+  moduleRoot: path.resolve('src').replace(/\\/g, '/'),
   moduleIds: false,
   experimental: false,
   comments: false,
@@ -15,5 +18,12 @@ module.exports = {
   loose: "all",
   optional: [
     "es7.decorators"
-  ]
+  ],
+  plugins: [
+    "babel-dts-generator"
+  ],
+  extra: {
+    packageName: paths.packageName,
+    typings: ''
+  }
 };

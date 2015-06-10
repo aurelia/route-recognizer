@@ -7,9 +7,29 @@ import {
   EpsilonSegment
 } from './segments';
 
+interface RouteHandler {
+  name:string;
+}
+
+interface ConfigurableRoute {
+  path:string;
+  handler:RouteHandler;
+}
+
+interface HandlerEntry {
+  handler:RouteHandler;
+  names:string[];
+}
+
+interface RecognizedRoute {
+  handler:RouteHandler;
+  params:Object;
+  isDynamic:boolean;
+}
+
 /**
  * Class that parses route patterns and matches path strings.
- * 
+ *
  * @class RouteRecognizer
  * @constructor
  */
@@ -21,11 +41,11 @@ export class RouteRecognizer {
 
   /**
    * Parse a route pattern and add it to the collection of recognized routes.
-   * 
+   *
    * @method add
    * @param {Object} route The route to add.
    */
-  add(route) {
+  add(route:ConfigurableRoute|ConfigurableRoute[]) {
     if (Array.isArray(route)) {
       for (let r of route) {
         this.add(r);
@@ -79,12 +99,12 @@ export class RouteRecognizer {
 
   /**
    * Retrieve the handlers registered for the named route.
-   * 
+   *
    * @method handlersFor
    * @param {String} name The name of the route.
    * @return {Array} The handlers.
    */
-  handlersFor(name) {
+  handlersFor(name:string):HandlerEntry[] {
     var route = this.names[name],
         result = [];
 
@@ -101,25 +121,25 @@ export class RouteRecognizer {
 
   /**
    * Check if this RouteRecognizer recognizes a named route.
-   * 
+   *
    * @method hasRoute
    * @param {String} name The name of the route.
    * @return {Boolean} True if the named route is recognized.
    */
-  hasRoute(name) {
+  hasRoute(name:string):boolean {
     return !!this.names[name];
   }
 
   /**
    * Generate a path and query string from a route name and params object.
-   * 
+   *
    * @method generate
    * @param {String} name The name of the route.
    * @param {Object} params The route params to use when populating the pattern.
    *  Properties not required by the pattern will be appended to the query string.
    * @return {String} The generated absolute path and query string.
    */
-  generate(name, params) {
+  generate(name:string, params:Object):string {
     params = Object.assign({}, params);
 
     var route = this.names[name],
@@ -163,12 +183,12 @@ export class RouteRecognizer {
 
   /**
    * Generate a query string from an object.
-   * 
+   *
    * @method generateQueryString
    * @param {Object} params Object containing the keys and values to be used.
    * @return {String} The generated query string, including leading '?'.
    */
-  generateQueryString(params) {
+  generateQueryString(params:Object):string {
     var pairs = [], keys = [], encode = encodeURIComponent,
       encodeKey = k => encode(k).replace('%24', '$');
 
@@ -205,12 +225,12 @@ export class RouteRecognizer {
 
   /**
    * Parse a query string.
-   * 
+   *
    * @method parseQueryString
    * @param {String} The query string to parse.
    * @return {Object} Object with keys and values mapped from the query string.
    */
-  parseQueryString(queryString) {
+  parseQueryString(queryString:string):Object {
     var queryParams = {};
     if (!queryString || typeof queryString !== 'string') {
       return queryParams;
@@ -254,14 +274,14 @@ export class RouteRecognizer {
 
   /**
    * Match a path string against registered route patterns.
-   * 
+   *
    * @method recognize
    * @param {String} path The path to attempt to match.
    * @return {Array} Array of objects containing `handler`, `params`, and
    *  `isDynanic` values for the matched route(s), or undefined if no match
    *  was found.
    */
-  recognize(path) {
+  recognize(path:string):RecognizedRoute[] {
     var states = [ this.rootState ],
         pathLen, i, l, queryStart, queryParams = {},
         isSlashDropped = false;
@@ -314,7 +334,7 @@ export class RouteRecognizer {
 }
 
 class RecognizeResults {
-  constructor(queryParams) {
+  constructor(queryParams:Object) {
     this.splice = Array.prototype.splice;
     this.slice = Array.prototype.slice;
     this.push = Array.prototype.push;
