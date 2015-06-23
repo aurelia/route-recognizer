@@ -1,3 +1,9 @@
+interface CharSpec {
+  invalidChars?:string;
+  validChars?:string;
+  repeat?:boolean;
+}
+
 const specials = [
   '/', '.', '*', '+', '?', '|',
   '(', ')', '[', ']', '{', '}', '\\'
@@ -23,65 +29,65 @@ const escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
 // * `repeat`: true if the character specification can repeat
 
 export class StaticSegment {
-  constructor(string) {
+  constructor(string:string) {
     this.string = string;
   }
 
-  eachChar(callback) {
+  eachChar(callback:(spec:CharSpec) => void) {
     for (let ch of this.string) {
       callback({ validChars: ch });
     }
   }
 
-  regex() {
+  regex():string {
     return this.string.replace(escapeRegex, '\\$1');
   }
 
-  generate() {
+  generate(params:Object, consumed:Object):string {
     return this.string;
   }
 }
 
 export class DynamicSegment {
-  constructor(name) {
+  constructor(name:string) {
     this.name = name;
   }
 
-  eachChar(callback) {
+  eachChar(callback:(spec:CharSpec) => void) {
     callback({ invalidChars: '/', repeat: true });
   }
 
-  regex() {
+  regex():string {
     return '([^/]+)';
   }
 
-  generate(params, consumed) {
+  generate(params:Object, consumed:Object):string {
     consumed[this.name] = true;
     return params[this.name];
   }
 }
 
 export class StarSegment {
-  constructor(name) {
+  constructor(name:string) {
     this.name = name;
   }
 
-  eachChar(callback) {
+  eachChar(callback:(spec:CharSpec) => void) {
     callback({ invalidChars: '', repeat: true });
   }
 
-  regex() {
+  regex():string {
     return '(.+)';
   }
 
-  generate(params, consumed) {
+  generate(params:Object, consumed:Object):string {
     consumed[this.name] = true;
     return params[this.name];
   }
 }
 
 export class EpsilonSegment {
-  eachChar() {}
-  regex() { return ''; }
-  generate() { return ''; }
+  eachChar(callback:(spec:CharSpec) => void) {}
+  regex():string { return ''; }
+  generate(params:Object, consumed:Object):string { return ''; }
 }

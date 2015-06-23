@@ -45,7 +45,7 @@ export class RouteRecognizer {
    * @method add
    * @param {Object} route The route to add.
    */
-  add(route:ConfigurableRoute|ConfigurableRoute[]) {
+  add(route:ConfigurableRoute|ConfigurableRoute[]):State {
     if (Array.isArray(route)) {
       for (let r of route) {
         this.add(r);
