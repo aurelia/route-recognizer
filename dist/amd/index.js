@@ -1,4 +1,4 @@
-define(['exports', 'core-js', './state', './segments'], function (exports, _coreJs, _state, _segments) {
+define(['exports', 'core-js'], function (exports, _coreJs) {
   'use strict';
 
   exports.__esModule = true;
@@ -13,7 +13,7 @@ define(['exports', 'core-js', './state', './segments'], function (exports, _core
     function RouteRecognizer() {
       _classCallCheck(this, RouteRecognizer);
 
-      this.rootState = new _state.State();
+      this.rootState = new State();
       this.names = {};
     }
 
@@ -61,7 +61,7 @@ define(['exports', 'core-js', './state', './segments'], function (exports, _core
 
         var segment = _ref2;
 
-        if (segment instanceof _segments.EpsilonSegment) {
+        if (segment instanceof EpsilonSegment) {
           continue;
         }
 
@@ -130,7 +130,7 @@ define(['exports', 'core-js', './state', './segments'], function (exports, _core
       for (var i = 0, l = segments.length; i < l; i++) {
         var segment = segments[i];
 
-        if (segment instanceof _segments.EpsilonSegment) {
+        if (segment instanceof EpsilonSegment) {
           continue;
         }
 
@@ -328,17 +328,17 @@ define(['exports', 'core-js', './state', './segments'], function (exports, _core
       var match = undefined;
 
       if (match = segment.match(/^:([^\/]+)$/)) {
-        results.push(new _segments.DynamicSegment(match[1]));
+        results.push(new DynamicSegment(match[1]));
         names.push(match[1]);
         types.dynamics++;
       } else if (match = segment.match(/^\*([^\/]+)$/)) {
-        results.push(new _segments.StarSegment(match[1]));
+        results.push(new StarSegment(match[1]));
         names.push(match[1]);
         types.stars++;
       } else if (segment === '') {
-        results.push(new _segments.EpsilonSegment());
+        results.push(new EpsilonSegment());
       } else {
-        results.push(new _segments.StaticSegment(segment));
+        results.push(new StaticSegment(segment));
         types.statics++;
       }
     }
@@ -414,4 +414,198 @@ define(['exports', 'core-js', './state', './segments'], function (exports, _core
 
     return currentState;
   }
+
+  var specials = ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'];
+
+  var escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
+
+  var StaticSegment = (function () {
+    function StaticSegment(string) {
+      _classCallCheck(this, StaticSegment);
+
+      this.string = string;
+    }
+
+    StaticSegment.prototype.eachChar = function eachChar(callback) {
+      for (var _iterator4 = this.string, _isArray4 = Array.isArray(_iterator4), _i4 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
+        var _ref4;
+
+        if (_isArray4) {
+          if (_i4 >= _iterator4.length) break;
+          _ref4 = _iterator4[_i4++];
+        } else {
+          _i4 = _iterator4.next();
+          if (_i4.done) break;
+          _ref4 = _i4.value;
+        }
+
+        var ch = _ref4;
+
+        callback({ validChars: ch });
+      }
+    };
+
+    StaticSegment.prototype.regex = function regex() {
+      return this.string.replace(escapeRegex, '\\$1');
+    };
+
+    StaticSegment.prototype.generate = function generate(params, consumed) {
+      return this.string;
+    };
+
+    return StaticSegment;
+  })();
+
+  exports.StaticSegment = StaticSegment;
+
+  var DynamicSegment = (function () {
+    function DynamicSegment(name) {
+      _classCallCheck(this, DynamicSegment);
+
+      this.name = name;
+    }
+
+    DynamicSegment.prototype.eachChar = function eachChar(callback) {
+      callback({ invalidChars: '/', repeat: true });
+    };
+
+    DynamicSegment.prototype.regex = function regex() {
+      return '([^/]+)';
+    };
+
+    DynamicSegment.prototype.generate = function generate(params, consumed) {
+      consumed[this.name] = true;
+      return params[this.name];
+    };
+
+    return DynamicSegment;
+  })();
+
+  exports.DynamicSegment = DynamicSegment;
+
+  var StarSegment = (function () {
+    function StarSegment(name) {
+      _classCallCheck(this, StarSegment);
+
+      this.name = name;
+    }
+
+    StarSegment.prototype.eachChar = function eachChar(callback) {
+      callback({ invalidChars: '', repeat: true });
+    };
+
+    StarSegment.prototype.regex = function regex() {
+      return '(.+)';
+    };
+
+    StarSegment.prototype.generate = function generate(params, consumed) {
+      consumed[this.name] = true;
+      return params[this.name];
+    };
+
+    return StarSegment;
+  })();
+
+  exports.StarSegment = StarSegment;
+
+  var EpsilonSegment = (function () {
+    function EpsilonSegment() {
+      _classCallCheck(this, EpsilonSegment);
+    }
+
+    EpsilonSegment.prototype.eachChar = function eachChar(callback) {};
+
+    EpsilonSegment.prototype.regex = function regex() {
+      return '';
+    };
+
+    EpsilonSegment.prototype.generate = function generate(params, consumed) {
+      return '';
+    };
+
+    return EpsilonSegment;
+  })();
+
+  exports.EpsilonSegment = EpsilonSegment;
+
+  var State = (function () {
+    function State(charSpec) {
+      _classCallCheck(this, State);
+
+      this.charSpec = charSpec;
+      this.nextStates = [];
+    }
+
+    State.prototype.get = function get(charSpec) {
+      for (var _iterator5 = this.nextStates, _isArray5 = Array.isArray(_iterator5), _i5 = 0, _iterator5 = _isArray5 ? _iterator5 : _iterator5[Symbol.iterator]();;) {
+        var _ref5;
+
+        if (_isArray5) {
+          if (_i5 >= _iterator5.length) break;
+          _ref5 = _iterator5[_i5++];
+        } else {
+          _i5 = _iterator5.next();
+          if (_i5.done) break;
+          _ref5 = _i5.value;
+        }
+
+        var child = _ref5;
+
+        var isEqual = child.charSpec.validChars === charSpec.validChars && child.charSpec.invalidChars === charSpec.invalidChars;
+
+        if (isEqual) {
+          return child;
+        }
+      }
+    };
+
+    State.prototype.put = function put(charSpec) {
+      var state = this.get(charSpec);
+
+      if (state) {
+        return state;
+      }
+
+      state = new State(charSpec);
+
+      this.nextStates.push(state);
+
+      if (charSpec.repeat) {
+        state.nextStates.push(state);
+      }
+
+      return state;
+    };
+
+    State.prototype.match = function match(ch) {
+      var nextStates = this.nextStates,
+          results = [],
+          child,
+          charSpec,
+          chars;
+
+      for (var i = 0, l = nextStates.length; i < l; i++) {
+        child = nextStates[i];
+
+        charSpec = child.charSpec;
+
+        if (typeof (chars = charSpec.validChars) !== 'undefined') {
+          if (chars.indexOf(ch) !== -1) {
+            results.push(child);
+          }
+        } else if (typeof (chars = charSpec.invalidChars) !== 'undefined') {
+          if (chars.indexOf(ch) === -1) {
+            results.push(child);
+          }
+        }
+      }
+
+      return results;
+    };
+
+    return State;
+  })();
+
+  exports.State = State;
+  ;
 });

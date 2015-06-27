@@ -1,7 +1,7 @@
-System.register(['core-js', './state', './segments'], function (_export) {
+System.register(['core-js'], function (_export) {
   'use strict';
 
-  var core, State, StaticSegment, DynamicSegment, StarSegment, EpsilonSegment, RouteRecognizer, RecognizeResults;
+  var core, RouteRecognizer, RecognizeResults, specials, escapeRegex, StaticSegment, DynamicSegment, StarSegment, EpsilonSegment, State;
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
@@ -115,16 +115,10 @@ System.register(['core-js', './state', './segments'], function (_export) {
 
     return currentState;
   }
+
   return {
     setters: [function (_coreJs) {
       core = _coreJs['default'];
-    }, function (_state) {
-      State = _state.State;
-    }, function (_segments) {
-      StaticSegment = _segments.StaticSegment;
-      DynamicSegment = _segments.DynamicSegment;
-      StarSegment = _segments.StarSegment;
-      EpsilonSegment = _segments.EpsilonSegment;
     }],
     execute: function () {
       RouteRecognizer = (function () {
@@ -421,6 +415,200 @@ System.register(['core-js', './state', './segments'], function (_export) {
         this.length = 0;
         this.queryParams = queryParams || {};
       };
+
+      specials = ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'];
+      escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
+
+      StaticSegment = (function () {
+        function StaticSegment(string) {
+          _classCallCheck(this, StaticSegment);
+
+          this.string = string;
+        }
+
+        StaticSegment.prototype.eachChar = function eachChar(callback) {
+          for (var _iterator4 = this.string, _isArray4 = Array.isArray(_iterator4), _i4 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
+            var _ref4;
+
+            if (_isArray4) {
+              if (_i4 >= _iterator4.length) break;
+              _ref4 = _iterator4[_i4++];
+            } else {
+              _i4 = _iterator4.next();
+              if (_i4.done) break;
+              _ref4 = _i4.value;
+            }
+
+            var ch = _ref4;
+
+            callback({ validChars: ch });
+          }
+        };
+
+        StaticSegment.prototype.regex = function regex() {
+          return this.string.replace(escapeRegex, '\\$1');
+        };
+
+        StaticSegment.prototype.generate = function generate(params, consumed) {
+          return this.string;
+        };
+
+        return StaticSegment;
+      })();
+
+      _export('StaticSegment', StaticSegment);
+
+      DynamicSegment = (function () {
+        function DynamicSegment(name) {
+          _classCallCheck(this, DynamicSegment);
+
+          this.name = name;
+        }
+
+        DynamicSegment.prototype.eachChar = function eachChar(callback) {
+          callback({ invalidChars: '/', repeat: true });
+        };
+
+        DynamicSegment.prototype.regex = function regex() {
+          return '([^/]+)';
+        };
+
+        DynamicSegment.prototype.generate = function generate(params, consumed) {
+          consumed[this.name] = true;
+          return params[this.name];
+        };
+
+        return DynamicSegment;
+      })();
+
+      _export('DynamicSegment', DynamicSegment);
+
+      StarSegment = (function () {
+        function StarSegment(name) {
+          _classCallCheck(this, StarSegment);
+
+          this.name = name;
+        }
+
+        StarSegment.prototype.eachChar = function eachChar(callback) {
+          callback({ invalidChars: '', repeat: true });
+        };
+
+        StarSegment.prototype.regex = function regex() {
+          return '(.+)';
+        };
+
+        StarSegment.prototype.generate = function generate(params, consumed) {
+          consumed[this.name] = true;
+          return params[this.name];
+        };
+
+        return StarSegment;
+      })();
+
+      _export('StarSegment', StarSegment);
+
+      EpsilonSegment = (function () {
+        function EpsilonSegment() {
+          _classCallCheck(this, EpsilonSegment);
+        }
+
+        EpsilonSegment.prototype.eachChar = function eachChar(callback) {};
+
+        EpsilonSegment.prototype.regex = function regex() {
+          return '';
+        };
+
+        EpsilonSegment.prototype.generate = function generate(params, consumed) {
+          return '';
+        };
+
+        return EpsilonSegment;
+      })();
+
+      _export('EpsilonSegment', EpsilonSegment);
+
+      State = (function () {
+        function State(charSpec) {
+          _classCallCheck(this, State);
+
+          this.charSpec = charSpec;
+          this.nextStates = [];
+        }
+
+        State.prototype.get = function get(charSpec) {
+          for (var _iterator5 = this.nextStates, _isArray5 = Array.isArray(_iterator5), _i5 = 0, _iterator5 = _isArray5 ? _iterator5 : _iterator5[Symbol.iterator]();;) {
+            var _ref5;
+
+            if (_isArray5) {
+              if (_i5 >= _iterator5.length) break;
+              _ref5 = _iterator5[_i5++];
+            } else {
+              _i5 = _iterator5.next();
+              if (_i5.done) break;
+              _ref5 = _i5.value;
+            }
+
+            var child = _ref5;
+
+            var isEqual = child.charSpec.validChars === charSpec.validChars && child.charSpec.invalidChars === charSpec.invalidChars;
+
+            if (isEqual) {
+              return child;
+            }
+          }
+        };
+
+        State.prototype.put = function put(charSpec) {
+          var state = this.get(charSpec);
+
+          if (state) {
+            return state;
+          }
+
+          state = new State(charSpec);
+
+          this.nextStates.push(state);
+
+          if (charSpec.repeat) {
+            state.nextStates.push(state);
+          }
+
+          return state;
+        };
+
+        State.prototype.match = function match(ch) {
+          var nextStates = this.nextStates,
+              results = [],
+              child,
+              charSpec,
+              chars;
+
+          for (var i = 0, l = nextStates.length; i < l; i++) {
+            child = nextStates[i];
+
+            charSpec = child.charSpec;
+
+            if (typeof (chars = charSpec.validChars) !== 'undefined') {
+              if (chars.indexOf(ch) !== -1) {
+                results.push(child);
+              }
+            } else if (typeof (chars = charSpec.invalidChars) !== 'undefined') {
+              if (chars.indexOf(ch) === -1) {
+                results.push(child);
+              }
+            }
+          }
+
+          return results;
+        };
+
+        return State;
+      })();
+
+      _export('State', State);
+
+      ;
     }
   };
 });
