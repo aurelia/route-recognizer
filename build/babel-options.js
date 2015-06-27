@@ -24,6 +24,7 @@ module.exports = {
   ],
   extra: {
     packageName: paths.packageName,
-    typings: ''
+    typings: '',
+    suppressModulePath: true
   }
 };
