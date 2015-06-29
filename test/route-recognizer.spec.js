@@ -1,4 +1,4 @@
-import { RouteRecognizer } from '../src/index';
+import { RouteRecognizer } from '../src/route-recognizer';
 import core from 'core-js';
 
 const staticRoute = {'path': 'static','handler': {'name': 'static'}};
