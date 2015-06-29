@@ -1,9 +1,3 @@
-interface CharSpec {
-  invalidChars?:string;
-  validChars?:string;
-  repeat?:boolean;
-}
-
 const specials = [
   '/', '.', '*', '+', '?', '|',
   '(', ')', '[', ']', '{', '}', '\\'

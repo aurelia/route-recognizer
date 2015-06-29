@@ -7,26 +7,6 @@ import {
   EpsilonSegment
 } from './segments';
 
-interface RouteHandler {
-  name:string;
-}
-
-interface ConfigurableRoute {
-  path:string;
-  handler:RouteHandler;
-}
-
-interface HandlerEntry {
-  handler:RouteHandler;
-  names:string[];
-}
-
-interface RecognizedRoute {
-  handler:RouteHandler;
-  params:Object;
-  isDynamic:boolean;
-}
-
 /**
  * Class that parses route patterns and matches path strings.
  *
