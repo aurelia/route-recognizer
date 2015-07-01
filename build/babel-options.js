@@ -17,14 +17,19 @@ module.exports = {
   stage:2,
   loose: "all",
   optional: [
-    "es7.decorators"
+    "es7.decorators",
+    "es7.classProperties"
   ],
   plugins: [
     "babel-dts-generator"
   ],
   extra: {
-    packageName: paths.packageName,
-    typings: '',
-    suppressModulePath: true
+    dts: {
+      packageName: paths.packageName,
+      typings: '',
+      suppressModulePath: true,
+      suppressComments: false,
+      memberOutputFilter: /^_.*/
+    }
   }
 };
