@@ -374,12 +374,12 @@ var RouteRecognizer = (function () {
       }
 
       if (Array.isArray(value)) {
-        var arrayKey = '' + encodeKey(key) + '[]';
+        var arrayKey = encodeKey(key) + '[]';
         for (var j = 0, l = value.length; j < l; j++) {
-          pairs.push('' + arrayKey + '=' + encode(value[j]));
+          pairs.push(arrayKey + '=' + encode(value[j]));
         }
       } else {
-        pairs.push('' + encodeKey(key) + '=' + encode(value));
+        pairs.push(encodeKey(key) + '=' + encode(value));
       }
     }
 

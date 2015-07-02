@@ -1,3 +1,20 @@
+## 0.6.0 (2015-07-02)
+
+
+#### Bug Fixes
+
+* **package:** update aurelia tools and dts generator ([1786cd45](http://github.com/aurelia/route-recognizer/commit/1786cd45b6bc867bae053d4ad7d4da058f8777fb))
+* **tests:** correct import source ([dbb913c9](http://github.com/aurelia/route-recognizer/commit/dbb913c9b326b82a47fdab6f39dfc8e6b1ab5d82))
+
+
+#### Features
+
+* **all:** working on improving d.ts generation ([60b547a8](http://github.com/aurelia/route-recognizer/commit/60b547a885dafd2932e5d25a301f14b542151606))
+* **build:**
+  * d.ts building from babel ([503776f6](http://github.com/aurelia/route-recognizer/commit/503776f6fd3ee970a93e558a92e956494993807e))
+  * initial work on dts generation ([3af59915](http://github.com/aurelia/route-recognizer/commit/3af599153e7a5e339990ff4cbff0149efe02ff5e))
+
+
 ## 0.5.0 (2015-06-08)
 
 
