@@ -12,13 +12,13 @@
   },
   "license": "MIT",
   "author": "Rob Eisenberg <rob@bluespire.com> (http://robeisenberg.com/)",
-  "main": "dist/commonjs/index.js",
+  "main": "dist/commonjs/aurelia-route-recognizer.js",
   "repository": {
     "type": "git",
     "url": "http://github.com/aurelia/route-recognizer"
   },
   "jspm": {
-    "main": "index",
+    "main": "aurelia-route-recognizer",
     "format": "amd",
     "directories": {
       "lib": "dist/amd"
