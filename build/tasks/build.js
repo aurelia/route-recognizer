@@ -14,11 +14,9 @@ var jsName = paths.packageName + '.js';
 
 gulp.task('build-index', function(){
   var importsToAdd = [];
-  var files = ['interfaces.js', 'segments.js', 'state.js', 'route-recognizer.js'].map(function(file){
-    return paths.root + file;
-  });
 
-  return gulp.src(files)
+  return gulp.src(paths.source)
+    .pipe(tools.sortFiles())
     .pipe(through2.obj(function(file, enc, callback) {
       file.contents = new Buffer(tools.extractImports(file.contents.toString("utf8"), importsToAdd));
       this.push(file);
