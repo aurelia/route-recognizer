@@ -25,7 +25,7 @@ export class RouteRecognizer {
    * @method add
    * @param {Object} route The route to add.
    */
-  add(route:ConfigurableRoute|ConfigurableRoute[]):State {
+  add(route: ConfigurableRoute|ConfigurableRoute[]): State {
     if (Array.isArray(route)) {
       for (let r of route) {
         this.add(r);
@@ -84,7 +84,7 @@ export class RouteRecognizer {
    * @param {String} name The name of the route.
    * @return {Array} The handlers.
    */
-  handlersFor(name:string):HandlerEntry[] {
+  handlersFor(name: string): HandlerEntry[] {
     var route = this.names[name],
         result = [];
 
@@ -106,7 +106,7 @@ export class RouteRecognizer {
    * @param {String} name The name of the route.
    * @return {Boolean} True if the named route is recognized.
    */
-  hasRoute(name:string):boolean {
+  hasRoute(name: string): boolean {
     return !!this.names[name];
   }
 
@@ -119,7 +119,7 @@ export class RouteRecognizer {
    *  Properties not required by the pattern will be appended to the query string.
    * @return {String} The generated absolute path and query string.
    */
-  generate(name:string, params:Object):string {
+  generate(name: string, params: Object): string {
     params = Object.assign({}, params);
 
     var route = this.names[name],
@@ -168,7 +168,7 @@ export class RouteRecognizer {
    * @param {Object} params Object containing the keys and values to be used.
    * @return {String} The generated query string, including leading '?'.
    */
-  generateQueryString(params:Object):string {
+  generateQueryString(params: Object): string {
     var pairs = [], keys = [], encode = encodeURIComponent,
       encodeKey = k => encode(k).replace('%24', '$');
 
@@ -210,7 +210,7 @@ export class RouteRecognizer {
    * @param {String} The query string to parse.
    * @return {Object} Object with keys and values mapped from the query string.
    */
-  parseQueryString(queryString:string):Object {
+  parseQueryString(queryString: string): Object {
     var queryParams = {};
     if (!queryString || typeof queryString !== 'string') {
       return queryParams;
@@ -261,7 +261,7 @@ export class RouteRecognizer {
    *  `isDynanic` values for the matched route(s), or undefined if no match
    *  was found.
    */
-  recognize(path:string):RecognizedRoute[] {
+  recognize(path: string): RecognizedRoute[] {
     var states = [ this.rootState ],
         pathLen, i, l, queryStart, queryParams = {},
         isSlashDropped = false;
@@ -314,7 +314,7 @@ export class RouteRecognizer {
 }
 
 class RecognizeResults {
-  constructor(queryParams:Object) {
+  constructor(queryParams: Object) {
     this.splice = Array.prototype.splice;
     this.slice = Array.prototype.slice;
     this.push = Array.prototype.push;

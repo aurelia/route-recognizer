@@ -16,12 +16,12 @@
 // implementation would use a hash of keys pointing at one or more next states.
 
 export class State {
-  constructor(charSpec:CharSpec) {
+  constructor(charSpec: CharSpec) {
     this.charSpec = charSpec;
     this.nextStates = [];
   }
 
-  get(charSpec:CharSpec):State {
+  get(charSpec: CharSpec): State {
     for (let child of this.nextStates) {
       var isEqual = child.charSpec.validChars === charSpec.validChars &&
                     child.charSpec.invalidChars === charSpec.invalidChars;
@@ -32,7 +32,7 @@ export class State {
     }
   }
 
-  put(charSpec:CharSpec):State {
+  put(charSpec: CharSpec): State {
     var state = this.get(charSpec);
 
     // If the character specification already exists in a child of the current
@@ -59,7 +59,7 @@ export class State {
   }
 
   // Find a list of child states matching the next character
-  match(ch:string):State[] {
+  match(ch: string): State[] {
     var nextStates = this.nextStates, results = [],
         child, charSpec, chars;
 

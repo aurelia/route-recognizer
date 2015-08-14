@@ -1,25 +1,25 @@
 interface RouteHandler {
-  name:string;
+  name: string;
 }
 
 interface ConfigurableRoute {
-  path:string;
-  handler:RouteHandler;
+  path: string;
+  handler: RouteHandler;
 }
 
 interface HandlerEntry {
-  handler:RouteHandler;
-  names:string[];
+  handler: RouteHandler;
+  names: string[];
 }
 
 interface RecognizedRoute {
-  handler:RouteHandler;
-  params:Object;
-  isDynamic:boolean;
+  handler: RouteHandler;
+  params: Object;
+  isDynamic: boolean;
 }
 
 interface CharSpec {
-  invalidChars?:string;
-  validChars?:string;
-  repeat?:boolean;
+  invalidChars?: string;
+  validChars?: string;
+  repeat?: boolean;
 }

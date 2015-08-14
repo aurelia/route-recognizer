@@ -27,61 +27,61 @@ export class StaticSegment {
     this.string = string;
   }
 
-  eachChar(callback:(spec:CharSpec) => void) {
+  eachChar(callback: (spec:CharSpec) => void): void {
     for (let ch of this.string) {
       callback({ validChars: ch });
     }
   }
 
-  regex():string {
+  regex(): string {
     return this.string.replace(escapeRegex, '\\$1');
   }
 
-  generate(params:Object, consumed:Object):string {
+  generate(params:Object, consumed:Object): string {
     return this.string;
   }
 }
 
 export class DynamicSegment {
-  constructor(name:string) {
+  constructor(name: string) {
     this.name = name;
   }
 
-  eachChar(callback:(spec:CharSpec) => void) {
+  eachChar(callback:(spec :CharSpec) => void): void {
     callback({ invalidChars: '/', repeat: true });
   }
 
-  regex():string {
+  regex(): string {
     return '([^/]+)';
   }
 
-  generate(params:Object, consumed:Object):string {
+  generate(params: Object, consumed: Object): string {
     consumed[this.name] = true;
     return params[this.name];
   }
 }
 
 export class StarSegment {
-  constructor(name:string) {
+  constructor(name: string) {
     this.name = name;
   }
 
-  eachChar(callback:(spec:CharSpec) => void) {
+  eachChar(callback: (spec:CharSpec) => void): void {
     callback({ invalidChars: '', repeat: true });
   }
 
-  regex():string {
+  regex(): string {
     return '(.+)';
   }
 
-  generate(params:Object, consumed:Object):string {
+  generate(params: Object, consumed: Object): string {
     consumed[this.name] = true;
     return params[this.name];
   }
 }
 
 export class EpsilonSegment {
-  eachChar(callback:(spec:CharSpec) => void) {}
-  regex():string { return ''; }
-  generate(params:Object, consumed:Object):string { return ''; }
+  eachChar(callback: (spec:CharSpec) => void): void {}
+  regex(): string { return ''; }
+  generate(params: Object, consumed: Object): string { return ''; }
 }
