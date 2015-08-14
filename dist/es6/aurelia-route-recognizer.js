@@ -1,30 +1,89 @@
-import core from 'core-js';
+import * as core from 'core-js';
 
-interface RouteHandler {
-  name:string;
-}
+// A State has a character specification and (`charSpec`) and a list of possible
+// subsequent states (`nextStates`).
+//
+// If a State is an accepting state, it will also have several additional
+// properties:
+//
+// * `regex`: A regular expression that is used to extract parameters from paths
+//   that reached this accepting state.
+// * `handlers`: Information on how to convert the list of captures into calls
+//   to registered handlers with the specified parameters.
+// * `types`: How many static, dynamic, or star segments in this route. Used to
+//   decide which route to use if multiple registered routes match a path.
+//
+// Currently, State is implemented naively by looping over `nextStates` and
+// comparing a character specification against a character. A more efficient
+// implementation would use a hash of keys pointing at one or more next states.
 
-interface ConfigurableRoute {
-  path:string;
-  handler:RouteHandler;
-}
+export class State {
+  constructor(charSpec: CharSpec) {
+    this.charSpec = charSpec;
+    this.nextStates = [];
+  }
 
-interface HandlerEntry {
-  handler:RouteHandler;
-  names:string[];
-}
+  get(charSpec: CharSpec): State {
+    for (let child of this.nextStates) {
+      var isEqual = child.charSpec.validChars === charSpec.validChars &&
+                    child.charSpec.invalidChars === charSpec.invalidChars;
 
-interface RecognizedRoute {
-  handler:RouteHandler;
-  params:Object;
-  isDynamic:boolean;
-}
+      if (isEqual) {
+        return child;
+      }
+    }
+  }
 
-interface CharSpec {
-  invalidChars?:string;
-  validChars?:string;
-  repeat?:boolean;
-}
+  put(charSpec: CharSpec): State {
+    var state = this.get(charSpec);
+
+    // If the character specification already exists in a child of the current
+    // state, just return that state.
+    if (state) {
+      return state;
+    }
+
+    // Make a new state for the character spec
+    state = new State(charSpec);
+
+    // Insert the new state as a child of the current state
+    this.nextStates.push(state);
+
+    // If this character specification repeats, insert the new state as a child
+    // of itself. Note that this will not trigger an infinite loop because each
+    // transition during recognition consumes a character.
+    if (charSpec.repeat) {
+      state.nextStates.push(state);
+    }
+
+    // Return the new state
+    return state;
+  }
+
+  // Find a list of child states matching the next character
+  match(ch: string): State[] {
+    var nextStates = this.nextStates, results = [],
+        child, charSpec, chars;
+
+    for (var i = 0, l = nextStates.length; i < l; i++) {
+      child = nextStates[i];
+
+      charSpec = child.charSpec;
+
+      if (typeof (chars = charSpec.validChars) !== 'undefined') {
+        if (chars.indexOf(ch) !== -1) {
+          results.push(child);
+        }
+      } else if (typeof (chars = charSpec.invalidChars) !== 'undefined') {
+        if (chars.indexOf(ch) === -1) {
+          results.push(child);
+        }
+      }
+    }
+
+    return results;
+  }
+};
 
 const specials = [
   '/', '.', '*', '+', '?', '|',
@@ -55,149 +114,90 @@ export class StaticSegment {
     this.string = string;
   }
 
-  eachChar(callback:(spec:CharSpec) => void) {
+  eachChar(callback: (spec:CharSpec) => void): void {
     for (let ch of this.string) {
       callback({ validChars: ch });
     }
   }
 
-  regex():string {
+  regex(): string {
     return this.string.replace(escapeRegex, '\\$1');
   }
 
-  generate(params:Object, consumed:Object):string {
+  generate(params:Object, consumed:Object): string {
     return this.string;
   }
 }
 
 export class DynamicSegment {
-  constructor(name:string) {
+  constructor(name: string) {
     this.name = name;
   }
 
-  eachChar(callback:(spec:CharSpec) => void) {
+  eachChar(callback:(spec :CharSpec) => void): void {
     callback({ invalidChars: '/', repeat: true });
   }
 
-  regex():string {
+  regex(): string {
     return '([^/]+)';
   }
 
-  generate(params:Object, consumed:Object):string {
+  generate(params: Object, consumed: Object): string {
     consumed[this.name] = true;
     return params[this.name];
   }
 }
 
 export class StarSegment {
-  constructor(name:string) {
+  constructor(name: string) {
     this.name = name;
   }
 
-  eachChar(callback:(spec:CharSpec) => void) {
+  eachChar(callback: (spec:CharSpec) => void): void {
     callback({ invalidChars: '', repeat: true });
   }
 
-  regex():string {
+  regex(): string {
     return '(.+)';
   }
 
-  generate(params:Object, consumed:Object):string {
+  generate(params: Object, consumed: Object): string {
     consumed[this.name] = true;
     return params[this.name];
   }
 }
 
 export class EpsilonSegment {
-  eachChar(callback:(spec:CharSpec) => void) {}
-  regex():string { return ''; }
-  generate(params:Object, consumed:Object):string { return ''; }
+  eachChar(callback: (spec:CharSpec) => void): void {}
+  regex(): string { return ''; }
+  generate(params: Object, consumed: Object): string { return ''; }
 }
 
-// A State has a character specification and (`charSpec`) and a list of possible
-// subsequent states (`nextStates`).
-//
-// If a State is an accepting state, it will also have several additional
-// properties:
-//
-// * `regex`: A regular expression that is used to extract parameters from paths
-//   that reached this accepting state.
-// * `handlers`: Information on how to convert the list of captures into calls
-//   to registered handlers with the specified parameters.
-// * `types`: How many static, dynamic, or star segments in this route. Used to
-//   decide which route to use if multiple registered routes match a path.
-//
-// Currently, State is implemented naively by looping over `nextStates` and
-// comparing a character specification against a character. A more efficient
-// implementation would use a hash of keys pointing at one or more next states.
+interface RouteHandler {
+  name: string;
+}
 
-export class State {
-  constructor(charSpec:CharSpec) {
-    this.charSpec = charSpec;
-    this.nextStates = [];
-  }
+interface ConfigurableRoute {
+  path: string;
+  handler: RouteHandler;
+}
 
-  get(charSpec:CharSpec):State {
-    for (let child of this.nextStates) {
-      var isEqual = child.charSpec.validChars === charSpec.validChars &&
-                    child.charSpec.invalidChars === charSpec.invalidChars;
+interface HandlerEntry {
+  handler: RouteHandler;
+  names: string[];
+}
 
-      if (isEqual) {
-        return child;
-      }
-    }
-  }
+interface RecognizedRoute {
+  handler: RouteHandler;
+  params: Object;
+  isDynamic: boolean;
+}
 
-  put(charSpec:CharSpec):State {
-    var state = this.get(charSpec);
-
-    // If the character specification already exists in a child of the current
-    // state, just return that state.
-    if (state) {
-      return state;
-    }
-
-    // Make a new state for the character spec
-    state = new State(charSpec);
-
-    // Insert the new state as a child of the current state
-    this.nextStates.push(state);
-
-    // If this character specification repeats, insert the new state as a child
-    // of itself. Note that this will not trigger an infinite loop because each
-    // transition during recognition consumes a character.
-    if (charSpec.repeat) {
-      state.nextStates.push(state);
-    }
-
-    // Return the new state
-    return state;
-  }
-
-  // Find a list of child states matching the next character
-  match(ch:string):State[] {
-    var nextStates = this.nextStates, results = [],
-        child, charSpec, chars;
-
-    for (var i = 0, l = nextStates.length; i < l; i++) {
-      child = nextStates[i];
-
-      charSpec = child.charSpec;
-
-      if (typeof (chars = charSpec.validChars) !== 'undefined') {
-        if (chars.indexOf(ch) !== -1) {
-          results.push(child);
-        }
-      } else if (typeof (chars = charSpec.invalidChars) !== 'undefined') {
-        if (chars.indexOf(ch) === -1) {
-          results.push(child);
-        }
-      }
-    }
-
-    return results;
-  }
-};
+interface CharSpec {
+  invalidChars?: string;
+  validChars?: string;
+  repeat?: boolean;
+}
 
 /**
  * Class that parses route patterns and matches path strings.
@@ -217,7 +217,7 @@ export class RouteRecognizer {
    * @method add
    * @param {Object} route The route to add.
    */
-  add(route:ConfigurableRoute|ConfigurableRoute[]):State {
+  add(route: ConfigurableRoute|ConfigurableRoute[]): State {
     if (Array.isArray(route)) {
       for (let r of route) {
         this.add(r);
@@ -276,7 +276,7 @@ export class RouteRecognizer {
    * @param {String} name The name of the route.
    * @return {Array} The handlers.
    */
-  handlersFor(name:string):HandlerEntry[] {
+  handlersFor(name: string): HandlerEntry[] {
     var route = this.names[name],
         result = [];
 
@@ -298,7 +298,7 @@ export class RouteRecognizer {
    * @param {String} name The name of the route.
    * @return {Boolean} True if the named route is recognized.
    */
-  hasRoute(name:string):boolean {
+  hasRoute(name: string): boolean {
     return !!this.names[name];
   }
 
@@ -311,7 +311,7 @@ export class RouteRecognizer {
    *  Properties not required by the pattern will be appended to the query string.
    * @return {String} The generated absolute path and query string.
    */
-  generate(name:string, params:Object):string {
+  generate(name: string, params: Object): string {
     params = Object.assign({}, params);
 
     var route = this.names[name],
@@ -360,7 +360,7 @@ export class RouteRecognizer {
    * @param {Object} params Object containing the keys and values to be used.
    * @return {String} The generated query string, including leading '?'.
    */
-  generateQueryString(params:Object):string {
+  generateQueryString(params: Object): string {
     var pairs = [], keys = [], encode = encodeURIComponent,
       encodeKey = k => encode(k).replace('%24', '$');
 
@@ -402,7 +402,7 @@ export class RouteRecognizer {
    * @param {String} The query string to parse.
    * @return {Object} Object with keys and values mapped from the query string.
    */
-  parseQueryString(queryString:string):Object {
+  parseQueryString(queryString: string): Object {
     var queryParams = {};
     if (!queryString || typeof queryString !== 'string') {
       return queryParams;
@@ -453,7 +453,7 @@ export class RouteRecognizer {
    *  `isDynanic` values for the matched route(s), or undefined if no match
    *  was found.
    */
-  recognize(path:string):RecognizedRoute[] {
+  recognize(path: string): RecognizedRoute[] {
     var states = [ this.rootState ],
         pathLen, i, l, queryStart, queryParams = {},
         isSlashDropped = false;
@@ -506,7 +506,7 @@ export class RouteRecognizer {
 }
 
 class RecognizeResults {
-  constructor(queryParams:Object) {
+  constructor(queryParams: Object) {
     this.splice = Array.prototype.splice;
     this.slice = Array.prototype.slice;
     this.push = Array.prototype.push;

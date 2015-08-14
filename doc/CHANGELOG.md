@@ -1,3 +1,16 @@
+### 0.6.2 (2015-08-14)
+
+
+#### Bug Fixes
+
+* **route-recognizer:** Use correct import for core-js We were previously using `import core from core-j ([d37d1687](http://github.com/aurelia/route-recognizer/commit/d37d1687f7e4109e4175505ceaae8bccc356257c))
+
+
+#### Features
+
+* **all:** more type info ([e11312e3](http://github.com/aurelia/route-recognizer/commit/e11312e3ed7325a4ef4b9dd56fc9353d3adb610c))
+
+
 ### 0.6.1 (2015-07-29)
 
 * improve output file name

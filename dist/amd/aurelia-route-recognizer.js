@@ -3,11 +3,88 @@ define(['exports', 'core-js'], function (exports, _coreJs) {
 
   exports.__esModule = true;
 
-  function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-  var _core = _interopRequireDefault(_coreJs);
+  var State = (function () {
+    function State(charSpec) {
+      _classCallCheck(this, State);
+
+      this.charSpec = charSpec;
+      this.nextStates = [];
+    }
+
+    State.prototype.get = function get(charSpec) {
+      for (var _iterator = this.nextStates, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+        var _ref;
+
+        if (_isArray) {
+          if (_i >= _iterator.length) break;
+          _ref = _iterator[_i++];
+        } else {
+          _i = _iterator.next();
+          if (_i.done) break;
+          _ref = _i.value;
+        }
+
+        var child = _ref;
+
+        var isEqual = child.charSpec.validChars === charSpec.validChars && child.charSpec.invalidChars === charSpec.invalidChars;
+
+        if (isEqual) {
+          return child;
+        }
+      }
+    };
+
+    State.prototype.put = function put(charSpec) {
+      var state = this.get(charSpec);
+
+      if (state) {
+        return state;
+      }
+
+      state = new State(charSpec);
+
+      this.nextStates.push(state);
+
+      if (charSpec.repeat) {
+        state.nextStates.push(state);
+      }
+
+      return state;
+    };
+
+    State.prototype.match = function match(ch) {
+      var nextStates = this.nextStates,
+          results = [],
+          child,
+          charSpec,
+          chars;
+
+      for (var i = 0, l = nextStates.length; i < l; i++) {
+        child = nextStates[i];
+
+        charSpec = child.charSpec;
+
+        if (typeof (chars = charSpec.validChars) !== 'undefined') {
+          if (chars.indexOf(ch) !== -1) {
+            results.push(child);
+          }
+        } else if (typeof (chars = charSpec.invalidChars) !== 'undefined') {
+          if (chars.indexOf(ch) === -1) {
+            results.push(child);
+          }
+        }
+      }
+
+      return results;
+    };
+
+    return State;
+  })();
+
+  exports.State = State;
+  ;
 
   var specials = ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'];
 
@@ -21,19 +98,19 @@ define(['exports', 'core-js'], function (exports, _coreJs) {
     }
 
     StaticSegment.prototype.eachChar = function eachChar(callback) {
-      for (var _iterator = this.string, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-        var _ref;
+      for (var _iterator2 = this.string, _isArray2 = Array.isArray(_iterator2), _i2 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
+        var _ref2;
 
-        if (_isArray) {
-          if (_i >= _iterator.length) break;
-          _ref = _iterator[_i++];
+        if (_isArray2) {
+          if (_i2 >= _iterator2.length) break;
+          _ref2 = _iterator2[_i2++];
         } else {
-          _i = _iterator.next();
-          if (_i.done) break;
-          _ref = _i.value;
+          _i2 = _iterator2.next();
+          if (_i2.done) break;
+          _ref2 = _i2.value;
         }
 
-        var ch = _ref;
+        var ch = _ref2;
 
         callback({ validChars: ch });
       }
@@ -121,87 +198,6 @@ define(['exports', 'core-js'], function (exports, _coreJs) {
   })();
 
   exports.EpsilonSegment = EpsilonSegment;
-
-  var State = (function () {
-    function State(charSpec) {
-      _classCallCheck(this, State);
-
-      this.charSpec = charSpec;
-      this.nextStates = [];
-    }
-
-    State.prototype.get = function get(charSpec) {
-      for (var _iterator2 = this.nextStates, _isArray2 = Array.isArray(_iterator2), _i2 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
-        var _ref2;
-
-        if (_isArray2) {
-          if (_i2 >= _iterator2.length) break;
-          _ref2 = _iterator2[_i2++];
-        } else {
-          _i2 = _iterator2.next();
-          if (_i2.done) break;
-          _ref2 = _i2.value;
-        }
-
-        var child = _ref2;
-
-        var isEqual = child.charSpec.validChars === charSpec.validChars && child.charSpec.invalidChars === charSpec.invalidChars;
-
-        if (isEqual) {
-          return child;
-        }
-      }
-    };
-
-    State.prototype.put = function put(charSpec) {
-      var state = this.get(charSpec);
-
-      if (state) {
-        return state;
-      }
-
-      state = new State(charSpec);
-
-      this.nextStates.push(state);
-
-      if (charSpec.repeat) {
-        state.nextStates.push(state);
-      }
-
-      return state;
-    };
-
-    State.prototype.match = function match(ch) {
-      var nextStates = this.nextStates,
-          results = [],
-          child,
-          charSpec,
-          chars;
-
-      for (var i = 0, l = nextStates.length; i < l; i++) {
-        child = nextStates[i];
-
-        charSpec = child.charSpec;
-
-        if (typeof (chars = charSpec.validChars) !== 'undefined') {
-          if (chars.indexOf(ch) !== -1) {
-            results.push(child);
-          }
-        } else if (typeof (chars = charSpec.invalidChars) !== 'undefined') {
-          if (chars.indexOf(ch) === -1) {
-            results.push(child);
-          }
-        }
-      }
-
-      return results;
-    };
-
-    return State;
-  })();
-
-  exports.State = State;
-  ;
 
   var RouteRecognizer = (function () {
     function RouteRecognizer() {
