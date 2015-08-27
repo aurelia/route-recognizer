@@ -23,8 +23,8 @@ export class State {
 
   get(charSpec: CharSpec): State {
     for (let child of this.nextStates) {
-      var isEqual = child.charSpec.validChars === charSpec.validChars &&
-                    child.charSpec.invalidChars === charSpec.invalidChars;
+      let isEqual = child.charSpec.validChars === charSpec.validChars
+        && child.charSpec.invalidChars === charSpec.invalidChars;
 
       if (isEqual) {
         return child;
@@ -33,7 +33,7 @@ export class State {
   }
 
   put(charSpec: CharSpec): State {
-    var state = this.get(charSpec);
+    let state = this.get(charSpec);
 
     // If the character specification already exists in a child of the current
     // state, just return that state.
@@ -60,20 +60,19 @@ export class State {
 
   // Find a list of child states matching the next character
   match(ch: string): State[] {
-    var nextStates = this.nextStates, results = [],
-        child, charSpec, chars;
+    let nextStates = this.nextStates;
+    let results = [];
 
-    for (var i = 0, l = nextStates.length; i < l; i++) {
-      child = nextStates[i];
+    for (let i = 0, l = nextStates.length; i < l; i++) {
+      let child = nextStates[i];
+      let charSpec = child.charSpec;
 
-      charSpec = child.charSpec;
-
-      if (typeof (chars = charSpec.validChars) !== 'undefined') {
-        if (chars.indexOf(ch) !== -1) {
+      if (charSpec.validChars !== undefined) {
+        if (charSpec.validChars.indexOf(ch) !== -1) {
           results.push(child);
         }
-      } else if (typeof (chars = charSpec.invalidChars) !== 'undefined') {
-        if (chars.indexOf(ch) === -1) {
+      } else if (charSpec.invalidChars !== undefined) {
+        if (charSpec.invalidChars.indexOf(ch) === -1) {
           results.push(child);
         }
       }
@@ -81,4 +80,4 @@ export class State {
 
     return results;
   }
-};
+}

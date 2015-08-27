@@ -23,11 +23,11 @@ const escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
 // * `repeat`: true if the character specification can repeat
 
 export class StaticSegment {
-  constructor(string:string) {
+  constructor(string: string) {
     this.string = string;
   }
 
-  eachChar(callback: (spec:CharSpec) => void): void {
+  eachChar(callback: (spec: CharSpec) => void): void {
     for (let ch of this.string) {
       callback({ validChars: ch });
     }
@@ -37,7 +37,7 @@ export class StaticSegment {
     return this.string.replace(escapeRegex, '\\$1');
   }
 
-  generate(params:Object, consumed:Object): string {
+  generate(): string {
     return this.string;
   }
 }
@@ -47,7 +47,7 @@ export class DynamicSegment {
     this.name = name;
   }
 
-  eachChar(callback:(spec :CharSpec) => void): void {
+  eachChar(callback: (spec: CharSpec) => void): void {
     callback({ invalidChars: '/', repeat: true });
   }
 
@@ -66,7 +66,7 @@ export class StarSegment {
     this.name = name;
   }
 
-  eachChar(callback: (spec:CharSpec) => void): void {
+  eachChar(callback: (spec: CharSpec) => void): void {
     callback({ invalidChars: '', repeat: true });
   }
 
@@ -81,7 +81,14 @@ export class StarSegment {
 }
 
 export class EpsilonSegment {
-  eachChar(callback: (spec:CharSpec) => void): void {}
-  regex(): string { return ''; }
-  generate(params: Object, consumed: Object): string { return ''; }
+  eachChar(): void {
+  }
+
+  regex(): string {
+    return '';
+  }
+
+  generate(): string {
+    return '';
+  }
 }
