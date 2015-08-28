@@ -1,4 +1,5 @@
 import 'core-js';
+import {buildQueryString, parseQueryString} from 'aurelia-path';
 import {State} from './state';
 import {
   StaticSegment,
@@ -146,97 +147,10 @@ export class RouteRecognizer {
       delete routeParams[param];
     }
 
-    output += this.generateQueryString(routeParams);
+    let queryString = buildQueryString(routeParams);
+    output += queryString ? `?${queryString}` : '';
 
     return output;
-  }
-
-  /**
-  * Generate a query string from an object.
-  *
-  * @param params Object containing the keys and values to be used.
-  * @returns The generated query string, including leading '?'.
-  */
-  generateQueryString(params: Object): string {
-    let pairs = [];
-    let keys = Object.keys(params || {}).sort();
-    let encode = encodeURIComponent;
-    let encodeKey = k => encode(k).replace('%24', '$');
-
-    for (let i = 0, len = keys.length; i < len; i++) {
-      let key = keys[i];
-      let value = params[key];
-      if (value === null || value === undefined) {
-        continue;
-      }
-
-      if (Array.isArray(value)) {
-        let arrayKey = `${encodeKey(key)}[]`;
-        for (let j = 0, l = value.length; j < l; j++) {
-          pairs.push(`${arrayKey}=${encode(value[j])}`);
-        }
-      } else {
-        pairs.push(`${encodeKey(key)}=${encode(value)}`);
-      }
-    }
-
-    if (pairs.length === 0) {
-      return '';
-    }
-
-    return '?' + pairs.join('&');
-  }
-
-  /**
-  * Parse a query string.
-  *
-  * @param The query string to parse.
-  * @returns Object with keys and values mapped from the query string.
-  */
-  parseQueryString(queryString: string): Object {
-    let queryParams = {};
-    if (!queryString || typeof queryString !== 'string') {
-      return queryParams;
-    }
-
-    let query = queryString;
-    if (query.charAt(0) === '?') {
-      query = query.substr(1);
-    }
-
-    let pairs = query.split('&');
-    for (let i = 0; i < pairs.length; i++) {
-      let pair = pairs[i].split('=');
-      let key = decodeURIComponent(pair[0]);
-      let keyLength = key.length;
-      let isArray = false;
-      let value;
-
-      if (!key) {
-        continue;
-      } else if (pair.length === 1) {
-        value = true;
-      } else {
-        //Handle arrays
-        if (keyLength > 2 && key.slice(keyLength - 2) === '[]') {
-          isArray = true;
-          key = key.slice(0, keyLength - 2);
-          if (!queryParams[key]) {
-            queryParams[key] = [];
-          }
-        }
-
-        value = pair[1] ? decodeURIComponent(pair[1]) : '';
-      }
-
-      if (isArray) {
-        queryParams[key].push(value);
-      } else {
-        queryParams[key] = value;
-      }
-    }
-
-    return queryParams;
   }
 
   /**
@@ -257,7 +171,7 @@ export class RouteRecognizer {
     if (queryStart !== -1) {
       let queryString = normalizedPath.substr(queryStart + 1, normalizedPath.length);
       normalizedPath = normalizedPath.substr(0, queryStart);
-      queryParams = this.parseQueryString(queryString);
+      queryParams = parseQueryString(queryString);
     }
 
     normalizedPath = decodeURI(normalizedPath);

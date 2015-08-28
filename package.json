@@ -24,6 +24,7 @@
       "lib": "dist/amd"
     },
     "dependencies": {
+      "aurelia-path": "github:aurelia/path@^0.9.0",
       "core-js": "npm:core-js@^0.9.5"
     },
     "devDependencies": {
