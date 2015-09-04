@@ -1,4 +1,5 @@
-import * as core from 'core-js';
+import 'core-js';
+import {buildQueryString,parseQueryString} from 'aurelia-path';
 
 // A State has a character specification and (`charSpec`) and a list of possible
 // subsequent states (`nextStates`).
@@ -25,8 +26,8 @@ export class State {
 
   get(charSpec: CharSpec): State {
     for (let child of this.nextStates) {
-      var isEqual = child.charSpec.validChars === charSpec.validChars &&
-                    child.charSpec.invalidChars === charSpec.invalidChars;
+      let isEqual = child.charSpec.validChars === charSpec.validChars
+        && child.charSpec.invalidChars === charSpec.invalidChars;
 
       if (isEqual) {
         return child;
@@ -35,7 +36,7 @@ export class State {
   }
 
   put(charSpec: CharSpec): State {
-    var state = this.get(charSpec);
+    let state = this.get(charSpec);
 
     // If the character specification already exists in a child of the current
     // state, just return that state.
@@ -62,20 +63,19 @@ export class State {
 
   // Find a list of child states matching the next character
   match(ch: string): State[] {
-    var nextStates = this.nextStates, results = [],
-        child, charSpec, chars;
+    let nextStates = this.nextStates;
+    let results = [];
 
-    for (var i = 0, l = nextStates.length; i < l; i++) {
-      child = nextStates[i];
+    for (let i = 0, l = nextStates.length; i < l; i++) {
+      let child = nextStates[i];
+      let charSpec = child.charSpec;
 
-      charSpec = child.charSpec;
-
-      if (typeof (chars = charSpec.validChars) !== 'undefined') {
-        if (chars.indexOf(ch) !== -1) {
+      if (charSpec.validChars !== undefined) {
+        if (charSpec.validChars.indexOf(ch) !== -1) {
           results.push(child);
         }
-      } else if (typeof (chars = charSpec.invalidChars) !== 'undefined') {
-        if (chars.indexOf(ch) === -1) {
+      } else if (charSpec.invalidChars !== undefined) {
+        if (charSpec.invalidChars.indexOf(ch) === -1) {
           results.push(child);
         }
       }
@@ -83,7 +83,7 @@ export class State {
 
     return results;
   }
-};
+}
 
 const specials = [
   '/', '.', '*', '+', '?', '|',
@@ -110,11 +110,11 @@ const escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
 // * `repeat`: true if the character specification can repeat
 
 export class StaticSegment {
-  constructor(string:string) {
+  constructor(string: string) {
     this.string = string;
   }
 
-  eachChar(callback: (spec:CharSpec) => void): void {
+  eachChar(callback: (spec: CharSpec) => void): void {
     for (let ch of this.string) {
       callback({ validChars: ch });
     }
@@ -124,7 +124,7 @@ export class StaticSegment {
     return this.string.replace(escapeRegex, '\\$1');
   }
 
-  generate(params:Object, consumed:Object): string {
+  generate(): string {
     return this.string;
   }
 }
@@ -134,7 +134,7 @@ export class DynamicSegment {
     this.name = name;
   }
 
-  eachChar(callback:(spec :CharSpec) => void): void {
+  eachChar(callback: (spec: CharSpec) => void): void {
     callback({ invalidChars: '/', repeat: true });
   }
 
@@ -153,7 +153,7 @@ export class StarSegment {
     this.name = name;
   }
 
-  eachChar(callback: (spec:CharSpec) => void): void {
+  eachChar(callback: (spec: CharSpec) => void): void {
     callback({ invalidChars: '', repeat: true });
   }
 
@@ -168,9 +168,16 @@ export class StarSegment {
 }
 
 export class EpsilonSegment {
-  eachChar(callback: (spec:CharSpec) => void): void {}
-  regex(): string { return ''; }
-  generate(params: Object, consumed: Object): string { return ''; }
+  eachChar(): void {
+  }
+
+  regex(): string {
+    return '';
+  }
+
+  generate(): string {
+    return '';
+  }
 }
 
 interface RouteHandler {
@@ -200,11 +207,11 @@ interface CharSpec {
 }
 
 /**
- * Class that parses route patterns and matches path strings.
- *
- * @class RouteRecognizer
- * @constructor
- */
+* Class that parses route patterns and matches path strings.
+*
+* @class RouteRecognizer
+* @constructor
+*/
 export class RouteRecognizer {
   constructor() {
     this.rootState = new State();
@@ -212,27 +219,26 @@ export class RouteRecognizer {
   }
 
   /**
-   * Parse a route pattern and add it to the collection of recognized routes.
-   *
-   * @method add
-   * @param {Object} route The route to add.
-   */
+  * Parse a route pattern and add it to the collection of recognized routes.
+  *
+  * @param route The route to add.
+  */
   add(route: ConfigurableRoute|ConfigurableRoute[]): State {
     if (Array.isArray(route)) {
-      for (let r of route) {
-        this.add(r);
-      }
-
-      return;
+      route.forEach(r => this.add(r));
+      return undefined;
     }
 
-    var currentState = this.rootState, regex = '^',
-        types = { statics: 0, dynamics: 0, stars: 0 },
-        names = [], routeName = route.handler.name,
-        isEmpty = true;
+    let currentState = this.rootState;
+    let regex = '^';
+    let types = { statics: 0, dynamics: 0, stars: 0 };
+    let names = [];
+    let routeName = route.handler.name;
+    let isEmpty = true;
+    let segments = parse(route.path, names, types);
 
-    var segments = parse(route.path, names, types);
-    for (let segment of segments) {
+    for (let i = 0, ii = segments.length; i < ii; i++) {
+      let segment = segments[i];
       if (segment instanceof EpsilonSegment) {
         continue;
       }
@@ -253,7 +259,7 @@ export class RouteRecognizer {
       regex += '/';
     }
 
-    var handlers = [{ handler: route.handler, names: names }];
+    let handlers = [{ handler: route.handler, names: names }];
 
     if (routeName) {
       this.names[routeName] = {
@@ -270,68 +276,59 @@ export class RouteRecognizer {
   }
 
   /**
-   * Retrieve the handlers registered for the named route.
-   *
-   * @method handlersFor
-   * @param {String} name The name of the route.
-   * @return {Array} The handlers.
-   */
+  * Retrieve the handlers registered for the named route.
+  *
+  * @param name The name of the route.
+  * @returns The handlers.
+  */
   handlersFor(name: string): HandlerEntry[] {
-    var route = this.names[name],
-        result = [];
-
+    let route = this.names[name];
     if (!route) {
       throw new Error(`There is no route named ${name}`);
     }
 
-    for (var i=0, l=route.handlers.length; i<l; i++) {
-      result.push(route.handlers[i]);
-    }
-
-    return result;
+    return [...route.handlers];
   }
 
   /**
-   * Check if this RouteRecognizer recognizes a named route.
-   *
-   * @method hasRoute
-   * @param {String} name The name of the route.
-   * @return {Boolean} True if the named route is recognized.
-   */
+  * Check if this RouteRecognizer recognizes a named route.
+  *
+  * @param name The name of the route.
+  * @returns True if the named route is recognized.
+  */
   hasRoute(name: string): boolean {
     return !!this.names[name];
   }
 
   /**
-   * Generate a path and query string from a route name and params object.
-   *
-   * @method generate
-   * @param {String} name The name of the route.
-   * @param {Object} params The route params to use when populating the pattern.
-   *  Properties not required by the pattern will be appended to the query string.
-   * @return {String} The generated absolute path and query string.
-   */
+  * Generate a path and query string from a route name and params object.
+  *
+  * @param name The name of the route.
+  * @param params The route params to use when populating the pattern.
+  *  Properties not required by the pattern will be appended to the query string.
+  * @returns The generated absolute path and query string.
+  */
   generate(name: string, params: Object): string {
-    params = Object.assign({}, params);
+    let routeParams = Object.assign({}, params);
 
-    var route = this.names[name],
-        consumed = {}, output = '';
-
+    let route = this.names[name];
     if (!route) {
       throw new Error(`There is no route named ${name}`);
     }
 
-    var segments = route.segments;
+    let segments = route.segments;
+    let consumed = {};
+    let output = '';
 
-    for (var i = 0, l = segments.length; i < l; i++) {
-      var segment = segments[i];
+    for (let i = 0, l = segments.length; i < l; i++) {
+      let segment = segments[i];
 
       if (segment instanceof EpsilonSegment) {
         continue;
       }
 
       output += '/';
-      var segmentValue = segment.generate(params, consumed);
+      let segmentValue = segment.generate(routeParams, consumed);
       if (segmentValue === null || segmentValue === undefined) {
         throw new Error(`A value is required for route parameter '${segment.name}' in route '${name}'.`);
       }
@@ -344,148 +341,58 @@ export class RouteRecognizer {
     }
 
     // remove params used in the path and add the rest to the querystring
-    for (var param in consumed) {
-      delete params[param];
+    for (let param in consumed) {
+      delete routeParams[param];
     }
 
-    output += this.generateQueryString(params);
+    let queryString = buildQueryString(routeParams);
+    output += queryString ? `?${queryString}` : '';
 
     return output;
   }
 
   /**
-   * Generate a query string from an object.
-   *
-   * @method generateQueryString
-   * @param {Object} params Object containing the keys and values to be used.
-   * @return {String} The generated query string, including leading '?'.
-   */
-  generateQueryString(params: Object): string {
-    var pairs = [], keys = [], encode = encodeURIComponent,
-      encodeKey = k => encode(k).replace('%24', '$');
-
-    for (var key in params) {
-      if (params.hasOwnProperty(key)) {
-        keys.push(key);
-      }
-    }
-
-    keys.sort();
-    for (var i = 0, len = keys.length; i < len; i++) {
-      key = keys[i];
-      var value = params[key];
-      if (value === null || value === undefined) {
-        continue;
-      }
-
-      if (Array.isArray(value)) {
-        var arrayKey = `${encodeKey(key)}[]`;
-        for (var j = 0, l = value.length; j < l; j++) {
-          pairs.push(`${arrayKey}=${encode(value[j])}`);
-        }
-      } else {
-        pairs.push(`${encodeKey(key)}=${encode(value)}`);
-      }
-    }
-
-    if (pairs.length === 0) {
-      return '';
-    }
-
-    return '?' + pairs.join('&');
-  }
-
-  /**
-   * Parse a query string.
-   *
-   * @method parseQueryString
-   * @param {String} The query string to parse.
-   * @return {Object} Object with keys and values mapped from the query string.
-   */
-  parseQueryString(queryString: string): Object {
-    var queryParams = {};
-    if (!queryString || typeof queryString !== 'string') {
-      return queryParams;
-    }
-
-    if (queryString.charAt(0) === '?') {
-      queryString = queryString.substr(1);
-    }
-
-    var pairs = queryString.split('&');
-    for(var i = 0; i < pairs.length; i++) {
-      var pair = pairs[i].split('='),
-          key = decodeURIComponent(pair[0]),
-          keyLength = key.length,
-          isArray = false,
-          value;
-
-      if (!key) {
-        continue;
-      } else if (pair.length === 1) {
-        value = true;
-      } else {
-        //Handle arrays
-        if (keyLength > 2 && key.slice(keyLength -2) === '[]') {
-          isArray = true;
-          key = key.slice(0, keyLength - 2);
-          if(!queryParams[key]) {
-            queryParams[key] = [];
-          }
-        }
-        value = pair[1] ? decodeURIComponent(pair[1]) : '';
-      }
-      if (isArray) {
-        queryParams[key].push(value);
-      } else {
-        queryParams[key] = value;
-      }
-    }
-    return queryParams;
-  }
-
-  /**
-   * Match a path string against registered route patterns.
-   *
-   * @method recognize
-   * @param {String} path The path to attempt to match.
-   * @return {Array} Array of objects containing `handler`, `params`, and
-   *  `isDynanic` values for the matched route(s), or undefined if no match
-   *  was found.
-   */
+  * Match a path string against registered route patterns.
+  *
+  * @param path The path to attempt to match.
+  * @returns Array of objects containing `handler`, `params`, and
+  *  `isDynanic` values for the matched route(s), or undefined if no match
+  *  was found.
+  */
   recognize(path: string): RecognizedRoute[] {
-    var states = [ this.rootState ],
-        pathLen, i, l, queryStart, queryParams = {},
-        isSlashDropped = false;
+    let states = [this.rootState];
+    let queryParams = {};
+    let isSlashDropped = false;
+    let normalizedPath = path;
 
-    queryStart = path.indexOf('?');
+    let queryStart = normalizedPath.indexOf('?');
     if (queryStart !== -1) {
-      var queryString = path.substr(queryStart + 1, path.length);
-      path = path.substr(0, queryStart);
-      queryParams = this.parseQueryString(queryString);
+      let queryString = normalizedPath.substr(queryStart + 1, normalizedPath.length);
+      normalizedPath = normalizedPath.substr(0, queryStart);
+      queryParams = parseQueryString(queryString);
     }
 
-    path = decodeURI(path);
+    normalizedPath = decodeURI(normalizedPath);
 
-    if (path.charAt(0) !== '/') {
-      path = '/' + path;
+    if (normalizedPath.charAt(0) !== '/') {
+      normalizedPath = '/' + normalizedPath;
     }
 
-    pathLen = path.length;
-    if (pathLen > 1 && path.charAt(pathLen - 1) === '/') {
-      path = path.substr(0, pathLen - 1);
+    let pathLen = normalizedPath.length;
+    if (pathLen > 1 && normalizedPath.charAt(pathLen - 1) === '/') {
+      normalizedPath = normalizedPath.substr(0, pathLen - 1);
       isSlashDropped = true;
     }
 
-    for (i = 0, l = path.length; i < l; i++) {
-      states = recognizeChar(states, path.charAt(i));
+    for (let i = 0, l = normalizedPath.length; i < l; i++) {
+      states = recognizeChar(states, normalizedPath.charAt(i));
       if (!states.length) {
         break;
       }
     }
 
-    var solutions = [];
-    for (i=0, l=states.length; i<l; i++) {
+    let solutions = [];
+    for (let i = 0, l = states.length; i < l; i++) {
       if (states[i].handlers) {
         solutions.push(states[i]);
       }
@@ -493,14 +400,15 @@ export class RouteRecognizer {
 
     states = sortSolutions(solutions);
 
-    var state = solutions[0];
+    let state = solutions[0];
     if (state && state.handlers) {
       // if a trailing slash was dropped and a star segment is the last segment
       // specified, put the trailing slash back
       if (isSlashDropped && state.regex.source.slice(-5) === '(.+)$') {
-        path = path + '/';
+        normalizedPath = normalizedPath + '/';
       }
-      return findHandler(state, path, queryParams);
+
+      return findHandler(state, normalizedPath, queryParams);
     }
   }
 }
@@ -518,24 +426,28 @@ class RecognizeResults {
 function parse(route, names, types) {
   // normalize route as not starting with a '/'. Recognition will
   // also normalize.
+  let normalizedRoute = route;
   if (route.charAt(0) === '/') {
-    route = route.substr(1);
+    normalizedRoute = route.substr(1);
   }
 
-  var results = [];
+  let results = [];
 
-  for (let segment of route.split('/')) {
-    let match;
-
-    if (match = segment.match(/^:([^\/]+)$/)) {
+  for (let segment of normalizedRoute.split('/')) {
+    let match = segment.match(/^:([^\/]+)$/);
+    if (match) {
       results.push(new DynamicSegment(match[1]));
       names.push(match[1]);
       types.dynamics++;
-    } else if (match = segment.match(/^\*([^\/]+)$/)) {
+      continue;
+    }
+
+    match = segment.match(/^\*([^\/]+)$/);
+    if (match) {
       results.push(new StarSegment(match[1]));
       names.push(match[1]);
       types.stars++;
-    } else if(segment === '') {
+    } else if (segment === '') {
       results.push(new EpsilonSegment());
     } else {
       results.push(new StaticSegment(segment));
@@ -584,26 +496,29 @@ function sortSolutions(states) {
 }
 
 function recognizeChar(states, ch) {
-  var nextStates = [];
+  let nextStates = [];
 
-  for (var i = 0, l = states.length; i < l; i++) {
-    var state = states[i];
-
-    nextStates = nextStates.concat(state.match(ch));
+  for (let i = 0, l = states.length; i < l; i++) {
+    let state = states[i];
+    nextStates.push(...state.match(ch));
   }
 
   return nextStates;
 }
 
 function findHandler(state, path, queryParams) {
-  var handlers = state.handlers, regex = state.regex;
-  var captures = path.match(regex), currentCapture = 1;
-  var result = new RecognizeResults(queryParams);
+  let handlers = state.handlers;
+  let regex = state.regex;
+  let captures = path.match(regex);
+  let currentCapture = 1;
+  let result = new RecognizeResults(queryParams);
 
-  for (var i = 0, l = handlers.length; i < l; i++) {
-    var handler = handlers[i], names = handler.names, params = {};
+  for (let i = 0, l = handlers.length; i < l; i++) {
+    let handler = handlers[i];
+    let names = handler.names;
+    let params = {};
 
-    for (var j = 0, m = names.length; j < m; j++) {
+    for (let j = 0, m = names.length; j < m; j++) {
       params[names[j]] = captures[currentCapture++];
     }
 
@@ -614,9 +529,10 @@ function findHandler(state, path, queryParams) {
 }
 
 function addSegment(currentState, segment) {
+  let state = currentState;
   segment.eachChar(ch => {
-    currentState = currentState.put(ch);
+    state = state.put(ch);
   });
 
-  return currentState;
+  return state;
 }

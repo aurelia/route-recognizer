@@ -2,13 +2,11 @@
 
 exports.__esModule = true;
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _coreJs = require('core-js');
+require('core-js');
 
-var core = _interopRequireWildcard(_coreJs);
+var _aureliaPath = require('aurelia-path');
 
 var State = (function () {
   function State(charSpec) {
@@ -60,23 +58,19 @@ var State = (function () {
   };
 
   State.prototype.match = function match(ch) {
-    var nextStates = this.nextStates,
-        results = [],
-        child,
-        charSpec,
-        chars;
+    var nextStates = this.nextStates;
+    var results = [];
 
     for (var i = 0, l = nextStates.length; i < l; i++) {
-      child = nextStates[i];
+      var child = nextStates[i];
+      var charSpec = child.charSpec;
 
-      charSpec = child.charSpec;
-
-      if (typeof (chars = charSpec.validChars) !== 'undefined') {
-        if (chars.indexOf(ch) !== -1) {
+      if (charSpec.validChars !== undefined) {
+        if (charSpec.validChars.indexOf(ch) !== -1) {
           results.push(child);
         }
-      } else if (typeof (chars = charSpec.invalidChars) !== 'undefined') {
-        if (chars.indexOf(ch) === -1) {
+      } else if (charSpec.invalidChars !== undefined) {
+        if (charSpec.invalidChars.indexOf(ch) === -1) {
           results.push(child);
         }
       }
@@ -89,7 +83,6 @@ var State = (function () {
 })();
 
 exports.State = State;
-;
 
 var specials = ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'];
 
@@ -125,7 +118,7 @@ var StaticSegment = (function () {
     return this.string.replace(escapeRegex, '\\$1');
   };
 
-  StaticSegment.prototype.generate = function generate(params, consumed) {
+  StaticSegment.prototype.generate = function generate() {
     return this.string;
   };
 
@@ -189,13 +182,13 @@ var EpsilonSegment = (function () {
     _classCallCheck(this, EpsilonSegment);
   }
 
-  EpsilonSegment.prototype.eachChar = function eachChar(callback) {};
+  EpsilonSegment.prototype.eachChar = function eachChar() {};
 
   EpsilonSegment.prototype.regex = function regex() {
     return '';
   };
 
-  EpsilonSegment.prototype.generate = function generate(params, consumed) {
+  EpsilonSegment.prototype.generate = function generate() {
     return '';
   };
 
@@ -213,49 +206,25 @@ var RouteRecognizer = (function () {
   }
 
   RouteRecognizer.prototype.add = function add(route) {
+    var _this = this;
+
     if (Array.isArray(route)) {
-      for (var _iterator3 = route, _isArray3 = Array.isArray(_iterator3), _i3 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
-        var _ref3;
-
-        if (_isArray3) {
-          if (_i3 >= _iterator3.length) break;
-          _ref3 = _iterator3[_i3++];
-        } else {
-          _i3 = _iterator3.next();
-          if (_i3.done) break;
-          _ref3 = _i3.value;
-        }
-
-        var r = _ref3;
-
-        this.add(r);
-      }
-
-      return;
+      route.forEach(function (r) {
+        return _this.add(r);
+      });
+      return undefined;
     }
 
-    var currentState = this.rootState,
-        regex = '^',
-        types = { statics: 0, dynamics: 0, stars: 0 },
-        names = [],
-        routeName = route.handler.name,
-        isEmpty = true;
-
+    var currentState = this.rootState;
+    var regex = '^';
+    var types = { statics: 0, dynamics: 0, stars: 0 };
+    var names = [];
+    var routeName = route.handler.name;
+    var isEmpty = true;
     var segments = parse(route.path, names, types);
-    for (var _iterator4 = segments, _isArray4 = Array.isArray(_iterator4), _i4 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
-      var _ref4;
 
-      if (_isArray4) {
-        if (_i4 >= _iterator4.length) break;
-        _ref4 = _iterator4[_i4++];
-      } else {
-        _i4 = _iterator4.next();
-        if (_i4.done) break;
-        _ref4 = _i4.value;
-      }
-
-      var segment = _ref4;
-
+    for (var i = 0, ii = segments.length; i < ii; i++) {
+      var segment = segments[i];
       if (segment instanceof EpsilonSegment) {
         continue;
       }
@@ -291,18 +260,12 @@ var RouteRecognizer = (function () {
   };
 
   RouteRecognizer.prototype.handlersFor = function handlersFor(name) {
-    var route = this.names[name],
-        result = [];
-
+    var route = this.names[name];
     if (!route) {
       throw new Error('There is no route named ' + name);
     }
 
-    for (var i = 0, l = route.handlers.length; i < l; i++) {
-      result.push(route.handlers[i]);
-    }
-
-    return result;
+    return [].concat(route.handlers);
   };
 
   RouteRecognizer.prototype.hasRoute = function hasRoute(name) {
@@ -310,17 +273,16 @@ var RouteRecognizer = (function () {
   };
 
   RouteRecognizer.prototype.generate = function generate(name, params) {
-    params = Object.assign({}, params);
+    var routeParams = Object.assign({}, params);
 
-    var route = this.names[name],
-        consumed = {},
-        output = '';
-
+    var route = this.names[name];
     if (!route) {
       throw new Error('There is no route named ' + name);
     }
 
     var segments = route.segments;
+    var consumed = {};
+    var output = '';
 
     for (var i = 0, l = segments.length; i < l; i++) {
       var segment = segments[i];
@@ -330,7 +292,7 @@ var RouteRecognizer = (function () {
       }
 
       output += '/';
-      var segmentValue = segment.generate(params, consumed);
+      var segmentValue = segment.generate(routeParams, consumed);
       if (segmentValue === null || segmentValue === undefined) {
         throw new Error('A value is required for route parameter \'' + segment.name + '\' in route \'' + name + '\'.');
       }
@@ -343,131 +305,49 @@ var RouteRecognizer = (function () {
     }
 
     for (var param in consumed) {
-      delete params[param];
+      delete routeParams[param];
     }
 
-    output += this.generateQueryString(params);
+    var queryString = _aureliaPath.buildQueryString(routeParams);
+    output += queryString ? '?' + queryString : '';
 
     return output;
   };
 
-  RouteRecognizer.prototype.generateQueryString = function generateQueryString(params) {
-    var pairs = [],
-        keys = [],
-        encode = encodeURIComponent,
-        encodeKey = function encodeKey(k) {
-      return encode(k).replace('%24', '$');
-    };
-
-    for (var key in params) {
-      if (params.hasOwnProperty(key)) {
-        keys.push(key);
-      }
-    }
-
-    keys.sort();
-    for (var i = 0, len = keys.length; i < len; i++) {
-      key = keys[i];
-      var value = params[key];
-      if (value === null || value === undefined) {
-        continue;
-      }
-
-      if (Array.isArray(value)) {
-        var arrayKey = encodeKey(key) + '[]';
-        for (var j = 0, l = value.length; j < l; j++) {
-          pairs.push(arrayKey + '=' + encode(value[j]));
-        }
-      } else {
-        pairs.push(encodeKey(key) + '=' + encode(value));
-      }
-    }
-
-    if (pairs.length === 0) {
-      return '';
-    }
-
-    return '?' + pairs.join('&');
-  };
-
-  RouteRecognizer.prototype.parseQueryString = function parseQueryString(queryString) {
-    var queryParams = {};
-    if (!queryString || typeof queryString !== 'string') {
-      return queryParams;
-    }
-
-    if (queryString.charAt(0) === '?') {
-      queryString = queryString.substr(1);
-    }
-
-    var pairs = queryString.split('&');
-    for (var i = 0; i < pairs.length; i++) {
-      var pair = pairs[i].split('='),
-          key = decodeURIComponent(pair[0]),
-          keyLength = key.length,
-          isArray = false,
-          value;
-
-      if (!key) {
-        continue;
-      } else if (pair.length === 1) {
-        value = true;
-      } else {
-        if (keyLength > 2 && key.slice(keyLength - 2) === '[]') {
-          isArray = true;
-          key = key.slice(0, keyLength - 2);
-          if (!queryParams[key]) {
-            queryParams[key] = [];
-          }
-        }
-        value = pair[1] ? decodeURIComponent(pair[1]) : '';
-      }
-      if (isArray) {
-        queryParams[key].push(value);
-      } else {
-        queryParams[key] = value;
-      }
-    }
-    return queryParams;
-  };
-
   RouteRecognizer.prototype.recognize = function recognize(path) {
-    var states = [this.rootState],
-        pathLen,
-        i,
-        l,
-        queryStart,
-        queryParams = {},
-        isSlashDropped = false;
+    var states = [this.rootState];
+    var queryParams = {};
+    var isSlashDropped = false;
+    var normalizedPath = path;
 
-    queryStart = path.indexOf('?');
+    var queryStart = normalizedPath.indexOf('?');
     if (queryStart !== -1) {
-      var queryString = path.substr(queryStart + 1, path.length);
-      path = path.substr(0, queryStart);
-      queryParams = this.parseQueryString(queryString);
+      var queryString = normalizedPath.substr(queryStart + 1, normalizedPath.length);
+      normalizedPath = normalizedPath.substr(0, queryStart);
+      queryParams = _aureliaPath.parseQueryString(queryString);
     }
 
-    path = decodeURI(path);
+    normalizedPath = decodeURI(normalizedPath);
 
-    if (path.charAt(0) !== '/') {
-      path = '/' + path;
+    if (normalizedPath.charAt(0) !== '/') {
+      normalizedPath = '/' + normalizedPath;
     }
 
-    pathLen = path.length;
-    if (pathLen > 1 && path.charAt(pathLen - 1) === '/') {
-      path = path.substr(0, pathLen - 1);
+    var pathLen = normalizedPath.length;
+    if (pathLen > 1 && normalizedPath.charAt(pathLen - 1) === '/') {
+      normalizedPath = normalizedPath.substr(0, pathLen - 1);
       isSlashDropped = true;
     }
 
-    for (i = 0, l = path.length; i < l; i++) {
-      states = recognizeChar(states, path.charAt(i));
+    for (var i = 0, l = normalizedPath.length; i < l; i++) {
+      states = recognizeChar(states, normalizedPath.charAt(i));
       if (!states.length) {
         break;
       }
     }
 
     var solutions = [];
-    for (i = 0, l = states.length; i < l; i++) {
+    for (var i = 0, l = states.length; i < l; i++) {
       if (states[i].handlers) {
         solutions.push(states[i]);
       }
@@ -478,9 +358,10 @@ var RouteRecognizer = (function () {
     var state = solutions[0];
     if (state && state.handlers) {
       if (isSlashDropped && state.regex.source.slice(-5) === '(.+)$') {
-        path = path + '/';
+        normalizedPath = normalizedPath + '/';
       }
-      return findHandler(state, path, queryParams);
+
+      return findHandler(state, normalizedPath, queryParams);
     }
   };
 
@@ -500,33 +381,37 @@ var RecognizeResults = function RecognizeResults(queryParams) {
 };
 
 function parse(route, names, types) {
+  var normalizedRoute = route;
   if (route.charAt(0) === '/') {
-    route = route.substr(1);
+    normalizedRoute = route.substr(1);
   }
 
   var results = [];
 
-  for (var _iterator5 = route.split('/'), _isArray5 = Array.isArray(_iterator5), _i5 = 0, _iterator5 = _isArray5 ? _iterator5 : _iterator5[Symbol.iterator]();;) {
-    var _ref5;
+  for (var _iterator3 = normalizedRoute.split('/'), _isArray3 = Array.isArray(_iterator3), _i3 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
+    var _ref3;
 
-    if (_isArray5) {
-      if (_i5 >= _iterator5.length) break;
-      _ref5 = _iterator5[_i5++];
+    if (_isArray3) {
+      if (_i3 >= _iterator3.length) break;
+      _ref3 = _iterator3[_i3++];
     } else {
-      _i5 = _iterator5.next();
-      if (_i5.done) break;
-      _ref5 = _i5.value;
+      _i3 = _iterator3.next();
+      if (_i3.done) break;
+      _ref3 = _i3.value;
     }
 
-    var segment = _ref5;
+    var segment = _ref3;
 
-    var match = undefined;
-
-    if (match = segment.match(/^:([^\/]+)$/)) {
+    var match = segment.match(/^:([^\/]+)$/);
+    if (match) {
       results.push(new DynamicSegment(match[1]));
       names.push(match[1]);
       types.dynamics++;
-    } else if (match = segment.match(/^\*([^\/]+)$/)) {
+      continue;
+    }
+
+    match = segment.match(/^\*([^\/]+)$/);
+    if (match) {
       results.push(new StarSegment(match[1]));
       names.push(match[1]);
       types.stars++;
@@ -573,39 +458,39 @@ function recognizeChar(states, ch) {
 
   for (var i = 0, l = states.length; i < l; i++) {
     var state = states[i];
-
-    nextStates = nextStates.concat(state.match(ch));
+    nextStates.push.apply(nextStates, state.match(ch));
   }
 
   return nextStates;
 }
 
 function findHandler(state, path, queryParams) {
-  var handlers = state.handlers,
-      regex = state.regex;
-  var captures = path.match(regex),
-      currentCapture = 1;
+  var handlers = state.handlers;
+  var regex = state.regex;
+  var captures = path.match(regex);
+  var currentCapture = 1;
   var result = new RecognizeResults(queryParams);
 
   for (var i = 0, l = handlers.length; i < l; i++) {
-    var handler = handlers[i],
-        names = handler.names,
-        params = {};
+    var _handler = handlers[i];
+    var _names = _handler.names;
+    var _params = {};
 
-    for (var j = 0, m = names.length; j < m; j++) {
-      params[names[j]] = captures[currentCapture++];
+    for (var j = 0, m = _names.length; j < m; j++) {
+      _params[_names[j]] = captures[currentCapture++];
     }
 
-    result.push({ handler: handler.handler, params: params, isDynamic: !!names.length });
+    result.push({ handler: _handler.handler, params: _params, isDynamic: !!_names.length });
   }
 
   return result;
 }
 
 function addSegment(currentState, segment) {
+  var state = currentState;
   segment.eachChar(function (ch) {
-    currentState = currentState.put(ch);
+    state = state.put(ch);
   });
 
-  return currentState;
+  return state;
 }

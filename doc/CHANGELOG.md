@@ -1,3 +1,17 @@
+## 0.7.0 (2015-09-04)
+
+
+#### Bug Fixes
+
+* **build:** update linting, testing and tools ([f49bf0d3](http://github.com/aurelia/route-recognizer/commit/f49bf0d3db3bb453807b60f4eb1c673dec945a16))
+
+
+#### Features
+
+* **docs:** generate api.json from .d.ts file ([e5441c97](http://github.com/aurelia/route-recognizer/commit/e5441c970d741edd42322c70a3abb2d514c69fa4))
+* **route-recognizer:** use query string helpers from aurelia-path ([a96f5a0f](http://github.com/aurelia/route-recognizer/commit/a96f5a0f01cf64182ec09da1d064b67245ae59bf))
+
+
 ### 0.6.2 (2015-08-14)
 
 

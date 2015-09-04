@@ -13,7 +13,7 @@ System.config({
   },
 
   map: {
-    "aurelia-path": "github:aurelia/path@0.8.1",
+    "aurelia-path": "github:aurelia/path@0.9.0",
     "babel": "npm:babel-core@5.2.0",
     "babel-runtime": "npm:babel-runtime@5.2.0",
     "core-js": "npm:core-js@1.1.3",
