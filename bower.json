@@ -16,7 +16,7 @@
     "url": "http://github.com/aurelia/route-recognizer"
   },
   "dependencies": {
-    "aurelia-path": "^0.10.0",
+    "aurelia-path": "^0.11.0",
     "core-js": "zloirock/core-js"
   }
 }
