@@ -17,6 +17,11 @@
     "type": "git",
     "url": "http://github.com/aurelia/route-recognizer"
   },
+  "scripts": {
+    "postinstall": "jspm install",
+    "test": "gulp test",
+    "ci": "gulp ci"
+  },
   "jspmNodeConversion": false,
   "jspm": {
     "main": "aurelia-route-recognizer",
