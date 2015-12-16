@@ -18,7 +18,6 @@
     "url": "http://github.com/aurelia/route-recognizer"
   },
   "scripts": {
-    "postinstall": "jspm install",
     "test": "gulp test",
     "ci": "gulp ci"
   },
