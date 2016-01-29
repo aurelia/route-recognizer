@@ -1,3 +1,11 @@
+### 1.0.0-beta.1.1.0 (2016-01-29)
+
+
+#### Features
+
+* **all:** update jspm meta; core-js; aurelia deps ([59b29532](http://github.com/aurelia/route-recognizer/commit/59b295320c66d2757cbeda708f09e2c49940214f))
+
+
 ### 1.0.0-beta.1 (2015-11-16)
 
 
