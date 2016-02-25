@@ -1,4 +1,3 @@
-import 'core-js';
 import {buildQueryString, parseQueryString} from 'aurelia-path';
 import {State} from './state';
 import {
