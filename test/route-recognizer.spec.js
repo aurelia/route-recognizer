@@ -3,6 +3,7 @@ import core from 'core-js';
 
 const staticRoute = {'path': 'static','handler': {'name': 'static'}};
 const dynamicRoute = {'path': 'dynamic/:id','handler': {'name': 'dynamic'}};
+const multiNameRoute = {'path': 'static','handler': {'name': ['static-multiple', 'static-multiple-alias']}};
 
 const routeTestData = [{
     title: 'empty path routes',
@@ -116,5 +117,13 @@ describe('route recognizer', () => {
 
     expect(recognizer.hasRoute('static')).toBe(true);
     expect(recognizer.handlersFor('static')[0].handler).toEqual(staticRoute.handler);
+  });
+
+  it('should find a handler by multiple names', () => {
+    let recognizer = new RouteRecognizer();
+    recognizer.add([multiNameRoute]);
+
+    expect(recognizer.handlersFor('static-multiple')[0].handler)
+      .toEqual(recognizer.handlersFor('static-multiple-alias')[0].handler)
   });
 });
