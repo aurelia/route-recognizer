@@ -4,8 +4,6 @@ exports.__esModule = true;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-require('core-js');
-
 var _aureliaPath = require('aurelia-path');
 
 var State = (function () {
@@ -246,10 +244,13 @@ var RouteRecognizer = (function () {
     var handlers = [{ handler: route.handler, names: names }];
 
     if (routeName) {
-      this.names[routeName] = {
-        segments: segments,
-        handlers: handlers
-      };
+      var routeNames = Array.isArray(routeName) ? routeName : [routeName];
+      for (var i = 0; i < routeNames.length; i++) {
+        this.names[routeNames[i]] = {
+          segments: segments,
+          handlers: handlers
+        };
+      }
     }
 
     currentState.handlers = handlers;

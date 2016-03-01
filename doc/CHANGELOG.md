@@ -1,3 +1,17 @@
+### 1.0.0-beta.1.1.2 (2016-03-01)
+
+
+#### Bug Fixes
+
+* **all:** remove core-js dependency ([7f97b087](http://github.com/aurelia/route-recognizer/commit/7f97b08711f0b89e86b9a09d399f6e026685c200))
+* **bower:** remove core-js ([12879fa7](http://github.com/aurelia/route-recognizer/commit/12879fa754cc0b0503e066b84bc234b9ab9863cb))
+
+
+#### Features
+
+* **route-recognizer:** Support multiple names per route ([6b5637d2](http://github.com/aurelia/route-recognizer/commit/6b5637d296af90127dd293d975592c7e62182a2f))
+
+
 ### 1.0.0-beta.1.1.1 (2016-02-08)
 
 

@@ -1,4 +1,4 @@
-System.register(['core-js', 'aurelia-path'], function (_export) {
+System.register(['aurelia-path'], function (_export) {
   'use strict';
 
   var buildQueryString, parseQueryString, State, specials, escapeRegex, StaticSegment, DynamicSegment, StarSegment, EpsilonSegment, RouteRecognizer, RecognizeResults;
@@ -120,7 +120,7 @@ System.register(['core-js', 'aurelia-path'], function (_export) {
     return state;
   }
   return {
-    setters: [function (_coreJs) {}, function (_aureliaPath) {
+    setters: [function (_aureliaPath) {
       buildQueryString = _aureliaPath.buildQueryString;
       parseQueryString = _aureliaPath.parseQueryString;
     }],
@@ -362,10 +362,13 @@ System.register(['core-js', 'aurelia-path'], function (_export) {
           var handlers = [{ handler: route.handler, names: names }];
 
           if (routeName) {
-            this.names[routeName] = {
-              segments: segments,
-              handlers: handlers
-            };
+            var routeNames = Array.isArray(routeName) ? routeName : [routeName];
+            for (var i = 0; i < routeNames.length; i++) {
+              this.names[routeNames[i]] = {
+                segments: segments,
+                handlers: handlers
+              };
+            }
           }
 
           currentState.handlers = handlers;

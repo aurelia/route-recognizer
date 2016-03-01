@@ -1,5 +1,4 @@
 declare module 'aurelia-route-recognizer' {
-  import 'core-js';
   import { buildQueryString, parseQueryString }  from 'aurelia-path';
   export interface RouteHandler {
     name: string;

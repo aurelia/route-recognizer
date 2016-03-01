@@ -1,4 +1,3 @@
-import 'core-js';
 import {buildQueryString,parseQueryString} from 'aurelia-path';
 
 // A State has a character specification and (`charSpec`) and a list of possible
@@ -262,10 +261,13 @@ export class RouteRecognizer {
     let handlers = [{ handler: route.handler, names: names }];
 
     if (routeName) {
-      this.names[routeName] = {
-        segments: segments,
-        handlers: handlers
-      };
+      let routeNames = Array.isArray(routeName) ? routeName : [routeName];
+      for (let i = 0; i < routeNames.length; i++) {
+        this.names[routeNames[i]] = {
+          segments: segments,
+          handlers: handlers
+        };
+      }
     }
 
     currentState.handlers = handlers;

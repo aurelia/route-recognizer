@@ -1,4 +1,4 @@
-define(['exports', 'core-js', 'aurelia-path'], function (exports, _coreJs, _aureliaPath) {
+define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
   'use strict';
 
   exports.__esModule = true;
@@ -243,10 +243,13 @@ define(['exports', 'core-js', 'aurelia-path'], function (exports, _coreJs, _aure
       var handlers = [{ handler: route.handler, names: names }];
 
       if (routeName) {
-        this.names[routeName] = {
-          segments: segments,
-          handlers: handlers
-        };
+        var routeNames = Array.isArray(routeName) ? routeName : [routeName];
+        for (var i = 0; i < routeNames.length; i++) {
+          this.names[routeNames[i]] = {
+            segments: segments,
+            handlers: handlers
+          };
+        }
       }
 
       currentState.handlers = handlers;
