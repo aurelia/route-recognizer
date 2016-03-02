@@ -1,3 +1,11 @@
+### 1.0.0-beta.1.1.3 (2016-03-02)
+
+
+#### Bug Fixes
+
+* **for-of:** remove for of loop ([adc9e312](http://github.com/aurelia/route-recognizer/commit/adc9e3122a7499cdde71206ef45026dd14129cbf))
+
+
 ### 1.0.0-beta.1.1.2 (2016-03-01)
 
 

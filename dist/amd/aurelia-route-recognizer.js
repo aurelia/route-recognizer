@@ -93,20 +93,9 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
     }
 
     StaticSegment.prototype.eachChar = function eachChar(callback) {
-      for (var _iterator2 = this.string, _isArray2 = Array.isArray(_iterator2), _i2 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
-        var _ref2;
-
-        if (_isArray2) {
-          if (_i2 >= _iterator2.length) break;
-          _ref2 = _iterator2[_i2++];
-        } else {
-          _i2 = _iterator2.next();
-          if (_i2.done) break;
-          _ref2 = _i2.value;
-        }
-
-        var ch = _ref2;
-
+      var s = this.string;
+      for (var i = 0, ii = s.length; i < ii; ++i) {
+        var ch = s[i];
         callback({ validChars: ch });
       }
     };
@@ -388,20 +377,9 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
 
     var results = [];
 
-    for (var _iterator3 = normalizedRoute.split('/'), _isArray3 = Array.isArray(_iterator3), _i3 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
-      var _ref3;
-
-      if (_isArray3) {
-        if (_i3 >= _iterator3.length) break;
-        _ref3 = _iterator3[_i3++];
-      } else {
-        _i3 = _iterator3.next();
-        if (_i3.done) break;
-        _ref3 = _i3.value;
-      }
-
-      var segment = _ref3;
-
+    var splitRoute = normalizedRoute.split('/');
+    for (var i = 0, ii = splitRoute.length; i < ii; ++i) {
+      var segment = splitRoute[i];
       var match = segment.match(/^:([^\/]+)$/);
       if (match) {
         results.push(new DynamicSegment(match[1]));

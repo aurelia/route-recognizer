@@ -114,7 +114,9 @@ export class StaticSegment {
   }
 
   eachChar(callback: (spec: CharSpec) => void): void {
-    for (let ch of this.string) {
+    let s = this.string;
+    for (let i = 0, ii = s.length; i < ii; ++i) {
+      let ch = s[i];
       callback({ validChars: ch });
     }
   }
@@ -435,7 +437,9 @@ function parse(route, names, types) {
 
   let results = [];
 
-  for (let segment of normalizedRoute.split('/')) {
+  let splitRoute = normalizedRoute.split('/');
+  for (let i = 0, ii = splitRoute.length; i < ii; ++i) {
+    let segment = splitRoute[i];
     let match = segment.match(/^:([^\/]+)$/);
     if (match) {
       results.push(new DynamicSegment(match[1]));
