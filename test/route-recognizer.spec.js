@@ -67,8 +67,8 @@ describe('route recognizer', () => {
     expect(recognizer.recognize('/b')).toBeTruthy();
   });
 
-  for (var i = routeTestData.length - 1; i >= 0; i--) {
-    var routeTest = routeTestData[i]
+  for (let i = routeTestData.length - 1; i >= 0; i--) {
+    let routeTest = routeTestData[i];
 
     it(`should recognize ${routeTest.title}`, () => {
       let recognizer = new RouteRecognizer();

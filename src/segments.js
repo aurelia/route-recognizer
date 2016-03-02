@@ -28,7 +28,8 @@ export class StaticSegment {
   }
 
   eachChar(callback: (spec: CharSpec) => void): void {
-    for (let ch of this.string) {
+    for (let i = 0; i < this.string.length; i++) {
+      let ch = this.string[i];
       callback({ validChars: ch });
     }
   }
