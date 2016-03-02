@@ -237,7 +237,9 @@ function parse(route, names, types) {
 
   let results = [];
 
-  for (let segment of normalizedRoute.split('/')) {
+  let splitRoute = normalizedRoute.split('/');
+  for (var i = 0; i < splitRoute.length; i++) {
+    let segment = splitRoute[i];
     let match = segment.match(/^:([^\/]+)$/);
     if (match) {
       results.push(new DynamicSegment(match[1]));
