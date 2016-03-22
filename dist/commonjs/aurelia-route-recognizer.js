@@ -1,12 +1,15 @@
 'use strict';
 
-exports.__esModule = true;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.RouteRecognizer = exports.EpsilonSegment = exports.StarSegment = exports.DynamicSegment = exports.StaticSegment = exports.State = undefined;
 
 var _aureliaPath = require('aurelia-path');
 
-var State = (function () {
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var State = exports.State = function () {
   function State(charSpec) {
     _classCallCheck(this, State);
 
@@ -78,15 +81,13 @@ var State = (function () {
   };
 
   return State;
-})();
-
-exports.State = State;
+}();
 
 var specials = ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'];
 
 var escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
 
-var StaticSegment = (function () {
+var StaticSegment = exports.StaticSegment = function () {
   function StaticSegment(string) {
     _classCallCheck(this, StaticSegment);
 
@@ -110,11 +111,9 @@ var StaticSegment = (function () {
   };
 
   return StaticSegment;
-})();
+}();
 
-exports.StaticSegment = StaticSegment;
-
-var DynamicSegment = (function () {
+var DynamicSegment = exports.DynamicSegment = function () {
   function DynamicSegment(name) {
     _classCallCheck(this, DynamicSegment);
 
@@ -135,11 +134,9 @@ var DynamicSegment = (function () {
   };
 
   return DynamicSegment;
-})();
+}();
 
-exports.DynamicSegment = DynamicSegment;
-
-var StarSegment = (function () {
+var StarSegment = exports.StarSegment = function () {
   function StarSegment(name) {
     _classCallCheck(this, StarSegment);
 
@@ -160,11 +157,9 @@ var StarSegment = (function () {
   };
 
   return StarSegment;
-})();
+}();
 
-exports.StarSegment = StarSegment;
-
-var EpsilonSegment = (function () {
+var EpsilonSegment = exports.EpsilonSegment = function () {
   function EpsilonSegment() {
     _classCallCheck(this, EpsilonSegment);
   }
@@ -180,11 +175,9 @@ var EpsilonSegment = (function () {
   };
 
   return EpsilonSegment;
-})();
+}();
 
-exports.EpsilonSegment = EpsilonSegment;
-
-var RouteRecognizer = (function () {
+var RouteRecognizer = exports.RouteRecognizer = function () {
   function RouteRecognizer() {
     _classCallCheck(this, RouteRecognizer);
 
@@ -234,8 +227,8 @@ var RouteRecognizer = (function () {
 
     if (routeName) {
       var routeNames = Array.isArray(routeName) ? routeName : [routeName];
-      for (var i = 0; i < routeNames.length; i++) {
-        this.names[routeNames[i]] = {
+      for (var _i2 = 0; _i2 < routeNames.length; _i2++) {
+        this.names[routeNames[_i2]] = {
           segments: segments,
           handlers: handlers
         };
@@ -298,7 +291,7 @@ var RouteRecognizer = (function () {
       delete routeParams[param];
     }
 
-    var queryString = _aureliaPath.buildQueryString(routeParams);
+    var queryString = (0, _aureliaPath.buildQueryString)(routeParams);
     output += queryString ? '?' + queryString : '';
 
     return output;
@@ -314,7 +307,7 @@ var RouteRecognizer = (function () {
     if (queryStart !== -1) {
       var queryString = normalizedPath.substr(queryStart + 1, normalizedPath.length);
       normalizedPath = normalizedPath.substr(0, queryStart);
-      queryParams = _aureliaPath.parseQueryString(queryString);
+      queryParams = (0, _aureliaPath.parseQueryString)(queryString);
     }
 
     normalizedPath = decodeURI(normalizedPath);
@@ -337,9 +330,9 @@ var RouteRecognizer = (function () {
     }
 
     var solutions = [];
-    for (var i = 0, l = states.length; i < l; i++) {
-      if (states[i].handlers) {
-        solutions.push(states[i]);
+    for (var _i3 = 0, _l = states.length; _i3 < _l; _i3++) {
+      if (states[_i3].handlers) {
+        solutions.push(states[_i3]);
       }
     }
 
@@ -356,9 +349,7 @@ var RouteRecognizer = (function () {
   };
 
   return RouteRecognizer;
-})();
-
-exports.RouteRecognizer = RouteRecognizer;
+}();
 
 var RecognizeResults = function RecognizeResults(queryParams) {
   _classCallCheck(this, RecognizeResults);

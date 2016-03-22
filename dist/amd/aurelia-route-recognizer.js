@@ -1,11 +1,18 @@
 define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
   'use strict';
 
-  exports.__esModule = true;
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.RouteRecognizer = exports.EpsilonSegment = exports.StarSegment = exports.DynamicSegment = exports.StaticSegment = exports.State = undefined;
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
 
-  var State = (function () {
+  var State = exports.State = function () {
     function State(charSpec) {
       _classCallCheck(this, State);
 
@@ -77,15 +84,13 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
     };
 
     return State;
-  })();
-
-  exports.State = State;
+  }();
 
   var specials = ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'];
 
   var escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
 
-  var StaticSegment = (function () {
+  var StaticSegment = exports.StaticSegment = function () {
     function StaticSegment(string) {
       _classCallCheck(this, StaticSegment);
 
@@ -109,11 +114,9 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
     };
 
     return StaticSegment;
-  })();
+  }();
 
-  exports.StaticSegment = StaticSegment;
-
-  var DynamicSegment = (function () {
+  var DynamicSegment = exports.DynamicSegment = function () {
     function DynamicSegment(name) {
       _classCallCheck(this, DynamicSegment);
 
@@ -134,11 +137,9 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
     };
 
     return DynamicSegment;
-  })();
+  }();
 
-  exports.DynamicSegment = DynamicSegment;
-
-  var StarSegment = (function () {
+  var StarSegment = exports.StarSegment = function () {
     function StarSegment(name) {
       _classCallCheck(this, StarSegment);
 
@@ -159,11 +160,9 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
     };
 
     return StarSegment;
-  })();
+  }();
 
-  exports.StarSegment = StarSegment;
-
-  var EpsilonSegment = (function () {
+  var EpsilonSegment = exports.EpsilonSegment = function () {
     function EpsilonSegment() {
       _classCallCheck(this, EpsilonSegment);
     }
@@ -179,11 +178,9 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
     };
 
     return EpsilonSegment;
-  })();
+  }();
 
-  exports.EpsilonSegment = EpsilonSegment;
-
-  var RouteRecognizer = (function () {
+  var RouteRecognizer = exports.RouteRecognizer = function () {
     function RouteRecognizer() {
       _classCallCheck(this, RouteRecognizer);
 
@@ -233,8 +230,8 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
 
       if (routeName) {
         var routeNames = Array.isArray(routeName) ? routeName : [routeName];
-        for (var i = 0; i < routeNames.length; i++) {
-          this.names[routeNames[i]] = {
+        for (var _i2 = 0; _i2 < routeNames.length; _i2++) {
+          this.names[routeNames[_i2]] = {
             segments: segments,
             handlers: handlers
           };
@@ -297,7 +294,7 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
         delete routeParams[param];
       }
 
-      var queryString = _aureliaPath.buildQueryString(routeParams);
+      var queryString = (0, _aureliaPath.buildQueryString)(routeParams);
       output += queryString ? '?' + queryString : '';
 
       return output;
@@ -313,7 +310,7 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
       if (queryStart !== -1) {
         var queryString = normalizedPath.substr(queryStart + 1, normalizedPath.length);
         normalizedPath = normalizedPath.substr(0, queryStart);
-        queryParams = _aureliaPath.parseQueryString(queryString);
+        queryParams = (0, _aureliaPath.parseQueryString)(queryString);
       }
 
       normalizedPath = decodeURI(normalizedPath);
@@ -336,9 +333,9 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
       }
 
       var solutions = [];
-      for (var i = 0, l = states.length; i < l; i++) {
-        if (states[i].handlers) {
-          solutions.push(states[i]);
+      for (var _i3 = 0, _l = states.length; _i3 < _l; _i3++) {
+        if (states[_i3].handlers) {
+          solutions.push(states[_i3]);
         }
       }
 
@@ -355,9 +352,7 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
     };
 
     return RouteRecognizer;
-  })();
-
-  exports.RouteRecognizer = RouteRecognizer;
+  }();
 
   var RecognizeResults = function RecognizeResults(queryParams) {
     _classCallCheck(this, RecognizeResults);

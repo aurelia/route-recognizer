@@ -1,9 +1,13 @@
-System.register(['aurelia-path'], function (_export) {
-  'use strict';
+'use strict';
 
+System.register(['aurelia-path'], function (_export, _context) {
   var buildQueryString, parseQueryString, State, specials, escapeRegex, StaticSegment, DynamicSegment, StarSegment, EpsilonSegment, RouteRecognizer, RecognizeResults;
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
 
   function parse(route, names, types) {
     var normalizedRoute = route;
@@ -114,7 +118,7 @@ System.register(['aurelia-path'], function (_export) {
       parseQueryString = _aureliaPath.parseQueryString;
     }],
     execute: function () {
-      State = (function () {
+      _export('State', State = function () {
         function State(charSpec) {
           _classCallCheck(this, State);
 
@@ -186,14 +190,14 @@ System.register(['aurelia-path'], function (_export) {
         };
 
         return State;
-      })();
+      }());
 
       _export('State', State);
 
       specials = ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'];
       escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
 
-      StaticSegment = (function () {
+      _export('StaticSegment', StaticSegment = function () {
         function StaticSegment(string) {
           _classCallCheck(this, StaticSegment);
 
@@ -217,11 +221,11 @@ System.register(['aurelia-path'], function (_export) {
         };
 
         return StaticSegment;
-      })();
+      }());
 
       _export('StaticSegment', StaticSegment);
 
-      DynamicSegment = (function () {
+      _export('DynamicSegment', DynamicSegment = function () {
         function DynamicSegment(name) {
           _classCallCheck(this, DynamicSegment);
 
@@ -242,11 +246,11 @@ System.register(['aurelia-path'], function (_export) {
         };
 
         return DynamicSegment;
-      })();
+      }());
 
       _export('DynamicSegment', DynamicSegment);
 
-      StarSegment = (function () {
+      _export('StarSegment', StarSegment = function () {
         function StarSegment(name) {
           _classCallCheck(this, StarSegment);
 
@@ -267,11 +271,11 @@ System.register(['aurelia-path'], function (_export) {
         };
 
         return StarSegment;
-      })();
+      }());
 
       _export('StarSegment', StarSegment);
 
-      EpsilonSegment = (function () {
+      _export('EpsilonSegment', EpsilonSegment = function () {
         function EpsilonSegment() {
           _classCallCheck(this, EpsilonSegment);
         }
@@ -287,11 +291,11 @@ System.register(['aurelia-path'], function (_export) {
         };
 
         return EpsilonSegment;
-      })();
+      }());
 
       _export('EpsilonSegment', EpsilonSegment);
 
-      RouteRecognizer = (function () {
+      _export('RouteRecognizer', RouteRecognizer = function () {
         function RouteRecognizer() {
           _classCallCheck(this, RouteRecognizer);
 
@@ -341,8 +345,8 @@ System.register(['aurelia-path'], function (_export) {
 
           if (routeName) {
             var routeNames = Array.isArray(routeName) ? routeName : [routeName];
-            for (var i = 0; i < routeNames.length; i++) {
-              this.names[routeNames[i]] = {
+            for (var _i2 = 0; _i2 < routeNames.length; _i2++) {
+              this.names[routeNames[_i2]] = {
                 segments: segments,
                 handlers: handlers
               };
@@ -444,9 +448,9 @@ System.register(['aurelia-path'], function (_export) {
           }
 
           var solutions = [];
-          for (var i = 0, l = states.length; i < l; i++) {
-            if (states[i].handlers) {
-              solutions.push(states[i]);
+          for (var _i3 = 0, _l = states.length; _i3 < _l; _i3++) {
+            if (states[_i3].handlers) {
+              solutions.push(states[_i3]);
             }
           }
 
@@ -463,7 +467,7 @@ System.register(['aurelia-path'], function (_export) {
         };
 
         return RouteRecognizer;
-      })();
+      }());
 
       _export('RouteRecognizer', RouteRecognizer);
 

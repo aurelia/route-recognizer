@@ -296,59 +296,6 @@
       ]
     },
     {
-      "id": 104,
-      "name": "RecognizeResults",
-      "kind": 128,
-      "kindString": "Class",
-      "flags": {},
-      "children": [
-        {
-          "id": 105,
-          "name": "constructor",
-          "kind": 512,
-          "kindString": "Constructor",
-          "flags": {},
-          "signatures": [
-            {
-              "id": 106,
-              "name": "new RecognizeResults",
-              "kind": 16384,
-              "kindString": "Constructor signature",
-              "flags": {},
-              "parameters": [
-                {
-                  "id": 107,
-                  "name": "queryParams",
-                  "kind": 32768,
-                  "kindString": "Parameter",
-                  "flags": {},
-                  "type": {
-                    "type": "reference",
-                    "name": "Object"
-                  }
-                }
-              ],
-              "type": {
-                "type": "reference",
-                "name": "RecognizeResults",
-                "id": 104,
-                "moduleName": "\"aurelia-route-recognizer\""
-              }
-            }
-          ]
-        }
-      ],
-      "groups": [
-        {
-          "title": "Constructors",
-          "kind": 512,
-          "children": [
-            105
-          ]
-        }
-      ]
-    },
-    {
       "id": 85,
       "name": "RouteRecognizer",
       "kind": 128,
@@ -1487,7 +1434,6 @@
       "children": [
         46,
         78,
-        104,
         85,
         62,
         19,
