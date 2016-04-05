@@ -13,10 +13,15 @@ import {
 * @class RouteRecognizer
 * @constructor
 */
-export class RouteRecognizer {
+export class RouteRecognizer {  
   constructor() {
-    this.rootState = new State();
+    this.rootState = new State();    
     this.names = {};
+    this.caseSensitive = true;
+  }
+  
+  setCaseSensitive(caseSensitive) {
+      this.caseSensitive = caseSensitive;      
   }
 
   /**
@@ -36,7 +41,7 @@ export class RouteRecognizer {
     let names = [];
     let routeName = route.handler.name;
     let isEmpty = true;
-    let segments = parse(route.path, names, types);
+    let segments = parse(route.path, names, types);    
 
     for (let i = 0, ii = segments.length; i < ii; i++) {
       let segment = segments[i];
@@ -51,7 +56,7 @@ export class RouteRecognizer {
       regex += '/';
 
       // Add a representation of the segment to the NFA and regex
-      currentState = addSegment(currentState, segment);
+      currentState = addSegment(currentState, segment, this.caseSensitive);
       regex += segment.regex();
     }
 
@@ -73,7 +78,7 @@ export class RouteRecognizer {
     }
 
     currentState.handlers = handlers;
-    currentState.regex = new RegExp(regex + '$');
+    currentState.regex = this.caseSensitive? new RegExp(regex + '$') : new RegExp(regex + '$', 'i');
     currentState.types = types;
 
     return currentState;
@@ -210,9 +215,9 @@ export class RouteRecognizer {
       // specified, put the trailing slash back
       if (isSlashDropped && state.regex.source.slice(-5) === '(.+)$') {
         normalizedPath = normalizedPath + '/';
-      }
-
-      return findHandler(state, normalizedPath, queryParams);
+      }      
+      
+      return findHandler(state, normalizedPath, queryParams, this.caseSensitive);
     }
   }
 }
@@ -312,18 +317,18 @@ function recognizeChar(states, ch) {
   return nextStates;
 }
 
-function findHandler(state, path, queryParams) {
+function findHandler(state, path, queryParams, caseSensitive) {
   let handlers = state.handlers;
   let regex = state.regex;
   let captures = path.match(regex);
   let currentCapture = 1;
   let result = new RecognizeResults(queryParams);
-
+  
   for (let i = 0, l = handlers.length; i < l; i++) {
     let handler = handlers[i];
     let names = handler.names;
     let params = {};
-
+    
     for (let j = 0, m = names.length; j < m; j++) {
       params[names[j]] = captures[currentCapture++];
     }
@@ -334,10 +339,13 @@ function findHandler(state, path, queryParams) {
   return result;
 }
 
-function addSegment(currentState, segment) {
+function addSegment(currentState, segment, caseSensitive) {
   let state = currentState;
   segment.eachChar(ch => {
-    state = state.put(ch);
+    if (!caseSensitive && segment instanceof StaticSegment) {
+        ch.validChars = ch.validChars.toUpperCase() + ch.validChars.toLowerCase();        
+    }    
+    state = state.put(ch);    
   });
 
   return state;

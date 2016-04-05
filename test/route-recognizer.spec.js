@@ -70,11 +70,26 @@ describe('route recognizer', () => {
   for (let i = routeTestData.length - 1; i >= 0; i--) {
     let routeTest = routeTestData[i];
 
+    it(`should recognize ${routeTest.title} being case insensitive ${routeTest.path}`, () => {      
+      let recognizer = new RouteRecognizer();
+      recognizer.setCaseSensitive(false);
+      recognizer.add([routeTest.route]);
+
+      let result = recognizer.recognize(routeTest.path.toUpperCase());      
+      expect(result).toBeTruthy();
+      expect(result.length).toBe(1);
+      expect(result[0].handler).toEqual(routeTest.route.handler);
+      expect(result[0].isDynamic).toBe(routeTest.isDynamic);           
+      Object.keys(result[0].params).forEach((property) => {
+        expect(result[0].params[property].toUpperCase()).toEqual(routeTest.params[property].toUpperCase());        
+      });
+    });
+    
     it(`should recognize ${routeTest.title}`, () => {
       let recognizer = new RouteRecognizer();
       recognizer.add([routeTest.route]);
 
-      let result = recognizer.recognize(routeTest.path);
+      let result = recognizer.recognize(routeTest.path);      
       expect(result).toBeTruthy();
       expect(result.length).toBe(1);
       expect(result[0].handler).toEqual(routeTest.route.handler);
