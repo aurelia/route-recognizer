@@ -89,7 +89,7 @@ describe('route recognizer', () => {
       let recognizer = new RouteRecognizer();
       recognizer.add([routeTest.route]);
 
-      let result = recognizer.recognize(routeTest.path);      
+      let result = recognizer.recognize(routeTest.path);
       expect(result).toBeTruthy();
       expect(result.length).toBe(1);
       expect(result[0].handler).toEqual(routeTest.route.handler);

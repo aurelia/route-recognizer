@@ -13,9 +13,9 @@ import {
 * @class RouteRecognizer
 * @constructor
 */
-export class RouteRecognizer {  
+export class RouteRecognizer {
   constructor() {
-    this.rootState = new State();    
+    this.rootState = new State();
     this.names = {};
     this.caseSensitive = true;
   }
@@ -41,7 +41,7 @@ export class RouteRecognizer {
     let names = [];
     let routeName = route.handler.name;
     let isEmpty = true;
-    let segments = parse(route.path, names, types);    
+    let segments = parse(route.path, names, types);
 
     for (let i = 0, ii = segments.length; i < ii; i++) {
       let segment = segments[i];
@@ -215,9 +215,9 @@ export class RouteRecognizer {
       // specified, put the trailing slash back
       if (isSlashDropped && state.regex.source.slice(-5) === '(.+)$') {
         normalizedPath = normalizedPath + '/';
-      }      
-      
-      return findHandler(state, normalizedPath, queryParams, this.caseSensitive);
+      }
+
+      return findHandler(state, normalizedPath, queryParams);
     }
   }
 }
@@ -317,13 +317,13 @@ function recognizeChar(states, ch) {
   return nextStates;
 }
 
-function findHandler(state, path, queryParams, caseSensitive) {
+function findHandler(state, path, queryParams) {
   let handlers = state.handlers;
   let regex = state.regex;
   let captures = path.match(regex);
   let currentCapture = 1;
   let result = new RecognizeResults(queryParams);
-  
+
   for (let i = 0, l = handlers.length; i < l; i++) {
     let handler = handlers[i];
     let names = handler.names;
