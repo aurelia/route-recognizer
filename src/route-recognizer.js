@@ -20,7 +20,13 @@ export class RouteRecognizer {
     this.caseSensitive = true;
   }
 
-  setCaseSensitive(caseSensitive) {
+  /**
+  * Set case sensitive to recognizer object. Default value is true.
+  * You can set `caseSensitive` property for each route.
+  *
+  * @param caseSensitive The route to add.
+  */
+  setCaseSensitive(caseSensitive : boolean) {
     this.caseSensitive = caseSensitive;
   }
 
@@ -42,6 +48,7 @@ export class RouteRecognizer {
     let routeName = route.handler.name;
     let isEmpty = true;
     let segments = parse(route.path, names, types);
+    const caseSensitiveRoute = route.caseSensitive === undefined ? this.caseSensitive : route.caseSensitive;
 
     for (let i = 0, ii = segments.length; i < ii; i++) {
       let segment = segments[i];
@@ -56,7 +63,7 @@ export class RouteRecognizer {
       regex += '/';
 
       // Add a representation of the segment to the NFA and regex
-      currentState = addSegment(currentState, segment, this.caseSensitive);
+      currentState = addSegment(currentState, segment, caseSensitiveRoute);
       regex += segment.regex();
     }
 
@@ -78,7 +85,7 @@ export class RouteRecognizer {
     }
 
     currentState.handlers = handlers;
-    currentState.regex = this.caseSensitive ? new RegExp(regex + '$') : new RegExp(regex + '$', 'i');
+    currentState.regex = caseSensitiveRoute ? new RegExp(regex + '$') : new RegExp(regex + '$', 'i');
     currentState.types = types;
 
     return currentState;
