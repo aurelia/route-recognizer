@@ -328,7 +328,7 @@ function findHandler(state, path, queryParams) {
     let handler = handlers[i];
     let names = handler.names;
     let params = {};
-    
+
     for (let j = 0, m = names.length; j < m; j++) {
       params[names[j]] = captures[currentCapture++];
     }
