@@ -19,9 +19,9 @@ export class RouteRecognizer {
     this.names = {};
     this.caseSensitive = true;
   }
-  
+
   setCaseSensitive(caseSensitive) {
-      this.caseSensitive = caseSensitive;      
+    this.caseSensitive = caseSensitive;
   }
 
   /**
@@ -78,7 +78,7 @@ export class RouteRecognizer {
     }
 
     currentState.handlers = handlers;
-    currentState.regex = this.caseSensitive? new RegExp(regex + '$') : new RegExp(regex + '$', 'i');
+    currentState.regex = this.caseSensitive ? new RegExp(regex + '$') : new RegExp(regex + '$', 'i');
     currentState.types = types;
 
     return currentState;
@@ -328,7 +328,7 @@ function findHandler(state, path, queryParams) {
     let handler = handlers[i];
     let names = handler.names;
     let params = {};
-    
+
     for (let j = 0, m = names.length; j < m; j++) {
       params[names[j]] = captures[currentCapture++];
     }
@@ -343,9 +343,9 @@ function addSegment(currentState, segment, caseSensitive) {
   let state = currentState;
   segment.eachChar(ch => {
     if (!caseSensitive && segment instanceof StaticSegment) {
-        ch.validChars = ch.validChars.toUpperCase() + ch.validChars.toLowerCase();        
-    }    
-    state = state.put(ch);    
+      ch.validChars = ch.validChars.toUpperCase() + ch.validChars.toLowerCase();
+    }
+    state = state.put(ch);
   });
 
   return state;
