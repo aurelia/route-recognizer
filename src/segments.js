@@ -23,15 +23,16 @@ const escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
 // * `repeat`: true if the character specification can repeat
 
 export class StaticSegment {
-  constructor(string: string) {
+  constructor(string: string, caseSensitive: boolean) {
     this.string = string;
+    this.caseSensitive = caseSensitive;
   }
 
   eachChar(callback: (spec: CharSpec) => void): void {
     let s = this.string;
     for (let i = 0, ii = s.length; i < ii; ++i) {
       let ch = s[i];
-      callback({ validChars: ch });
+      callback({ validChars: this.caseSensitive ? ch : ch.toUpperCase() + ch.toLowerCase() });
     }
   }
 

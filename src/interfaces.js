@@ -5,6 +5,7 @@ interface RouteHandler {
 interface ConfigurableRoute {
   path: string;
   handler: RouteHandler;
+  caseSensitive: boolean;
 }
 
 interface HandlerEntry {
