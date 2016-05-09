@@ -7,6 +7,8 @@
     "route"
   ],
   "homepage": "http://aurelia.io",
+  "main": "dist/commonjs/aurelia-route-recognizer.js",
+  "moduleType": "node",
   "license": "MIT",
   "authors": [
     "Rob Eisenberg <rob@bluespire.com> (http://robeisenberg.com/)"
