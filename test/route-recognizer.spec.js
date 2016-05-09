@@ -82,6 +82,20 @@ describe('route recognizer', () => {
       expect(result[0].params).toEqual(routeTest.params);
     });
 
+    it(`its case insensitive by default ${routeTest.title}`, () => {      
+      let recognizer = new RouteRecognizer();
+      recognizer.add([routeTest.route]);
+
+      let result = recognizer.recognize(routeTest.path.toUpperCase());
+      expect(result).toBeTruthy();
+      expect(result.length).toBe(1);
+      expect(result[0].handler).toEqual(routeTest.route.handler);
+      expect(result[0].isDynamic).toBe(routeTest.isDynamic);
+      Object.keys(result[0].params).forEach((property) => {
+        expect(result[0].params[property].toUpperCase()).toEqual(routeTest.params[property].toUpperCase());
+      });
+    });
+
     it(`should generate ${routeTest.title}`, () => {
       let recognizer = new RouteRecognizer();
       recognizer.add([routeTest.route]);
@@ -127,5 +141,20 @@ describe('route recognizer', () => {
 
     expect(recognizer.handlersFor('static-multiple')[0].handler)
       .toEqual(recognizer.handlersFor('static-multiple-alias')[0].handler)
+  });  
+    
+  it(`can set case sensitive route and fails`, () => {
+    let recognizer = new RouteRecognizer();
+    const routeTest = {
+      title: 'case sensitive route',
+      route: { 'path': 'CasE/InSeNsItIvE', 'handler': { 'name': 'static' }, 'caseSensitive': true },
+      isDynamic: false,
+      path: 'CasE/iNsEnSiTiVe',
+      params: {}
+    };
+    recognizer.add([routeTest.route]);
+
+    let result = recognizer.recognize(routeTest.path);
+    expect(result).toBeUndefined();
   });
 });
