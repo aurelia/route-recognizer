@@ -1,3 +1,11 @@
+### 1.0.0-beta.1.2.1 (2016-05-10)
+
+
+#### Bug Fixes
+
+* **route-recognizer:** route recognizer is case insensitive by default ([d89cde4c](http://github.com/aurelia/route-recognizer/commit/d89cde4c8abd104f8c8dcbdc4aed799be3b78555))
+
+
 ### 1.0.0-beta.1.2.0 (2016-03-22)
 
 * Update to Babel 6

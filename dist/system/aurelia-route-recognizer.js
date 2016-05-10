@@ -9,7 +9,7 @@ System.register(['aurelia-path'], function (_export, _context) {
     }
   }
 
-  function parse(route, names, types) {
+  function parse(route, names, types, caseSensitive) {
     var normalizedRoute = route;
     if (route.charAt(0) === '/') {
       normalizedRoute = route.substr(1);
@@ -36,7 +36,7 @@ System.register(['aurelia-path'], function (_export, _context) {
       } else if (segment === '') {
         results.push(new EpsilonSegment());
       } else {
-        results.push(new StaticSegment(segment));
+        results.push(new StaticSegment(segment, caseSensitive));
         types.statics++;
       }
     }
@@ -198,17 +198,18 @@ System.register(['aurelia-path'], function (_export, _context) {
       escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
 
       _export('StaticSegment', StaticSegment = function () {
-        function StaticSegment(string) {
+        function StaticSegment(string, caseSensitive) {
           _classCallCheck(this, StaticSegment);
 
           this.string = string;
+          this.caseSensitive = caseSensitive;
         }
 
         StaticSegment.prototype.eachChar = function eachChar(callback) {
           var s = this.string;
           for (var i = 0, ii = s.length; i < ii; ++i) {
             var ch = s[i];
-            callback({ validChars: ch });
+            callback({ validChars: this.caseSensitive ? ch : ch.toUpperCase() + ch.toLowerCase() });
           }
         };
 
@@ -319,7 +320,7 @@ System.register(['aurelia-path'], function (_export, _context) {
           var names = [];
           var routeName = route.handler.name;
           var isEmpty = true;
-          var segments = parse(route.path, names, types);
+          var segments = parse(route.path, names, types, route.caseSensitive);
 
           for (var i = 0, ii = segments.length; i < ii; i++) {
             var segment = segments[i];
@@ -354,7 +355,7 @@ System.register(['aurelia-path'], function (_export, _context) {
           }
 
           currentState.handlers = handlers;
-          currentState.regex = new RegExp(regex + '$');
+          currentState.regex = new RegExp(regex + '$', route.caseSensitive ? '' : 'i');
           currentState.types = types;
 
           return currentState;

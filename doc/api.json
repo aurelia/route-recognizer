@@ -6,7 +6,7 @@
   "flags": {},
   "children": [
     {
-      "id": 46,
+      "id": 48,
       "name": "DynamicSegment",
       "kind": 128,
       "kindString": "Class",
@@ -15,7 +15,7 @@
       },
       "children": [
         {
-          "id": 47,
+          "id": 49,
           "name": "constructor",
           "kind": 512,
           "kindString": "Constructor",
@@ -24,14 +24,14 @@
           },
           "signatures": [
             {
-              "id": 48,
+              "id": 50,
               "name": "new DynamicSegment",
               "kind": 16384,
               "kindString": "Constructor signature",
               "flags": {},
               "parameters": [
                 {
-                  "id": 49,
+                  "id": 51,
                   "name": "name",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -45,14 +45,14 @@
               "type": {
                 "type": "reference",
                 "name": "DynamicSegment",
-                "id": 46,
+                "id": 48,
                 "moduleName": "\"aurelia-route-recognizer\""
               }
             }
           ]
         },
         {
-          "id": 50,
+          "id": 52,
           "name": "eachChar",
           "kind": 2048,
           "kindString": "Method",
@@ -61,14 +61,14 @@
           },
           "signatures": [
             {
-              "id": 51,
+              "id": 53,
               "name": "eachChar",
               "kind": 4096,
               "kindString": "Call signature",
               "flags": {},
               "parameters": [
                 {
-                  "id": 52,
+                  "id": 54,
                   "name": "callback",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -76,21 +76,21 @@
                   "type": {
                     "type": "reflection",
                     "declaration": {
-                      "id": 53,
+                      "id": 55,
                       "name": "__type",
                       "kind": 65536,
                       "kindString": "Type literal",
                       "flags": {},
                       "signatures": [
                         {
-                          "id": 54,
+                          "id": 56,
                           "name": "__call",
                           "kind": 4096,
                           "kindString": "Call signature",
                           "flags": {},
                           "parameters": [
                             {
-                              "id": 55,
+                              "id": 57,
                               "name": "spec",
                               "kind": 32768,
                               "kindString": "Parameter",
@@ -98,7 +98,7 @@
                               "type": {
                                 "type": "reference",
                                 "name": "CharSpec",
-                                "id": 15
+                                "id": 16
                               }
                             }
                           ],
@@ -120,7 +120,7 @@
           ]
         },
         {
-          "id": 58,
+          "id": 60,
           "name": "generate",
           "kind": 2048,
           "kindString": "Method",
@@ -129,14 +129,14 @@
           },
           "signatures": [
             {
-              "id": 59,
+              "id": 61,
               "name": "generate",
               "kind": 4096,
               "kindString": "Call signature",
               "flags": {},
               "parameters": [
                 {
-                  "id": 60,
+                  "id": 62,
                   "name": "params",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -147,7 +147,7 @@
                   }
                 },
                 {
-                  "id": 61,
+                  "id": 63,
                   "name": "consumed",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -166,7 +166,7 @@
           ]
         },
         {
-          "id": 56,
+          "id": 58,
           "name": "regex",
           "kind": 2048,
           "kindString": "Method",
@@ -175,7 +175,7 @@
           },
           "signatures": [
             {
-              "id": 57,
+              "id": 59,
               "name": "regex",
               "kind": 4096,
               "kindString": "Call signature",
@@ -193,22 +193,22 @@
           "title": "Constructors",
           "kind": 512,
           "children": [
-            47
+            49
           ]
         },
         {
           "title": "Methods",
           "kind": 2048,
           "children": [
-            50,
-            58,
-            56
+            52,
+            60,
+            58
           ]
         }
       ]
     },
     {
-      "id": 78,
+      "id": 80,
       "name": "EpsilonSegment",
       "kind": 128,
       "kindString": "Class",
@@ -217,7 +217,7 @@
       },
       "children": [
         {
-          "id": 79,
+          "id": 81,
           "name": "eachChar",
           "kind": 2048,
           "kindString": "Method",
@@ -226,7 +226,7 @@
           },
           "signatures": [
             {
-              "id": 80,
+              "id": 82,
               "name": "eachChar",
               "kind": 4096,
               "kindString": "Call signature",
@@ -239,7 +239,7 @@
           ]
         },
         {
-          "id": 83,
+          "id": 85,
           "name": "generate",
           "kind": 2048,
           "kindString": "Method",
@@ -248,7 +248,7 @@
           },
           "signatures": [
             {
-              "id": 84,
+              "id": 86,
               "name": "generate",
               "kind": 4096,
               "kindString": "Call signature",
@@ -261,7 +261,7 @@
           ]
         },
         {
-          "id": 81,
+          "id": 83,
           "name": "regex",
           "kind": 2048,
           "kindString": "Method",
@@ -270,7 +270,7 @@
           },
           "signatures": [
             {
-              "id": 82,
+              "id": 84,
               "name": "regex",
               "kind": 4096,
               "kindString": "Call signature",
@@ -288,15 +288,15 @@
           "title": "Methods",
           "kind": 2048,
           "children": [
-            79,
-            83,
-            81
+            81,
+            85,
+            83
           ]
         }
       ]
     },
     {
-      "id": 85,
+      "id": 87,
       "name": "RouteRecognizer",
       "kind": 128,
       "kindString": "Class",
@@ -318,7 +318,7 @@
       },
       "children": [
         {
-          "id": 86,
+          "id": 88,
           "name": "constructor",
           "kind": 512,
           "kindString": "Constructor",
@@ -327,7 +327,7 @@
           },
           "signatures": [
             {
-              "id": 87,
+              "id": 89,
               "name": "new RouteRecognizer",
               "kind": 16384,
               "kindString": "Constructor signature",
@@ -335,14 +335,14 @@
               "type": {
                 "type": "reference",
                 "name": "RouteRecognizer",
-                "id": 85,
+                "id": 87,
                 "moduleName": "\"aurelia-route-recognizer\""
               }
             }
           ]
         },
         {
-          "id": 88,
+          "id": 90,
           "name": "add",
           "kind": 2048,
           "kindString": "Method",
@@ -351,7 +351,7 @@
           },
           "signatures": [
             {
-              "id": 89,
+              "id": 91,
               "name": "add",
               "kind": 4096,
               "kindString": "Call signature",
@@ -361,7 +361,7 @@
               },
               "parameters": [
                 {
-                  "id": 90,
+                  "id": 92,
                   "name": "route",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -390,14 +390,14 @@
               "type": {
                 "type": "reference",
                 "name": "State",
-                "id": 19,
+                "id": 20,
                 "moduleName": "\"aurelia-route-recognizer\""
               }
             }
           ]
         },
         {
-          "id": 97,
+          "id": 99,
           "name": "generate",
           "kind": 2048,
           "kindString": "Method",
@@ -406,7 +406,7 @@
           },
           "signatures": [
             {
-              "id": 98,
+              "id": 100,
               "name": "generate",
               "kind": 4096,
               "kindString": "Call signature",
@@ -417,7 +417,7 @@
               },
               "parameters": [
                 {
-                  "id": 99,
+                  "id": 101,
                   "name": "name",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -431,7 +431,7 @@
                   }
                 },
                 {
-                  "id": 100,
+                  "id": 102,
                   "name": "params",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -453,7 +453,7 @@
           ]
         },
         {
-          "id": 91,
+          "id": 93,
           "name": "handlersFor",
           "kind": 2048,
           "kindString": "Method",
@@ -462,7 +462,7 @@
           },
           "signatures": [
             {
-              "id": 92,
+              "id": 94,
               "name": "handlersFor",
               "kind": 4096,
               "kindString": "Call signature",
@@ -473,7 +473,7 @@
               },
               "parameters": [
                 {
-                  "id": 93,
+                  "id": 95,
                   "name": "name",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -491,14 +491,14 @@
                 "type": "reference",
                 "isArray": true,
                 "name": "HandlerEntry",
-                "id": 8,
+                "id": 9,
                 "moduleName": "\"aurelia-route-recognizer\""
               }
             }
           ]
         },
         {
-          "id": 94,
+          "id": 96,
           "name": "hasRoute",
           "kind": 2048,
           "kindString": "Method",
@@ -507,7 +507,7 @@
           },
           "signatures": [
             {
-              "id": 95,
+              "id": 97,
               "name": "hasRoute",
               "kind": 4096,
               "kindString": "Call signature",
@@ -518,7 +518,7 @@
               },
               "parameters": [
                 {
-                  "id": 96,
+                  "id": 98,
                   "name": "name",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -540,7 +540,7 @@
           ]
         },
         {
-          "id": 101,
+          "id": 103,
           "name": "recognize",
           "kind": 2048,
           "kindString": "Method",
@@ -549,7 +549,7 @@
           },
           "signatures": [
             {
-              "id": 102,
+              "id": 104,
               "name": "recognize",
               "kind": 4096,
               "kindString": "Call signature",
@@ -560,7 +560,7 @@
               },
               "parameters": [
                 {
-                  "id": 103,
+                  "id": 105,
                   "name": "path",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -578,7 +578,7 @@
                 "type": "reference",
                 "isArray": true,
                 "name": "RecognizedRoute",
-                "id": 11,
+                "id": 12,
                 "moduleName": "\"aurelia-route-recognizer\""
               }
             }
@@ -590,24 +590,24 @@
           "title": "Constructors",
           "kind": 512,
           "children": [
-            86
+            88
           ]
         },
         {
           "title": "Methods",
           "kind": 2048,
           "children": [
-            88,
-            97,
-            91,
-            94,
-            101
+            90,
+            99,
+            93,
+            96,
+            103
           ]
         }
       ]
     },
     {
-      "id": 62,
+      "id": 64,
       "name": "StarSegment",
       "kind": 128,
       "kindString": "Class",
@@ -616,7 +616,7 @@
       },
       "children": [
         {
-          "id": 63,
+          "id": 65,
           "name": "constructor",
           "kind": 512,
           "kindString": "Constructor",
@@ -625,14 +625,14 @@
           },
           "signatures": [
             {
-              "id": 64,
+              "id": 66,
               "name": "new StarSegment",
               "kind": 16384,
               "kindString": "Constructor signature",
               "flags": {},
               "parameters": [
                 {
-                  "id": 65,
+                  "id": 67,
                   "name": "name",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -646,14 +646,14 @@
               "type": {
                 "type": "reference",
                 "name": "StarSegment",
-                "id": 62,
+                "id": 64,
                 "moduleName": "\"aurelia-route-recognizer\""
               }
             }
           ]
         },
         {
-          "id": 66,
+          "id": 68,
           "name": "eachChar",
           "kind": 2048,
           "kindString": "Method",
@@ -662,14 +662,14 @@
           },
           "signatures": [
             {
-              "id": 67,
+              "id": 69,
               "name": "eachChar",
               "kind": 4096,
               "kindString": "Call signature",
               "flags": {},
               "parameters": [
                 {
-                  "id": 68,
+                  "id": 70,
                   "name": "callback",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -677,21 +677,21 @@
                   "type": {
                     "type": "reflection",
                     "declaration": {
-                      "id": 69,
+                      "id": 71,
                       "name": "__type",
                       "kind": 65536,
                       "kindString": "Type literal",
                       "flags": {},
                       "signatures": [
                         {
-                          "id": 70,
+                          "id": 72,
                           "name": "__call",
                           "kind": 4096,
                           "kindString": "Call signature",
                           "flags": {},
                           "parameters": [
                             {
-                              "id": 71,
+                              "id": 73,
                               "name": "spec",
                               "kind": 32768,
                               "kindString": "Parameter",
@@ -699,7 +699,7 @@
                               "type": {
                                 "type": "reference",
                                 "name": "CharSpec",
-                                "id": 15
+                                "id": 16
                               }
                             }
                           ],
@@ -721,7 +721,7 @@
           ]
         },
         {
-          "id": 74,
+          "id": 76,
           "name": "generate",
           "kind": 2048,
           "kindString": "Method",
@@ -730,14 +730,14 @@
           },
           "signatures": [
             {
-              "id": 75,
+              "id": 77,
               "name": "generate",
               "kind": 4096,
               "kindString": "Call signature",
               "flags": {},
               "parameters": [
                 {
-                  "id": 76,
+                  "id": 78,
                   "name": "params",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -748,7 +748,7 @@
                   }
                 },
                 {
-                  "id": 77,
+                  "id": 79,
                   "name": "consumed",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -767,7 +767,7 @@
           ]
         },
         {
-          "id": 72,
+          "id": 74,
           "name": "regex",
           "kind": 2048,
           "kindString": "Method",
@@ -776,7 +776,7 @@
           },
           "signatures": [
             {
-              "id": 73,
+              "id": 75,
               "name": "regex",
               "kind": 4096,
               "kindString": "Call signature",
@@ -794,22 +794,22 @@
           "title": "Constructors",
           "kind": 512,
           "children": [
-            63
+            65
           ]
         },
         {
           "title": "Methods",
           "kind": 2048,
           "children": [
-            66,
-            74,
-            72
+            68,
+            76,
+            74
           ]
         }
       ]
     },
     {
-      "id": 19,
+      "id": 20,
       "name": "State",
       "kind": 128,
       "kindString": "Class",
@@ -818,7 +818,7 @@
       },
       "children": [
         {
-          "id": 20,
+          "id": 21,
           "name": "constructor",
           "kind": 512,
           "kindString": "Constructor",
@@ -827,14 +827,14 @@
           },
           "signatures": [
             {
-              "id": 21,
+              "id": 22,
               "name": "new State",
               "kind": 16384,
               "kindString": "Constructor signature",
               "flags": {},
               "parameters": [
                 {
-                  "id": 22,
+                  "id": 23,
                   "name": "charSpec",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -842,7 +842,7 @@
                   "type": {
                     "type": "reference",
                     "name": "CharSpec",
-                    "id": 15,
+                    "id": 16,
                     "moduleName": "\"aurelia-route-recognizer\""
                   }
                 }
@@ -850,14 +850,14 @@
               "type": {
                 "type": "reference",
                 "name": "State",
-                "id": 19,
+                "id": 20,
                 "moduleName": "\"aurelia-route-recognizer\""
               }
             }
           ]
         },
         {
-          "id": 23,
+          "id": 24,
           "name": "get",
           "kind": 2048,
           "kindString": "Method",
@@ -866,14 +866,14 @@
           },
           "signatures": [
             {
-              "id": 24,
+              "id": 25,
               "name": "get",
               "kind": 4096,
               "kindString": "Call signature",
               "flags": {},
               "parameters": [
                 {
-                  "id": 25,
+                  "id": 26,
                   "name": "charSpec",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -881,7 +881,7 @@
                   "type": {
                     "type": "reference",
                     "name": "CharSpec",
-                    "id": 15,
+                    "id": 16,
                     "moduleName": "\"aurelia-route-recognizer\""
                   }
                 }
@@ -889,14 +889,14 @@
               "type": {
                 "type": "reference",
                 "name": "State",
-                "id": 19,
+                "id": 20,
                 "moduleName": "\"aurelia-route-recognizer\""
               }
             }
           ]
         },
         {
-          "id": 29,
+          "id": 30,
           "name": "match",
           "kind": 2048,
           "kindString": "Method",
@@ -905,14 +905,14 @@
           },
           "signatures": [
             {
-              "id": 30,
+              "id": 31,
               "name": "match",
               "kind": 4096,
               "kindString": "Call signature",
               "flags": {},
               "parameters": [
                 {
-                  "id": 31,
+                  "id": 32,
                   "name": "ch",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -927,14 +927,14 @@
                 "type": "reference",
                 "isArray": true,
                 "name": "State",
-                "id": 19,
+                "id": 20,
                 "moduleName": "\"aurelia-route-recognizer\""
               }
             }
           ]
         },
         {
-          "id": 26,
+          "id": 27,
           "name": "put",
           "kind": 2048,
           "kindString": "Method",
@@ -943,14 +943,14 @@
           },
           "signatures": [
             {
-              "id": 27,
+              "id": 28,
               "name": "put",
               "kind": 4096,
               "kindString": "Call signature",
               "flags": {},
               "parameters": [
                 {
-                  "id": 28,
+                  "id": 29,
                   "name": "charSpec",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -958,7 +958,7 @@
                   "type": {
                     "type": "reference",
                     "name": "CharSpec",
-                    "id": 15,
+                    "id": 16,
                     "moduleName": "\"aurelia-route-recognizer\""
                   }
                 }
@@ -966,7 +966,7 @@
               "type": {
                 "type": "reference",
                 "name": "State",
-                "id": 19,
+                "id": 20,
                 "moduleName": "\"aurelia-route-recognizer\""
               }
             }
@@ -978,22 +978,22 @@
           "title": "Constructors",
           "kind": 512,
           "children": [
-            20
+            21
           ]
         },
         {
           "title": "Methods",
           "kind": 2048,
           "children": [
-            23,
-            29,
-            26
+            24,
+            30,
+            27
           ]
         }
       ]
     },
     {
-      "id": 32,
+      "id": 33,
       "name": "StaticSegment",
       "kind": 128,
       "kindString": "Class",
@@ -1002,7 +1002,7 @@
       },
       "children": [
         {
-          "id": 33,
+          "id": 34,
           "name": "constructor",
           "kind": 512,
           "kindString": "Constructor",
@@ -1011,14 +1011,14 @@
           },
           "signatures": [
             {
-              "id": 34,
+              "id": 35,
               "name": "new StaticSegment",
               "kind": 16384,
               "kindString": "Constructor signature",
               "flags": {},
               "parameters": [
                 {
-                  "id": 35,
+                  "id": 36,
                   "name": "string",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -1027,19 +1027,30 @@
                     "type": "instrinct",
                     "name": "string"
                   }
+                },
+                {
+                  "id": 37,
+                  "name": "caseSensitive",
+                  "kind": 32768,
+                  "kindString": "Parameter",
+                  "flags": {},
+                  "type": {
+                    "type": "instrinct",
+                    "name": "boolean"
+                  }
                 }
               ],
               "type": {
                 "type": "reference",
                 "name": "StaticSegment",
-                "id": 32,
+                "id": 33,
                 "moduleName": "\"aurelia-route-recognizer\""
               }
             }
           ]
         },
         {
-          "id": 36,
+          "id": 38,
           "name": "eachChar",
           "kind": 2048,
           "kindString": "Method",
@@ -1048,14 +1059,14 @@
           },
           "signatures": [
             {
-              "id": 37,
+              "id": 39,
               "name": "eachChar",
               "kind": 4096,
               "kindString": "Call signature",
               "flags": {},
               "parameters": [
                 {
-                  "id": 38,
+                  "id": 40,
                   "name": "callback",
                   "kind": 32768,
                   "kindString": "Parameter",
@@ -1063,21 +1074,21 @@
                   "type": {
                     "type": "reflection",
                     "declaration": {
-                      "id": 39,
+                      "id": 41,
                       "name": "__type",
                       "kind": 65536,
                       "kindString": "Type literal",
                       "flags": {},
                       "signatures": [
                         {
-                          "id": 40,
+                          "id": 42,
                           "name": "__call",
                           "kind": 4096,
                           "kindString": "Call signature",
                           "flags": {},
                           "parameters": [
                             {
-                              "id": 41,
+                              "id": 43,
                               "name": "spec",
                               "kind": 32768,
                               "kindString": "Parameter",
@@ -1085,7 +1096,7 @@
                               "type": {
                                 "type": "reference",
                                 "name": "CharSpec",
-                                "id": 15
+                                "id": 16
                               }
                             }
                           ],
@@ -1107,7 +1118,7 @@
           ]
         },
         {
-          "id": 44,
+          "id": 46,
           "name": "generate",
           "kind": 2048,
           "kindString": "Method",
@@ -1116,7 +1127,7 @@
           },
           "signatures": [
             {
-              "id": 45,
+              "id": 47,
               "name": "generate",
               "kind": 4096,
               "kindString": "Call signature",
@@ -1129,7 +1140,7 @@
           ]
         },
         {
-          "id": 42,
+          "id": 44,
           "name": "regex",
           "kind": 2048,
           "kindString": "Method",
@@ -1138,7 +1149,7 @@
           },
           "signatures": [
             {
-              "id": 43,
+              "id": 45,
               "name": "regex",
               "kind": 4096,
               "kindString": "Call signature",
@@ -1156,22 +1167,22 @@
           "title": "Constructors",
           "kind": 512,
           "children": [
-            33
+            34
           ]
         },
         {
           "title": "Methods",
           "kind": 2048,
           "children": [
-            36,
-            44,
-            42
+            38,
+            46,
+            44
           ]
         }
       ]
     },
     {
-      "id": 15,
+      "id": 16,
       "name": "CharSpec",
       "kind": 256,
       "kindString": "Interface",
@@ -1180,7 +1191,7 @@
       },
       "children": [
         {
-          "id": 16,
+          "id": 17,
           "name": "invalidChars",
           "kind": 1024,
           "kindString": "Property",
@@ -1194,7 +1205,7 @@
           }
         },
         {
-          "id": 18,
+          "id": 19,
           "name": "repeat",
           "kind": 1024,
           "kindString": "Property",
@@ -1208,7 +1219,7 @@
           }
         },
         {
-          "id": 17,
+          "id": 18,
           "name": "validChars",
           "kind": 1024,
           "kindString": "Property",
@@ -1227,9 +1238,9 @@
           "title": "Properties",
           "kind": 1024,
           "children": [
-            16,
-            18,
-            17
+            17,
+            19,
+            18
           ]
         }
       ]
@@ -1243,6 +1254,19 @@
         "isExported": true
       },
       "children": [
+        {
+          "id": 8,
+          "name": "caseSensitive",
+          "kind": 1024,
+          "kindString": "Property",
+          "flags": {
+            "isExported": true
+          },
+          "type": {
+            "type": "instrinct",
+            "name": "boolean"
+          }
+        },
         {
           "id": 7,
           "name": "handler",
@@ -1276,6 +1300,7 @@
           "title": "Properties",
           "kind": 1024,
           "children": [
+            8,
             7,
             6
           ]
@@ -1283,7 +1308,7 @@
       ]
     },
     {
-      "id": 8,
+      "id": 9,
       "name": "HandlerEntry",
       "kind": 256,
       "kindString": "Interface",
@@ -1292,7 +1317,7 @@
       },
       "children": [
         {
-          "id": 9,
+          "id": 10,
           "name": "handler",
           "kind": 1024,
           "kindString": "Property",
@@ -1306,7 +1331,7 @@
           }
         },
         {
-          "id": 10,
+          "id": 11,
           "name": "names",
           "kind": 1024,
           "kindString": "Property",
@@ -1325,14 +1350,14 @@
           "title": "Properties",
           "kind": 1024,
           "children": [
-            9,
-            10
+            10,
+            11
           ]
         }
       ]
     },
     {
-      "id": 11,
+      "id": 12,
       "name": "RecognizedRoute",
       "kind": 256,
       "kindString": "Interface",
@@ -1341,7 +1366,7 @@
       },
       "children": [
         {
-          "id": 12,
+          "id": 13,
           "name": "handler",
           "kind": 1024,
           "kindString": "Property",
@@ -1355,7 +1380,7 @@
           }
         },
         {
-          "id": 14,
+          "id": 15,
           "name": "isDynamic",
           "kind": 1024,
           "kindString": "Property",
@@ -1368,7 +1393,7 @@
           }
         },
         {
-          "id": 13,
+          "id": 14,
           "name": "params",
           "kind": 1024,
           "kindString": "Property",
@@ -1386,9 +1411,9 @@
           "title": "Properties",
           "kind": 1024,
           "children": [
-            12,
-            14,
-            13
+            13,
+            15,
+            14
           ]
         }
       ]
@@ -1432,22 +1457,22 @@
       "title": "Classes",
       "kind": 128,
       "children": [
-        46,
-        78,
-        85,
-        62,
-        19,
-        32
+        48,
+        80,
+        87,
+        64,
+        20,
+        33
       ]
     },
     {
       "title": "Interfaces",
       "kind": 256,
       "children": [
-        15,
+        16,
         5,
-        8,
-        11,
+        9,
+        12,
         3
       ]
     }

@@ -109,15 +109,16 @@ const escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
 // * `repeat`: true if the character specification can repeat
 
 export class StaticSegment {
-  constructor(string: string) {
+  constructor(string: string, caseSensitive: boolean) {
     this.string = string;
+    this.caseSensitive = caseSensitive;
   }
 
   eachChar(callback: (spec: CharSpec) => void): void {
     let s = this.string;
     for (let i = 0, ii = s.length; i < ii; ++i) {
       let ch = s[i];
-      callback({ validChars: ch });
+      callback({ validChars: this.caseSensitive ? ch : ch.toUpperCase() + ch.toLowerCase() });
     }
   }
 
@@ -188,6 +189,7 @@ interface RouteHandler {
 interface ConfigurableRoute {
   path: string;
   handler: RouteHandler;
+  caseSensitive: boolean;
 }
 
 interface HandlerEntry {
@@ -236,7 +238,7 @@ export class RouteRecognizer {
     let names = [];
     let routeName = route.handler.name;
     let isEmpty = true;
-    let segments = parse(route.path, names, types);
+    let segments = parse(route.path, names, types, route.caseSensitive);
 
     for (let i = 0, ii = segments.length; i < ii; i++) {
       let segment = segments[i];
@@ -273,7 +275,7 @@ export class RouteRecognizer {
     }
 
     currentState.handlers = handlers;
-    currentState.regex = new RegExp(regex + '$');
+    currentState.regex = new RegExp(regex + '$', route.caseSensitive ? '' : 'i');
     currentState.types = types;
 
     return currentState;
@@ -427,7 +429,7 @@ class RecognizeResults {
   }
 }
 
-function parse(route, names, types) {
+function parse(route, names, types, caseSensitive) {
   // normalize route as not starting with a '/'. Recognition will
   // also normalize.
   let normalizedRoute = route;
@@ -456,7 +458,7 @@ function parse(route, names, types) {
     } else if (segment === '') {
       results.push(new EpsilonSegment());
     } else {
-      results.push(new StaticSegment(segment));
+      results.push(new StaticSegment(segment, caseSensitive));
       types.statics++;
     }
   }

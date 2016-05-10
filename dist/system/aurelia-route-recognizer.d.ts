@@ -9,6 +9,7 @@ declare module 'aurelia-route-recognizer' {
   export interface ConfigurableRoute {
     path: string;
     handler: RouteHandler;
+    caseSensitive: boolean;
   }
   export interface HandlerEntry {
     handler: RouteHandler;
@@ -67,7 +68,7 @@ declare module 'aurelia-route-recognizer' {
   // * `invalidChars`: a String with a list of all invalid characters
   // * `repeat`: true if the character specification can repeat
   export class StaticSegment {
-    constructor(string: string);
+    constructor(string: string, caseSensitive: boolean);
     eachChar(callback: ((spec: CharSpec) => void)): void;
     regex(): string;
     generate(): string;

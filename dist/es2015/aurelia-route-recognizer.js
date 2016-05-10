@@ -62,15 +62,16 @@ const specials = ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\
 const escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
 
 export let StaticSegment = class StaticSegment {
-  constructor(string) {
+  constructor(string, caseSensitive) {
     this.string = string;
+    this.caseSensitive = caseSensitive;
   }
 
   eachChar(callback) {
     let s = this.string;
     for (let i = 0, ii = s.length; i < ii; ++i) {
       let ch = s[i];
-      callback({ validChars: ch });
+      callback({ validChars: this.caseSensitive ? ch : ch.toUpperCase() + ch.toLowerCase() });
     }
   }
 
@@ -151,7 +152,7 @@ export let RouteRecognizer = class RouteRecognizer {
     let names = [];
     let routeName = route.handler.name;
     let isEmpty = true;
-    let segments = parse(route.path, names, types);
+    let segments = parse(route.path, names, types, route.caseSensitive);
 
     for (let i = 0, ii = segments.length; i < ii; i++) {
       let segment = segments[i];
@@ -186,7 +187,7 @@ export let RouteRecognizer = class RouteRecognizer {
     }
 
     currentState.handlers = handlers;
-    currentState.regex = new RegExp(regex + '$');
+    currentState.regex = new RegExp(regex + '$', route.caseSensitive ? '' : 'i');
     currentState.types = types;
 
     return currentState;
@@ -310,7 +311,7 @@ let RecognizeResults = class RecognizeResults {
 };
 
 
-function parse(route, names, types) {
+function parse(route, names, types, caseSensitive) {
   let normalizedRoute = route;
   if (route.charAt(0) === '/') {
     normalizedRoute = route.substr(1);
@@ -337,7 +338,7 @@ function parse(route, names, types) {
     } else if (segment === '') {
       results.push(new EpsilonSegment());
     } else {
-      results.push(new StaticSegment(segment));
+      results.push(new StaticSegment(segment, caseSensitive));
       types.statics++;
     }
   }

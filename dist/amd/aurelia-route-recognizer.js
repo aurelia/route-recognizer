@@ -91,17 +91,18 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
   var escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
 
   var StaticSegment = exports.StaticSegment = function () {
-    function StaticSegment(string) {
+    function StaticSegment(string, caseSensitive) {
       _classCallCheck(this, StaticSegment);
 
       this.string = string;
+      this.caseSensitive = caseSensitive;
     }
 
     StaticSegment.prototype.eachChar = function eachChar(callback) {
       var s = this.string;
       for (var i = 0, ii = s.length; i < ii; ++i) {
         var ch = s[i];
-        callback({ validChars: ch });
+        callback({ validChars: this.caseSensitive ? ch : ch.toUpperCase() + ch.toLowerCase() });
       }
     };
 
@@ -204,7 +205,7 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
       var names = [];
       var routeName = route.handler.name;
       var isEmpty = true;
-      var segments = parse(route.path, names, types);
+      var segments = parse(route.path, names, types, route.caseSensitive);
 
       for (var i = 0, ii = segments.length; i < ii; i++) {
         var segment = segments[i];
@@ -239,7 +240,7 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
       }
 
       currentState.handlers = handlers;
-      currentState.regex = new RegExp(regex + '$');
+      currentState.regex = new RegExp(regex + '$', route.caseSensitive ? '' : 'i');
       currentState.types = types;
 
       return currentState;
@@ -364,7 +365,7 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
     this.queryParams = queryParams || {};
   };
 
-  function parse(route, names, types) {
+  function parse(route, names, types, caseSensitive) {
     var normalizedRoute = route;
     if (route.charAt(0) === '/') {
       normalizedRoute = route.substr(1);
@@ -391,7 +392,7 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
       } else if (segment === '') {
         results.push(new EpsilonSegment());
       } else {
-        results.push(new StaticSegment(segment));
+        results.push(new StaticSegment(segment, caseSensitive));
         types.statics++;
       }
     }
