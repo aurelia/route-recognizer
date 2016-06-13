@@ -3,6 +3,7 @@
 [![npm Version](https://img.shields.io/npm/v/aurelia-route-recognizer.svg)](https://www.npmjs.com/package/aurelia-route-recognizer)
 [![ZenHub](https://raw.githubusercontent.com/ZenHubIO/support/master/zenhub-badge.png)](https://zenhub.io)
 [![Join the chat at https://gitter.im/aurelia/discuss](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/aurelia/discuss?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![CircleCI](https://circleci.com/gh/aurelia/route-recognizer.svg?style=shield)](https://circleci.com/gh/aurelia/route-recognizer)
 
 This library is part of the [Aurelia](http://www.aurelia.io/) platform and contains a lightweight JavaScript library that matches paths against registered routes. It includes support for dynamic and star segments and nested handlers.
 
