@@ -214,6 +214,8 @@ export class RouteRecognizer {
 
       return findHandler(state, normalizedPath, queryParams);
     }
+
+    return undefined;
   }
 }
 

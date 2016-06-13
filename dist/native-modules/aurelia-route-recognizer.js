@@ -1,15 +1,8 @@
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.RouteRecognizer = exports.EpsilonSegment = exports.StarSegment = exports.DynamicSegment = exports.StaticSegment = exports.State = undefined;
-
-var _aureliaPath = require('aurelia-path');
 
 
+import { buildQueryString, parseQueryString } from 'aurelia-path';
 
-var State = exports.State = function () {
+export var State = function () {
   function State(charSpec) {
     
 
@@ -89,7 +82,7 @@ var specials = ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'
 
 var escapeRegex = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
 
-var StaticSegment = exports.StaticSegment = function () {
+export var StaticSegment = function () {
   function StaticSegment(string, caseSensitive) {
     
 
@@ -116,7 +109,7 @@ var StaticSegment = exports.StaticSegment = function () {
   return StaticSegment;
 }();
 
-var DynamicSegment = exports.DynamicSegment = function () {
+export var DynamicSegment = function () {
   function DynamicSegment(name) {
     
 
@@ -139,7 +132,7 @@ var DynamicSegment = exports.DynamicSegment = function () {
   return DynamicSegment;
 }();
 
-var StarSegment = exports.StarSegment = function () {
+export var StarSegment = function () {
   function StarSegment(name) {
     
 
@@ -162,7 +155,7 @@ var StarSegment = exports.StarSegment = function () {
   return StarSegment;
 }();
 
-var EpsilonSegment = exports.EpsilonSegment = function () {
+export var EpsilonSegment = function () {
   function EpsilonSegment() {
     
   }
@@ -180,7 +173,7 @@ var EpsilonSegment = exports.EpsilonSegment = function () {
   return EpsilonSegment;
 }();
 
-var RouteRecognizer = exports.RouteRecognizer = function () {
+export var RouteRecognizer = function () {
   function RouteRecognizer() {
     
 
@@ -294,7 +287,7 @@ var RouteRecognizer = exports.RouteRecognizer = function () {
       delete routeParams[param];
     }
 
-    var queryString = (0, _aureliaPath.buildQueryString)(routeParams);
+    var queryString = buildQueryString(routeParams);
     output += queryString ? '?' + queryString : '';
 
     return output;
@@ -310,7 +303,7 @@ var RouteRecognizer = exports.RouteRecognizer = function () {
     if (queryStart !== -1) {
       var queryString = normalizedPath.substr(queryStart + 1, normalizedPath.length);
       normalizedPath = normalizedPath.substr(0, queryStart);
-      queryParams = (0, _aureliaPath.parseQueryString)(queryString);
+      queryParams = parseQueryString(queryString);
     }
 
     normalizedPath = decodeURI(normalizedPath);

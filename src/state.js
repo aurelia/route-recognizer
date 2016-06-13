@@ -30,6 +30,8 @@ export class State {
         return child;
       }
     }
+
+    return undefined;
   }
 
   put(charSpec: CharSpec): State {

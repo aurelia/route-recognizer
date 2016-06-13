@@ -6,15 +6,11 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
   });
   exports.RouteRecognizer = exports.EpsilonSegment = exports.StarSegment = exports.DynamicSegment = exports.StaticSegment = exports.State = undefined;
 
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
+  
 
   var State = exports.State = function () {
     function State(charSpec) {
-      _classCallCheck(this, State);
+      
 
       this.charSpec = charSpec;
       this.nextStates = [];
@@ -41,6 +37,8 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
           return child;
         }
       }
+
+      return undefined;
     };
 
     State.prototype.put = function put(charSpec) {
@@ -92,7 +90,7 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
 
   var StaticSegment = exports.StaticSegment = function () {
     function StaticSegment(string, caseSensitive) {
-      _classCallCheck(this, StaticSegment);
+      
 
       this.string = string;
       this.caseSensitive = caseSensitive;
@@ -119,7 +117,7 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
 
   var DynamicSegment = exports.DynamicSegment = function () {
     function DynamicSegment(name) {
-      _classCallCheck(this, DynamicSegment);
+      
 
       this.name = name;
     }
@@ -142,7 +140,7 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
 
   var StarSegment = exports.StarSegment = function () {
     function StarSegment(name) {
-      _classCallCheck(this, StarSegment);
+      
 
       this.name = name;
     }
@@ -165,7 +163,7 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
 
   var EpsilonSegment = exports.EpsilonSegment = function () {
     function EpsilonSegment() {
-      _classCallCheck(this, EpsilonSegment);
+      
     }
 
     EpsilonSegment.prototype.eachChar = function eachChar() {};
@@ -183,7 +181,7 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
 
   var RouteRecognizer = exports.RouteRecognizer = function () {
     function RouteRecognizer() {
-      _classCallCheck(this, RouteRecognizer);
+      
 
       this.rootState = new State();
       this.names = {};
@@ -350,13 +348,15 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
 
         return findHandler(state, normalizedPath, queryParams);
       }
+
+      return undefined;
     };
 
     return RouteRecognizer;
   }();
 
   var RecognizeResults = function RecognizeResults(queryParams) {
-    _classCallCheck(this, RecognizeResults);
+    
 
     this.splice = Array.prototype.splice;
     this.slice = Array.prototype.slice;

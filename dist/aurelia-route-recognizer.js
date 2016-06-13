@@ -32,6 +32,8 @@ export class State {
         return child;
       }
     }
+
+    return undefined;
   }
 
   put(charSpec: CharSpec): State {
@@ -416,6 +418,8 @@ export class RouteRecognizer {
 
       return findHandler(state, normalizedPath, queryParams);
     }
+
+    return undefined;
   }
 }
 
