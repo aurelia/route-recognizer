@@ -18,6 +18,6 @@
     "url": "http://github.com/aurelia/route-recognizer"
   },
   "dependencies": {
-    "aurelia-path": "^1.0.0-beta.1.1.0"
+    "aurelia-path": "^1.0.0-beta.2.0.0"
   }
 }
