@@ -1,3 +1,8 @@
+<a name="1.0.0-rc.1.0.0"></a>
+# [1.0.0-rc.1.0.0](https://github.com/aurelia/route-recognizer/compare/1.0.0-beta.2.0.1...v1.0.0-rc.1.0.0) (2016-06-22)
+
+
+
 ### 1.0.0-beta.1.2.1 (2016-05-10)
 
 
