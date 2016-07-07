@@ -113,13 +113,17 @@ export class RouteRecognizer {
   * @returns The generated absolute path and query string.
   */
   generate(name: string, params: Object): string {
-    let routeParams = Object.assign({}, params);
-
     let route = this.names[name];
     if (!route) {
       throw new Error(`There is no route named ${name}`);
     }
 
+    let handler = route.handlers[0].handler;
+    if (handler.href) {
+      return handler.href;
+    }
+
+    let routeParams = Object.assign({}, params);
     let segments = route.segments;
     let consumed = {};
     let output = '';
