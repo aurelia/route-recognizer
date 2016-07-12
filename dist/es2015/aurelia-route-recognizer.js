@@ -209,13 +209,17 @@ export let RouteRecognizer = class RouteRecognizer {
   }
 
   generate(name, params) {
-    let routeParams = Object.assign({}, params);
-
     let route = this.names[name];
     if (!route) {
       throw new Error(`There is no route named ${ name }`);
     }
 
+    let handler = route.handlers[0].handler;
+    if (handler.href) {
+      return handler.href;
+    }
+
+    let routeParams = Object.assign({}, params);
     let segments = route.segments;
     let consumed = {};
     let output = '';

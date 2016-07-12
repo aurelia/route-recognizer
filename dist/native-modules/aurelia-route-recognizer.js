@@ -252,13 +252,17 @@ export var RouteRecognizer = function () {
   };
 
   RouteRecognizer.prototype.generate = function generate(name, params) {
-    var routeParams = Object.assign({}, params);
-
     var route = this.names[name];
     if (!route) {
       throw new Error('There is no route named ' + name);
     }
 
+    var handler = route.handlers[0].handler;
+    if (handler.href) {
+      return handler.href;
+    }
+
+    var routeParams = Object.assign({}, params);
     var segments = route.segments;
     var consumed = {};
     var output = '';
