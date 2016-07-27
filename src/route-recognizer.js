@@ -119,7 +119,7 @@ export class RouteRecognizer {
     }
 
     let handler = route.handlers[0].handler;
-    if (handler.href) {
+    if (handler.generationUsesHref) {
       return handler.href;
     }
 
