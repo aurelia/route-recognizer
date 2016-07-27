@@ -1,3 +1,13 @@
+<a name="1.0.0"></a>
+# [1.0.0](https://github.com/aurelia/route-recognizer/compare/1.0.0-rc.1.0.1...v1.0.0) (2016-07-27)
+
+
+### Bug Fixes
+
+* **route-recognizer:** use href for generation only when specified ([97b377b](https://github.com/aurelia/route-recognizer/commit/97b377b)), closes [#24](https://github.com/aurelia/route-recognizer/issues/24)
+
+
+
 <a name="1.0.0-rc.1.0.1"></a>
 # [1.0.0-rc.1.0.1](https://github.com/aurelia/route-recognizer/compare/1.0.0-rc.1.0.0...v1.0.0-rc.1.0.1) (2016-07-12)
 
