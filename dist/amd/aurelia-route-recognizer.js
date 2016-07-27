@@ -264,7 +264,7 @@ define(['exports', 'aurelia-path'], function (exports, _aureliaPath) {
       }
 
       var handler = route.handlers[0].handler;
-      if (handler.href) {
+      if (handler.generationUsesHref) {
         return handler.href;
       }
 

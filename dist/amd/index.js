@@ -5,7 +5,7 @@ define(['exports', './aurelia-route-recognizer'], function (exports, _aureliaRou
     value: true
   });
   Object.keys(_aureliaRouteRecognizer).forEach(function (key) {
-    if (key === "default") return;
+    if (key === "default" || key === "__esModule") return;
     Object.defineProperty(exports, key, {
       enumerable: true,
       get: function () {

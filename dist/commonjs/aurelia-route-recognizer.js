@@ -265,7 +265,7 @@ var RouteRecognizer = exports.RouteRecognizer = function () {
     }
 
     var handler = route.handlers[0].handler;
-    if (handler.href) {
+    if (handler.generationUsesHref) {
       return handler.href;
     }
 

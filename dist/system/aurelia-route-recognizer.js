@@ -381,7 +381,7 @@ System.register(['aurelia-path'], function (_export, _context) {
           }
 
           var handler = route.handlers[0].handler;
-          if (handler.href) {
+          if (handler.generationUsesHref) {
             return handler.href;
           }
 
