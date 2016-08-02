@@ -3,6 +3,7 @@ import {State} from './state';
 import {
   StaticSegment,
   DynamicSegment,
+  ConstrainedSegment,
   StarSegment,
   EpsilonSegment
 } from './segments';
@@ -36,6 +37,7 @@ export class RouteRecognizer {
     let names = [];
     let routeName = route.handler.name;
     let isEmpty = true;
+    let isAllOptional = true;
     let segments = parse(route.path, names, types, route.caseSensitive);
 
     for (let i = 0, ii = segments.length; i < ii; i++) {
@@ -44,20 +46,25 @@ export class RouteRecognizer {
         continue;
       }
 
-      isEmpty = false;
-
-      // Add a '/' for the new segment
-      currentState = currentState.put({ validChars: '/' });
-      regex += '/';
-
+      isEmpty = false;  
+      isAllOptional &= segment.optional;
+      
       // Add a representation of the segment to the NFA and regex
       currentState = addSegment(currentState, segment);
+      regex += segment.optional ? '/?' : '/';
       regex += segment.regex();
     }
 
-    if (isEmpty) {
-      currentState = currentState.put({ validChars: '/' });
-      regex += '/';
+    if (isAllOptional) {
+      if (isEmpty) {
+        currentState = currentState.put({ validChars: '/' });
+        regex += '/';
+      } else {
+        let finalState = this.rootState.put({ validChars: '/' });
+        currentState.epsilon = [ finalState ];
+        currentState = finalState;        
+        // Regex is ok because the first '/?' will match.
+      }
     }
 
     let handlers = [{ handler: route.handler, names: names }];
@@ -135,13 +142,15 @@ export class RouteRecognizer {
         continue;
       }
 
-      output += '/';
       let segmentValue = segment.generate(routeParams, consumed);
-      if (segmentValue === null || segmentValue === undefined) {
-        throw new Error(`A value is required for route parameter '${segment.name}' in route '${name}'.`);
+      if (segmentValue == null) {
+        if (!segment.optional) {
+          throw new Error(`A value is required for route parameter '${segment.name}' in route '${name}'.`);
+        }
+      } else {
+        output += '/';
+        output += segmentValue;
       }
-
-      output += segmentValue;
     }
 
     if (output.charAt(0) !== '/') {
@@ -254,6 +263,21 @@ function parse(route, names, types, caseSensitive) {
       continue;
     }
 
+    match = segment.match(/^\{(.+?)(\?)?\}$/);
+    if (match) {
+      let [, name, optional] = match;            
+      if (name.indexOf('=') !== -1) {
+        throw new Error(`Parameter ${name} in route ${route} has a default value, which is not supported.`);
+      }
+      if (name.indexOf(':') !== -1) {
+        throw new Error(`Parameter ${name} in route ${route} has a constraint, which is not supported.`);
+      }
+      results.push(new ConstrainedSegment(name, !!optional));
+      names.push(name);
+      types.dynamics++;
+      continue;
+    }
+
     match = segment.match(/^\*([^\/]+)$/);
     if (match) {
       results.push(new StarSegment(match[1]));
@@ -315,6 +339,16 @@ function recognizeChar(states, ch) {
     nextStates.push(...state.match(ch));
   }
 
+  let skippableStates = nextStates.filter(s => s.epsilon);
+  while (skippableStates.length > 0) {
+    let newStates = [];
+    skippableStates.forEach(s => {
+      nextStates.push(...s.epsilon);
+      newStates.push(...s.epsilon);
+    });    
+    skippableStates = newStates.filter(s => s.epsilon);
+  }
+
   return nextStates;
 }
 
@@ -340,11 +374,16 @@ function findHandler(state, path, queryParams) {
   return result;
 }
 
-function addSegment(currentState, segment) {
-  let state = currentState;
+function addSegment(currentState, segment) {  
+  let state = currentState.put({ validChars: '/' });
   segment.eachChar(ch => {
     state = state.put(ch);
   });
+
+  if (segment.optional) {
+    currentState.epsilon = currentState.epsilon || [];
+    currentState.epsilon.push(state);    
+  }
 
   return state;
 }
