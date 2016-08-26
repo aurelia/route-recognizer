@@ -71,7 +71,7 @@ export class ConstrainedSegment {
   }
 
   eachChar(callback: (spec: CharSpec) => void): void {
-    callback({ invalidChars: '/', repeat: true });    
+    callback({ invalidChars: '/', repeat: true });
   }
 
   regex(): string {

@@ -46,9 +46,9 @@ export class RouteRecognizer {
         continue;
       }
 
-      isEmpty = false;  
-      isAllOptional &= segment.optional;
-      
+      isEmpty = false;
+      isAllOptional = isAllOptional && segment.optional;
+
       // Add a representation of the segment to the NFA and regex
       currentState = addSegment(currentState, segment);
       regex += segment.optional ? '/?' : '/';
@@ -62,7 +62,7 @@ export class RouteRecognizer {
       } else {
         let finalState = this.rootState.put({ validChars: '/' });
         currentState.epsilon = [ finalState ];
-        currentState = finalState;        
+        currentState = finalState;
         // Regex is ok because the first '/?' will match.
       }
     }
@@ -143,7 +143,7 @@ export class RouteRecognizer {
       }
 
       let segmentValue = segment.generate(routeParams, consumed);
-      if (segmentValue == null) {
+      if (segmentValue === null || segmentValue === undefined) {
         if (!segment.optional) {
           throw new Error(`A value is required for route parameter '${segment.name}' in route '${name}'.`);
         }
@@ -255,6 +255,8 @@ function parse(route, names, types, caseSensitive) {
   let splitRoute = normalizedRoute.split('/');
   for (let i = 0, ii = splitRoute.length; i < ii; ++i) {
     let segment = splitRoute[i];
+
+    // Try to parse basic syntax :param
     let match = segment.match(/^:([^\/]+)$/);
     if (match) {
       results.push(new DynamicSegment(match[1]));
@@ -263,9 +265,10 @@ function parse(route, names, types, caseSensitive) {
       continue;
     }
 
+    // Try to parse extended syntax {param?}
     match = segment.match(/^\{(.+?)(\?)?\}$/);
     if (match) {
-      let [, name, optional] = match;            
+      let [, name, optional] = match;
       if (name.indexOf('=') !== -1) {
         throw new Error(`Parameter ${name} in route ${route} has a default value, which is not supported.`);
       }
@@ -345,7 +348,7 @@ function recognizeChar(states, ch) {
     skippableStates.forEach(s => {
       nextStates.push(...s.epsilon);
       newStates.push(...s.epsilon);
-    });    
+    });
     skippableStates = newStates.filter(s => s.epsilon);
   }
 
@@ -374,7 +377,7 @@ function findHandler(state, path, queryParams) {
   return result;
 }
 
-function addSegment(currentState, segment) {  
+function addSegment(currentState, segment) {
   let state = currentState.put({ validChars: '/' });
   segment.eachChar(ch => {
     state = state.put(ch);
@@ -382,7 +385,7 @@ function addSegment(currentState, segment) {
 
   if (segment.optional) {
     currentState.epsilon = currentState.epsilon || [];
-    currentState.epsilon.push(state);    
+    currentState.epsilon.push(state);
   }
 
   return state;
