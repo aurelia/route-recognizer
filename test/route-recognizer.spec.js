@@ -49,37 +49,37 @@ const routeTestData = [{
     params: { id: 'foo', path: 'test/path' }
   }, {
     title: 'optional parameter routes',
-    route: { 'path': 'param/:id?/edit', 'handler': { 'name': 'constrained' }},
+    route: { 'path': 'param/:id?/edit', 'handler': { 'name': 'dynamic' }},
     isDynamic: true,
     path: '/param/42/edit',
     params: { id: '42' }
   }, {
     title: 'missing optional parameter routes',
-    route: { 'path': 'param/:id?/edit', 'handler': { 'name': 'constrained' }},
+    route: { 'path': 'param/:id?/edit', 'handler': { 'name': 'dynamic' }},
     isDynamic: true,
     path: '/param/edit',
     params: { id: undefined }
   }, {
     title: 'multiple optional parameters routes',
-    route: { 'path': 'param/:x?/edit/:y?', 'handler': { 'name': 'constrained' }},
+    route: { 'path': 'param/:x?/edit/:y?', 'handler': { 'name': 'dynamic' }},
     isDynamic: true,
     path: '/param/edit/42',
     params: { x: undefined, y: '42' }
   }, {
     title: 'ambiguous optional parameters routes',
-    route: { 'path': 'pt/:x?/:y?', 'handler': { 'name': 'constrained' }},
+    route: { 'path': 'pt/:x?/:y?', 'handler': { 'name': 'dynamic' }},
     isDynamic: true,
     path: '/pt/7',
     params: { x: '7', y: undefined }
   }, {
     title: 'empty optional parameters routes',
-    route: { 'path': ':x?/:y?', 'handler': { 'name': 'constrained' }},
+    route: { 'path': ':x?/:y?', 'handler': { 'name': 'dynamic' }},
     isDynamic: true,
     path: '/',
     params: { x: undefined, y: undefined }
   }, {
     title: 'almost empty optional parameter routes',
-    route: { 'path': ':x?', 'handler': { 'name': 'constrained' }},
+    route: { 'path': ':x?', 'handler': { 'name': 'dynamic' }},
     isDynamic: true,
     path: '/42',
     params: { x: '42' }
