@@ -3,7 +3,6 @@ import {State} from './state';
 import {
   StaticSegment,
   DynamicSegment,
-  ConstrainedSegment,
   StarSegment,
   EpsilonSegment
 } from './segments';
@@ -256,32 +255,21 @@ function parse(route, names, types, caseSensitive) {
   for (let i = 0, ii = splitRoute.length; i < ii; ++i) {
     let segment = splitRoute[i];
 
-    // Try to parse basic syntax :param
-    let match = segment.match(/^:([^\/]+)$/);
-    if (match) {
-      results.push(new DynamicSegment(match[1]));
-      names.push(match[1]);
-      types.dynamics++;
-      continue;
-    }
-
-    // Try to parse extended syntax {param?}
-    match = segment.match(/^\{(.+?)(\?)?\}$/);
+    // Try to parse a parameter :param?
+    let match = segment.match(/^:([^?]+)(\?)?$/);
     if (match) {
       let [, name, optional] = match;
       if (name.indexOf('=') !== -1) {
         throw new Error(`Parameter ${name} in route ${route} has a default value, which is not supported.`);
       }
-      if (name.indexOf(':') !== -1) {
-        throw new Error(`Parameter ${name} in route ${route} has a constraint, which is not supported.`);
-      }
-      results.push(new ConstrainedSegment(name, !!optional));
+      results.push(new DynamicSegment(name, !!optional));
       names.push(name);
       types.dynamics++;
       continue;
     }
 
-    match = segment.match(/^\*([^\/]+)$/);
+    // Try to parse a star segment *whatever
+    match = segment.match(/^\*(.+)$/);
     if (match) {
       results.push(new StarSegment(match[1]));
       names.push(match[1]);

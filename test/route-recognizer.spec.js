@@ -48,44 +48,38 @@ const routeTestData = [{
     path: '/dynamic/foo/star/test/path',
     params: { id: 'foo', path: 'test/path' }
   }, {
-    title: 'constrained routes',
-    route: { 'path': 'param/{id}/edit', 'handler' : { 'name': 'constrained' }},
+    title: 'optional parameter routes',
+    route: { 'path': 'param/:id?/edit', 'handler': { 'name': 'constrained' }},
     isDynamic: true,
     path: '/param/42/edit',
     params: { id: '42' }
   }, {
-    title: 'optional constrained routes',
-    route: { 'path': 'param/{id?}/edit', 'handler': { 'name': 'constrained' }},
-    isDynamic: true,
-    path: '/param/42/edit',
-    params: { id: '42' }
-  }, {
-    title: 'missing optional constrained routes',
-    route: { 'path': 'param/{id?}/edit', 'handler': { 'name': 'constrained' }},
+    title: 'missing optional parameter routes',
+    route: { 'path': 'param/:id?/edit', 'handler': { 'name': 'constrained' }},
     isDynamic: true,
     path: '/param/edit',
     params: { id: undefined }
   }, {
-    title: 'multiple optional constrained routes',
-    route: { 'path': 'param/{x?}/edit/{y?}', 'handler': { 'name': 'constrained' }},
+    title: 'multiple optional parameters routes',
+    route: { 'path': 'param/:x?/edit/:y?', 'handler': { 'name': 'constrained' }},
     isDynamic: true,
     path: '/param/edit/42',
     params: { x: undefined, y: '42' }
   }, {
-    title: 'ambiguous constrained routes',
-    route: { 'path': 'pt/{x?}/{y?}', 'handler': { 'name': 'constrained' }},
+    title: 'ambiguous optional parameters routes',
+    route: { 'path': 'pt/:x?/:y?', 'handler': { 'name': 'constrained' }},
     isDynamic: true,
     path: '/pt/7',
     params: { x: '7', y: undefined }
   }, {
-    title: 'empty constrained routes',
-    route: { 'path': '{x?}/{y?}', 'handler': { 'name': 'constrained' }},
+    title: 'empty optional parameters routes',
+    route: { 'path': ':x?/:y?', 'handler': { 'name': 'constrained' }},
     isDynamic: true,
     path: '/',
     params: { x: undefined, y: undefined }
   }, {
-    title: 'almost empty constrained routes',
-    route: { 'path': '{x?}', 'handler': { 'name': 'constrained' }},
+    title: 'almost empty optional parameter routes',
+    route: { 'path': ':x?', 'handler': { 'name': 'constrained' }},
     isDynamic: true,
     path: '/42',
     params: { x: '42' }
@@ -104,13 +98,7 @@ describe('route recognizer', () => {
   it('should reject default parameter values', () => {
     let recognizer = new RouteRecognizer();
 
-    expect(() => recognizer.add([{'path': 'user/{id=1}', 'handler': {}}])).toThrow();
-  });
-
-  it('should reject parameter constraints', () => {
-    let recognizer = new RouteRecognizer();
-
-    expect(() => recognizer.add([{'path': 'user/{id:int}', 'handler': {}}])).toThrow();
+    expect(() => recognizer.add([{'path': 'user/:id=1', 'handler': {}}])).toThrow();
   });
 
   it('should register unnamed routes', () => {
@@ -136,7 +124,7 @@ describe('route recognizer', () => {
       expect(result[0].params).toEqual(routeTest.params);
     });
 
-    it(`its case insensitive by default ${routeTest.title}`, () => {      
+    it(`its case insensitive by default ${routeTest.title}`, () => {
       let recognizer = new RouteRecognizer();
       recognizer.add([routeTest.route]);
 
@@ -198,8 +186,8 @@ describe('route recognizer', () => {
 
     expect(recognizer.handlersFor('static-multiple')[0].handler)
       .toEqual(recognizer.handlersFor('static-multiple-alias')[0].handler)
-  });  
-    
+  });
+
   it(`can set case sensitive route and fails`, () => {
     let recognizer = new RouteRecognizer();
     const routeTest = {

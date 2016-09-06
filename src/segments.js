@@ -46,25 +46,6 @@ export class StaticSegment {
 }
 
 export class DynamicSegment {
-  constructor(name: string) {
-    this.name = name;
-  }
-
-  eachChar(callback: (spec: CharSpec) => void): void {
-    callback({ invalidChars: '/', repeat: true });
-  }
-
-  regex(): string {
-    return '([^/]+)';
-  }
-
-  generate(params: Object, consumed: Object): string {
-    consumed[this.name] = true;
-    return params[this.name];
-  }
-}
-
-export class ConstrainedSegment {
   constructor(name: string, optional: boolean) {
     this.name = name;
     this.optional = optional;
