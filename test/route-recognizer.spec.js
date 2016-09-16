@@ -47,6 +47,42 @@ const routeTestData = [{
     isDynamic: true,
     path: '/dynamic/foo/star/test/path',
     params: { id: 'foo', path: 'test/path' }
+  }, {
+    title: 'optional parameter routes',
+    route: { 'path': 'param/:id?/edit', 'handler': { 'name': 'dynamic' }},
+    isDynamic: true,
+    path: '/param/42/edit',
+    params: { id: '42' }
+  }, {
+    title: 'missing optional parameter routes',
+    route: { 'path': 'param/:id?/edit', 'handler': { 'name': 'dynamic' }},
+    isDynamic: true,
+    path: '/param/edit',
+    params: { id: undefined }
+  }, {
+    title: 'multiple optional parameters routes',
+    route: { 'path': 'param/:x?/edit/:y?', 'handler': { 'name': 'dynamic' }},
+    isDynamic: true,
+    path: '/param/edit/42',
+    params: { x: undefined, y: '42' }
+  }, {
+    title: 'ambiguous optional parameters routes',
+    route: { 'path': 'pt/:x?/:y?', 'handler': { 'name': 'dynamic' }},
+    isDynamic: true,
+    path: '/pt/7',
+    params: { x: '7', y: undefined }
+  }, {
+    title: 'empty optional parameters routes',
+    route: { 'path': ':x?/:y?', 'handler': { 'name': 'dynamic' }},
+    isDynamic: true,
+    path: '/',
+    params: { x: undefined, y: undefined }
+  }, {
+    title: 'almost empty optional parameter routes',
+    route: { 'path': ':x?', 'handler': { 'name': 'dynamic' }},
+    isDynamic: true,
+    path: '/42',
+    params: { x: '42' }
   }];
 
 describe('route recognizer', () => {
@@ -57,6 +93,12 @@ describe('route recognizer', () => {
     expect(() => recognizer.handlersFor('static')).toThrow();
     expect(() => recognizer.generate('static')).toThrow();
     expect(recognizer.recognize('/notfound')).toBeUndefined();
+  });
+
+  it('should reject default parameter values', () => {
+    let recognizer = new RouteRecognizer();
+
+    expect(() => recognizer.add([{'path': 'user/:id=1', 'handler': {}}])).toThrow();
   });
 
   it('should register unnamed routes', () => {
@@ -82,7 +124,7 @@ describe('route recognizer', () => {
       expect(result[0].params).toEqual(routeTest.params);
     });
 
-    it(`its case insensitive by default ${routeTest.title}`, () => {      
+    it(`its case insensitive by default ${routeTest.title}`, () => {
       let recognizer = new RouteRecognizer();
       recognizer.add([routeTest.route]);
 
@@ -92,6 +134,9 @@ describe('route recognizer', () => {
       expect(result[0].handler).toEqual(routeTest.route.handler);
       expect(result[0].isDynamic).toBe(routeTest.isDynamic);
       Object.keys(result[0].params).forEach((property) => {
+        if (routeTest.params[property] === undefined) {
+          return;
+        }
         expect(result[0].params[property].toUpperCase()).toEqual(routeTest.params[property].toUpperCase());
       });
     });
@@ -141,8 +186,8 @@ describe('route recognizer', () => {
 
     expect(recognizer.handlersFor('static-multiple')[0].handler)
       .toEqual(recognizer.handlersFor('static-multiple-alias')[0].handler)
-  });  
-    
+  });
+
   it(`can set case sensitive route and fails`, () => {
     let recognizer = new RouteRecognizer();
     const routeTest = {

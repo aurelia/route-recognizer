@@ -46,8 +46,9 @@ export class StaticSegment {
 }
 
 export class DynamicSegment {
-  constructor(name: string) {
+  constructor(name: string, optional: boolean) {
     this.name = name;
+    this.optional = optional;
   }
 
   eachChar(callback: (spec: CharSpec) => void): void {
@@ -55,7 +56,7 @@ export class DynamicSegment {
   }
 
   regex(): string {
-    return '([^/]+)';
+    return this.optional ? '([^/]+)?' : '([^/]+)';
   }
 
   generate(params: Object, consumed: Object): string {
