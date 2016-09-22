@@ -87,8 +87,9 @@ export let StaticSegment = class StaticSegment {
 };
 
 export let DynamicSegment = class DynamicSegment {
-  constructor(name) {
+  constructor(name, optional) {
     this.name = name;
+    this.optional = optional;
   }
 
   eachChar(callback) {
@@ -96,7 +97,7 @@ export let DynamicSegment = class DynamicSegment {
   }
 
   regex() {
-    return '([^/]+)';
+    return this.optional ? '([^/]+)?' : '([^/]+)';
   }
 
   generate(params, consumed) {
@@ -154,6 +155,7 @@ export let RouteRecognizer = class RouteRecognizer {
     let names = [];
     let routeName = route.handler.name;
     let isEmpty = true;
+    let isAllOptional = true;
     let segments = parse(route.path, names, types, route.caseSensitive);
 
     for (let i = 0, ii = segments.length; i < ii; i++) {
@@ -163,17 +165,22 @@ export let RouteRecognizer = class RouteRecognizer {
       }
 
       isEmpty = false;
-
-      currentState = currentState.put({ validChars: '/' });
-      regex += '/';
+      isAllOptional = isAllOptional && segment.optional;
 
       currentState = addSegment(currentState, segment);
+      regex += segment.optional ? '/?' : '/';
       regex += segment.regex();
     }
 
-    if (isEmpty) {
-      currentState = currentState.put({ validChars: '/' });
-      regex += '/';
+    if (isAllOptional) {
+      if (isEmpty) {
+        currentState = currentState.put({ validChars: '/' });
+        regex += '/';
+      } else {
+        let finalState = this.rootState.put({ validChars: '/' });
+        currentState.epsilon = [finalState];
+        currentState = finalState;
+      }
     }
 
     let handlers = [{ handler: route.handler, names: names }];
@@ -231,13 +238,15 @@ export let RouteRecognizer = class RouteRecognizer {
         continue;
       }
 
-      output += '/';
       let segmentValue = segment.generate(routeParams, consumed);
       if (segmentValue === null || segmentValue === undefined) {
-        throw new Error(`A value is required for route parameter '${ segment.name }' in route '${ name }'.`);
+        if (!segment.optional) {
+          throw new Error(`A value is required for route parameter '${ segment.name }' in route '${ name }'.`);
+        }
+      } else {
+        output += '/';
+        output += segmentValue;
       }
-
-      output += segmentValue;
     }
 
     if (output.charAt(0) !== '/') {
@@ -330,15 +339,20 @@ function parse(route, names, types, caseSensitive) {
   let splitRoute = normalizedRoute.split('/');
   for (let i = 0, ii = splitRoute.length; i < ii; ++i) {
     let segment = splitRoute[i];
-    let match = segment.match(/^:([^\/]+)$/);
+
+    let match = segment.match(/^:([^?]+)(\?)?$/);
     if (match) {
-      results.push(new DynamicSegment(match[1]));
-      names.push(match[1]);
+      let [, name, optional] = match;
+      if (name.indexOf('=') !== -1) {
+        throw new Error(`Parameter ${ name } in route ${ route } has a default value, which is not supported.`);
+      }
+      results.push(new DynamicSegment(name, !!optional));
+      names.push(name);
       types.dynamics++;
       continue;
     }
 
-    match = segment.match(/^\*([^\/]+)$/);
+    match = segment.match(/^\*(.+)$/);
     if (match) {
       results.push(new StarSegment(match[1]));
       names.push(match[1]);
@@ -389,6 +403,16 @@ function recognizeChar(states, ch) {
     nextStates.push(...state.match(ch));
   }
 
+  let skippableStates = nextStates.filter(s => s.epsilon);
+  while (skippableStates.length > 0) {
+    let newStates = [];
+    skippableStates.forEach(s => {
+      nextStates.push(...s.epsilon);
+      newStates.push(...s.epsilon);
+    });
+    skippableStates = newStates.filter(s => s.epsilon);
+  }
+
   return nextStates;
 }
 
@@ -415,10 +439,15 @@ function findHandler(state, path, queryParams) {
 }
 
 function addSegment(currentState, segment) {
-  let state = currentState;
+  let state = currentState.put({ validChars: '/' });
   segment.eachChar(ch => {
     state = state.put(ch);
   });
+
+  if (segment.optional) {
+    currentState.epsilon = currentState.epsilon || [];
+    currentState.epsilon.push(state);
+  }
 
   return state;
 }

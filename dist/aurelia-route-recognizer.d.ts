@@ -73,7 +73,7 @@ export declare class StaticSegment {
   generate(): string;
 }
 export declare class DynamicSegment {
-  constructor(name: string);
+  constructor(name: string, optional: boolean);
   eachChar(callback: ((spec: CharSpec) => void)): void;
   regex(): string;
   generate(params: Object, consumed: Object): string;

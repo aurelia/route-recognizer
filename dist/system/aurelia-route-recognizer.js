@@ -18,15 +18,23 @@ System.register(['aurelia-path'], function (_export, _context) {
     var splitRoute = normalizedRoute.split('/');
     for (var i = 0, ii = splitRoute.length; i < ii; ++i) {
       var segment = splitRoute[i];
-      var match = segment.match(/^:([^\/]+)$/);
+
+      var match = segment.match(/^:([^?]+)(\?)?$/);
       if (match) {
-        results.push(new DynamicSegment(match[1]));
-        names.push(match[1]);
+        var _match = match;
+        var _name = _match[1];
+        var optional = _match[2];
+
+        if (_name.indexOf('=') !== -1) {
+          throw new Error('Parameter ' + _name + ' in route ' + route + ' has a default value, which is not supported.');
+        }
+        results.push(new DynamicSegment(_name, !!optional));
+        names.push(_name);
         types.dynamics++;
         continue;
       }
 
-      match = segment.match(/^\*([^\/]+)$/);
+      match = segment.match(/^\*(.+)$/);
       if (match) {
         results.push(new StarSegment(match[1]));
         names.push(match[1]);
@@ -77,6 +85,25 @@ System.register(['aurelia-path'], function (_export, _context) {
       nextStates.push.apply(nextStates, state.match(ch));
     }
 
+    var skippableStates = nextStates.filter(function (s) {
+      return s.epsilon;
+    });
+
+    var _loop = function _loop() {
+      var newStates = [];
+      skippableStates.forEach(function (s) {
+        nextStates.push.apply(nextStates, s.epsilon);
+        newStates.push.apply(newStates, s.epsilon);
+      });
+      skippableStates = newStates.filter(function (s) {
+        return s.epsilon;
+      });
+    };
+
+    while (skippableStates.length > 0) {
+      _loop();
+    }
+
     return nextStates;
   }
 
@@ -103,10 +130,15 @@ System.register(['aurelia-path'], function (_export, _context) {
   }
 
   function addSegment(currentState, segment) {
-    var state = currentState;
+    var state = currentState.put({ validChars: '/' });
     segment.eachChar(function (ch) {
       state = state.put(ch);
     });
+
+    if (segment.optional) {
+      currentState.epsilon = currentState.epsilon || [];
+      currentState.epsilon.push(state);
+    }
 
     return state;
   }
@@ -227,10 +259,11 @@ System.register(['aurelia-path'], function (_export, _context) {
       _export('StaticSegment', StaticSegment);
 
       _export('DynamicSegment', DynamicSegment = function () {
-        function DynamicSegment(name) {
+        function DynamicSegment(name, optional) {
           
 
           this.name = name;
+          this.optional = optional;
         }
 
         DynamicSegment.prototype.eachChar = function eachChar(callback) {
@@ -238,7 +271,7 @@ System.register(['aurelia-path'], function (_export, _context) {
         };
 
         DynamicSegment.prototype.regex = function regex() {
-          return '([^/]+)';
+          return this.optional ? '([^/]+)?' : '([^/]+)';
         };
 
         DynamicSegment.prototype.generate = function generate(params, consumed) {
@@ -320,6 +353,7 @@ System.register(['aurelia-path'], function (_export, _context) {
           var names = [];
           var routeName = route.handler.name;
           var isEmpty = true;
+          var isAllOptional = true;
           var segments = parse(route.path, names, types, route.caseSensitive);
 
           for (var i = 0, ii = segments.length; i < ii; i++) {
@@ -329,17 +363,22 @@ System.register(['aurelia-path'], function (_export, _context) {
             }
 
             isEmpty = false;
-
-            currentState = currentState.put({ validChars: '/' });
-            regex += '/';
+            isAllOptional = isAllOptional && segment.optional;
 
             currentState = addSegment(currentState, segment);
+            regex += segment.optional ? '/?' : '/';
             regex += segment.regex();
           }
 
-          if (isEmpty) {
-            currentState = currentState.put({ validChars: '/' });
-            regex += '/';
+          if (isAllOptional) {
+            if (isEmpty) {
+              currentState = currentState.put({ validChars: '/' });
+              regex += '/';
+            } else {
+              var finalState = this.rootState.put({ validChars: '/' });
+              currentState.epsilon = [finalState];
+              currentState = finalState;
+            }
           }
 
           var handlers = [{ handler: route.handler, names: names }];
@@ -397,13 +436,15 @@ System.register(['aurelia-path'], function (_export, _context) {
               continue;
             }
 
-            output += '/';
             var segmentValue = segment.generate(routeParams, consumed);
             if (segmentValue === null || segmentValue === undefined) {
-              throw new Error('A value is required for route parameter \'' + segment.name + '\' in route \'' + name + '\'.');
+              if (!segment.optional) {
+                throw new Error('A value is required for route parameter \'' + segment.name + '\' in route \'' + name + '\'.');
+              }
+            } else {
+              output += '/';
+              output += segmentValue;
             }
-
-            output += segmentValue;
           }
 
           if (output.charAt(0) !== '/') {
