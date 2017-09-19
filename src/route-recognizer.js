@@ -66,19 +66,22 @@ export class RouteRecognizer {
       }
     }
 
-    let handlers = [{ handler: route.handler, names: names }];
+    const handler = { handler: route.handler, names: names };
 
     if (routeName) {
       let routeNames = Array.isArray(routeName) ? routeName : [routeName];
       for (let i = 0; i < routeNames.length; i++) {
         this.names[routeNames[i]] = {
           segments: segments,
-          handlers: handlers
+          handlers: [handler]
         };
       }
     }
 
-    currentState.handlers = handlers;
+    if (!currentState.handlers) {
+      currentState.handlers = [];
+    }
+    currentState.handlers.push(handler);
     currentState.regex = new RegExp(regex + '$', route.caseSensitive ? '' : 'i');
     currentState.types = types;
 
@@ -347,10 +350,10 @@ function findHandler(state, path, queryParams) {
   let handlers = state.handlers;
   let regex = state.regex;
   let captures = path.match(regex);
-  let currentCapture = 1;
   let result = new RecognizeResults(queryParams);
 
   for (let i = 0, l = handlers.length; i < l; i++) {
+    let currentCapture = 1;
     let handler = handlers[i];
     let names = handler.names;
     let params = {};
