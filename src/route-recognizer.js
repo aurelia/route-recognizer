@@ -239,6 +239,7 @@ class RecognizeResults {
     this.splice = Array.prototype.splice;
     this.slice = Array.prototype.slice;
     this.push = Array.prototype.push;
+    this.sort = Array.prototype.sort;
     this.length = 0;
     this.queryParams = queryParams || {};
   }
@@ -346,6 +347,19 @@ function recognizeChar(states, ch) {
   return nextStates;
 }
 
+function matchesHref(result, path: string): boolean {
+  if (result.handler && result.handler.href !== undefined) {
+    let href = result.handler.href;
+    if (result.params.childRoute !== undefined) {
+      href = href + '/' + result.params.childRoute;
+    }
+    if (href === path) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function findHandler(state, path, queryParams) {
   let handlers = state.handlers;
   let regex = state.regex;
@@ -365,7 +379,15 @@ function findHandler(state, path, queryParams) {
     result.push({ handler: handler.handler, params: params, isDynamic: !!names.length });
   }
 
-  return result;
+  return result.sort((a, b) => {
+    if (matchesHref(a, path)) {
+      return -1;
+    }
+    if (matchesHref(b, path)) {
+      return 1;
+    }
+    return 0;
+  });
 }
 
 function addSegment(currentState, segment) {

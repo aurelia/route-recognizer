@@ -150,6 +150,25 @@ describe('route recognizer', () => {
     });
   }
 
+  it('should sort multiple identical paths patterns', () => {
+    const a = { name: 'a' };
+    const b = { name: 'b', href: '/test' };
+    let recognizer = new RouteRecognizer();
+    recognizer.add([
+      { path: ':p', handler: a },
+      { path: ':p', handler: b }
+    ]);
+    let results = recognizer.recognize('test');
+    expect(results).toBeTruthy();
+    expect(results.length).toBe(2);
+    expect(results[0].handler).toEqual(b);
+    expect(results[0].isDynamic).toBe(true);
+    expect(results[0].params.p).toEqual('test');
+    expect(results[1].handler).toEqual(a);
+    expect(results[1].isDynamic).toBe(true);
+    expect(results[1].params.p).toEqual('test');
+  });
+
   it('should require dynamic segment parameters when generating', () => {
     let recognizer = new RouteRecognizer();
     recognizer.add([dynamicRoute]);
