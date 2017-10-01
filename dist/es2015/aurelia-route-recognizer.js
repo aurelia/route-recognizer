@@ -205,7 +205,7 @@ export let RouteRecognizer = class RouteRecognizer {
   handlersFor(name) {
     let route = this.names[name];
     if (!route) {
-      throw new Error(`There is no route named ${ name }`);
+      throw new Error(`There is no route named ${name}`);
     }
 
     return [...route.handlers];
@@ -218,7 +218,7 @@ export let RouteRecognizer = class RouteRecognizer {
   generate(name, params) {
     let route = this.names[name];
     if (!route) {
-      throw new Error(`There is no route named ${ name }`);
+      throw new Error(`There is no route named ${name}`);
     }
 
     let handler = route.handlers[0].handler;
@@ -241,7 +241,7 @@ export let RouteRecognizer = class RouteRecognizer {
       let segmentValue = segment.generate(routeParams, consumed);
       if (segmentValue === null || segmentValue === undefined) {
         if (!segment.optional) {
-          throw new Error(`A value is required for route parameter '${ segment.name }' in route '${ name }'.`);
+          throw new Error(`A value is required for route parameter '${segment.name}' in route '${name}'.`);
         }
       } else {
         output += '/';
@@ -258,7 +258,7 @@ export let RouteRecognizer = class RouteRecognizer {
     }
 
     let queryString = buildQueryString(routeParams);
-    output += queryString ? `?${ queryString }` : '';
+    output += queryString ? `?${queryString}` : '';
 
     return output;
   }
@@ -312,8 +312,6 @@ export let RouteRecognizer = class RouteRecognizer {
 
       return findHandler(state, normalizedPath, queryParams);
     }
-
-    return undefined;
   }
 };
 
@@ -344,7 +342,7 @@ function parse(route, names, types, caseSensitive) {
     if (match) {
       let [, name, optional] = match;
       if (name.indexOf('=') !== -1) {
-        throw new Error(`Parameter ${ name } in route ${ route } has a default value, which is not supported.`);
+        throw new Error(`Parameter ${name} in route ${route} has a default value, which is not supported.`);
       }
       results.push(new DynamicSegment(name, !!optional));
       names.push(name);

@@ -362,8 +362,6 @@ var RouteRecognizer = exports.RouteRecognizer = function () {
 
       return findHandler(state, normalizedPath, queryParams);
     }
-
-    return undefined;
   };
 
   return RouteRecognizer;
@@ -393,9 +391,9 @@ function parse(route, names, types, caseSensitive) {
 
     var match = segment.match(/^:([^?]+)(\?)?$/);
     if (match) {
-      var _match = match;
-      var _name = _match[1];
-      var optional = _match[2];
+      var _match = match,
+          _name = _match[1],
+          optional = _match[2];
 
       if (_name.indexOf('=') !== -1) {
         throw new Error('Parameter ' + _name + ' in route ' + route + ' has a default value, which is not supported.');

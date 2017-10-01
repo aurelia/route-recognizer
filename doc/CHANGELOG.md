@@ -1,3 +1,11 @@
+<a name="1.1.1"></a>
+## [1.1.1](https://github.com/aurelia/route-recognizer/compare/1.1.0...1.1.1) (2017-10-01)
+
+### Bug Fixes
+
+* Improve TypeScript types
+* Remove unnecessary return statement
+
 <a name="1.1.0"></a>
 # [1.1.0](https://github.com/aurelia/route-recognizer/compare/1.0.0...v1.1.0) (2016-09-22)
 
