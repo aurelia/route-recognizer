@@ -175,7 +175,7 @@ export class RouteRecognizer {
   *  `isDynanic` values for the matched route(s), or undefined if no match
   *  was found.
   */
-  recognize(path: string): RecognizedRoute[] | undefined {
+  recognize(path: string): RecognizedRoute[] | void {
     let states = [this.rootState];
     let queryParams = {};
     let isSlashDropped = false;
