@@ -202,4 +202,21 @@ describe('route recognizer', () => {
     let result = recognizer.recognize(routeTest.path);
     expect(result).toBeUndefined();
   });
+
+  it(`should prioritize a longer single static (full) segment match over a static+dynamic segment match`, () => {
+    let recognizer = new RouteRecognizer();
+    const foobar = {
+      title: 'to be recognized as longer single static segment',
+      route: { 'path': 'fooBar/:id?', 'handler': { 'name': 'foobar' }, 'caseSensitive': false }
+    };
+    const foo = {
+      title: 'to be recognized as shorter static + optional dynamic segment',
+      route: { 'path': 'foo/:id?', 'handler': { 'name': 'foo' }, 'caseSensitive': false }
+    };
+    recognizer.add([foobar.route]);
+    recognizer.add([foo.route]);
+
+    let result = recognizer.recognize('fooBar');
+    expect(result["0"].handler.name).toEqual('foobar');
+  });
 });

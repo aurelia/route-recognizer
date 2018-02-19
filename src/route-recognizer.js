@@ -30,6 +30,7 @@ export class RouteRecognizer {
       return undefined;
     }
 
+    let previousState = null;
     let currentState = this.rootState;
     let regex = '^';
     let types = { statics: 0, dynamics: 0, stars: 0 };
@@ -37,9 +38,16 @@ export class RouteRecognizer {
     let routeName = route.handler.name;
     let isEmpty = true;
     let isAllOptional = true;
+    let isPreviousOptional = true;
+    let isLastOptional = true;
     let segments = parse(route.path, names, types, route.caseSensitive);
 
     for (let i = 0, ii = segments.length; i < ii; i++) {
+      if (currentState !== this.rootState) {
+        previousState = currentState;
+        isPreviousOptional = isLastOptional;
+      }
+
       let segment = segments[i];
       if (segment instanceof EpsilonSegment) {
         continue;
@@ -47,6 +55,7 @@ export class RouteRecognizer {
 
       isEmpty = false;
       isAllOptional = isAllOptional && segment.optional;
+      isLastOptional = segment.optional;
 
       // Add a representation of the segment to the NFA and regex
       currentState = addSegment(currentState, segment);
@@ -81,6 +90,13 @@ export class RouteRecognizer {
     currentState.handlers = handlers;
     currentState.regex = new RegExp(regex + '$', route.caseSensitive ? '' : 'i');
     currentState.types = types;
+
+    // Ensures that a full static segment match takes precedence over a partial optional segment match (epsilon problem)
+    if (isLastOptional && !isPreviousOptional) {
+      previousState.handlers = currentState.handlers;
+      previousState.regex = currentState.regex;
+      previousState.types = currentState.types;
+    }
 
     return currentState;
   }
