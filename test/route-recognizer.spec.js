@@ -3,6 +3,7 @@ import core from 'core-js';
 
 const staticRoute = {'path': 'static','handler': {'name': 'static'}};
 const dynamicRoute = {'path': 'dynamic/:id','handler': {'name': 'dynamic'}};
+const optionalRoute = {'path': 'optional/:id?', 'handler': {'name': 'optional'}};
 const multiNameRoute = {'path': 'static','handler': {'name': ['static-multiple', 'static-multiple-alias']}};
 
 const routeTestData = [{
@@ -185,10 +186,20 @@ describe('route recognizer', () => {
     recognizer.add([multiNameRoute]);
 
     expect(recognizer.handlersFor('static-multiple')[0].handler)
-      .toEqual(recognizer.handlersFor('static-multiple-alias')[0].handler)
+      .toEqual(recognizer.handlersFor('static-multiple-alias')[0].handler);
   });
 
-  it(`can set case sensitive route and fails`, () => {
+  it('should distinguish between dynamic and static parts', () => {
+    let recognizer = new RouteRecognizer();
+    let similarRoute = { 'path': 'optionalToo/:id?', 'handler': { 'name': 'similar' }};
+    recognizer.add([optionalRoute, similarRoute]);
+
+    let result = recognizer.recognize('optionalToo');
+    expect(result.length).toEqual(1);
+    expect(result[0].handler.name).toEqual('similar');
+  });
+
+  it('can set case sensitive route and fails', () => {
     let recognizer = new RouteRecognizer();
     const routeTest = {
       title: 'case sensitive route',
