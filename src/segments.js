@@ -56,7 +56,7 @@ export class DynamicSegment {
   }
 
   regex(): string {
-    return this.optional ? '([^/]+)?' : '([^/]+)';
+    return '([^/]+)';
   }
 
   generate(params: Object, consumed: Object): string {
