@@ -104,7 +104,7 @@ describe('route recognizer', () => {
 
   it('should register unnamed routes', () => {
     let recognizer = new RouteRecognizer();
-    recognizer.add([{'path': 'b','handler': {}}]);
+    recognizer.add([{'path': 'b', 'handler': {}}]);
 
     expect(recognizer.names).toEqual({});
     expect(recognizer.recognize('/b')).toBeTruthy();
