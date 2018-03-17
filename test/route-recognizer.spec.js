@@ -1,90 +1,90 @@
 import { RouteRecognizer } from '../src/route-recognizer';
 import core from 'core-js';
 
-const staticRoute = {'path': 'static','handler': {'name': 'static'}};
-const dynamicRoute = {'path': 'dynamic/:id','handler': {'name': 'dynamic'}};
+const staticRoute = {'path': 'static', 'handler': {'name': 'static'}};
+const dynamicRoute = {'path': 'dynamic/:id', 'handler': {'name': 'dynamic'}};
 const optionalRoute = {'path': 'optional/:id?', 'handler': {'name': 'optional'}};
-const multiNameRoute = {'path': 'static','handler': {'name': ['static-multiple', 'static-multiple-alias']}};
+const multiNameRoute = {'path': 'static', 'handler': {'name': ['static-multiple', 'static-multiple-alias']}};
 
 const routeTestData = [{
-    title: 'empty path routes',
-    route: {'path': '','handler': {'name': 'static'}},
-    isDynamic: false,
-    path: '/',
-    params: {}
-  }, {
-    title: 'static routes',
-    route: staticRoute,
-    isDynamic: false,
-    path: '/static',
-    params: {}
-  }, {
-    title: 'dynamic routes',
-    route: dynamicRoute,
-    isDynamic: true,
-    path: '/dynamic/test',
-    params: { id: 'test' }
-  }, {
-    title: 'multi-segment dynamic routes',
-    route: { 'path': 'dynamic/:id/:other','handler': { 'name': 'dynamic' }},
-    isDynamic: true,
-    path: '/dynamic/foo/bar',
-    params: { id: 'foo', other: 'bar' }
-  }, {
-    title: 'duplicate dynamic routes',
-    route: { 'path': 'dynamic/:id/:id','handler': { 'name': 'dynamic' }},
-    isDynamic: true,
-    path: '/dynamic/foo/foo',
-    params: { id: 'foo' }
-  }, {
-    title: 'star routes',
-    route: { 'path': 'star/*path','handler': { 'name': 'star' }},
-    isDynamic: true,
-    path: '/star/test/path',
-    params: { path: 'test/path' }
-  }, {
-    title: 'dynamic star routes',
-    route: { 'path': 'dynamic/:id/star/*path','handler': { 'name': 'star' }},
-    isDynamic: true,
-    path: '/dynamic/foo/star/test/path',
-    params: { id: 'foo', path: 'test/path' }
-  }, {
-    title: 'optional parameter routes',
-    route: { 'path': 'param/:id?/edit', 'handler': { 'name': 'dynamic' }},
-    isDynamic: true,
-    path: '/param/42/edit',
-    params: { id: '42' }
-  }, {
-    title: 'missing optional parameter routes',
-    route: { 'path': 'param/:id?/edit', 'handler': { 'name': 'dynamic' }},
-    isDynamic: true,
-    path: '/param/edit',
-    params: { id: undefined }
-  }, {
-    title: 'multiple optional parameters routes',
-    route: { 'path': 'param/:x?/edit/:y?', 'handler': { 'name': 'dynamic' }},
-    isDynamic: true,
-    path: '/param/edit/42',
-    params: { x: undefined, y: '42' }
-  }, {
-    title: 'ambiguous optional parameters routes',
-    route: { 'path': 'pt/:x?/:y?', 'handler': { 'name': 'dynamic' }},
-    isDynamic: true,
-    path: '/pt/7',
-    params: { x: '7', y: undefined }
-  }, {
-    title: 'empty optional parameters routes',
-    route: { 'path': ':x?/:y?', 'handler': { 'name': 'dynamic' }},
-    isDynamic: true,
-    path: '/',
-    params: { x: undefined, y: undefined }
-  }, {
-    title: 'almost empty optional parameter routes',
-    route: { 'path': ':x?', 'handler': { 'name': 'dynamic' }},
-    isDynamic: true,
-    path: '/42',
-    params: { x: '42' }
-  }];
+  title: 'empty path routes',
+  route: {'path': '', 'handler': {'name': 'static'}},
+  isDynamic: false,
+  path: '/',
+  params: {}
+}, {
+  title: 'static routes',
+  route: staticRoute,
+  isDynamic: false,
+  path: '/static',
+  params: {}
+}, {
+  title: 'dynamic routes',
+  route: dynamicRoute,
+  isDynamic: true,
+  path: '/dynamic/test',
+  params: { id: 'test' }
+}, {
+  title: 'multi-segment dynamic routes',
+  route: { 'path': 'dynamic/:id/:other', 'handler': { 'name': 'dynamic' }},
+  isDynamic: true,
+  path: '/dynamic/foo/bar',
+  params: { id: 'foo', other: 'bar' }
+}, {
+  title: 'duplicate dynamic routes',
+  route: { 'path': 'dynamic/:id/:id', 'handler': { 'name': 'dynamic' }},
+  isDynamic: true,
+  path: '/dynamic/foo/foo',
+  params: { id: 'foo' }
+}, {
+  title: 'star routes',
+  route: { 'path': 'star/*path', 'handler': { 'name': 'star' }},
+  isDynamic: true,
+  path: '/star/test/path',
+  params: { path: 'test/path' }
+}, {
+  title: 'dynamic star routes',
+  route: { 'path': 'dynamic/:id/star/*path', 'handler': { 'name': 'star' }},
+  isDynamic: true,
+  path: '/dynamic/foo/star/test/path',
+  params: { id: 'foo', path: 'test/path' }
+}, {
+  title: 'optional parameter routes',
+  route: { 'path': 'param/:id?/edit', 'handler': { 'name': 'dynamic' }},
+  isDynamic: true,
+  path: '/param/42/edit',
+  params: { id: '42' }
+}, {
+  title: 'missing optional parameter routes',
+  route: { 'path': 'param/:id?/edit', 'handler': { 'name': 'dynamic' }},
+  isDynamic: true,
+  path: '/param/edit',
+  params: { id: undefined }
+}, {
+  title: 'multiple optional parameters routes',
+  route: { 'path': 'param/:x?/edit/:y?', 'handler': { 'name': 'dynamic' }},
+  isDynamic: true,
+  path: '/param/edit/42',
+  params: { x: undefined, y: '42' }
+}, {
+  title: 'ambiguous optional parameters routes',
+  route: { 'path': 'pt/:x?/:y?', 'handler': { 'name': 'dynamic' }},
+  isDynamic: true,
+  path: '/pt/7',
+  params: { x: '7', y: undefined }
+}, {
+  title: 'empty optional parameters routes',
+  route: { 'path': ':x?/:y?', 'handler': { 'name': 'dynamic' }},
+  isDynamic: true,
+  path: '/',
+  params: { x: undefined, y: undefined }
+}, {
+  title: 'almost empty optional parameter routes',
+  route: { 'path': ':x?', 'handler': { 'name': 'dynamic' }},
+  isDynamic: true,
+  path: '/42',
+  params: { x: '42' }
+}];
 
 describe('route recognizer', () => {
   it('should reject unknown routes', () => {
@@ -104,7 +104,7 @@ describe('route recognizer', () => {
 
   it('should register unnamed routes', () => {
     let recognizer = new RouteRecognizer();
-    recognizer.add([{'path': 'b','handler': {}}]);
+    recognizer.add([{'path': 'b', 'handler': {}}]);
 
     expect(recognizer.names).toEqual({});
     expect(recognizer.recognize('/b')).toBeTruthy();
