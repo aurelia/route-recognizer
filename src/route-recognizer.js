@@ -106,14 +106,20 @@ export class RouteRecognizer {
     return currentState;
   }
 
+  /**
+  * Retrieve a RouteGenerator for a route by name or RouteConfig (RouteHandler).
+  *
+  * @param nameOrRoute The name of the route or RouteConfig object.
+  * @returns The RouteGenerator for that route.
+  */
   getRoute(nameOrRoute: string | RouteHandler): RouteGenerator {
     return typeof(nameOrRoute) === 'string' ? this.names[nameOrRoute] : this.routes.get(nameOrRoute);
   }
 
   /**
-  * Retrieve the handlers registered for the named route.
+  * Retrieve the handlers registered for the route by name or RouteConfig (RouteHandler).
   *
-  * @param name The name of the route.
+  * @param nameOrRoute The name of the route or RouteConfig object.
   * @returns The handlers.
   */
   handlersFor(nameOrRoute: string | RouteHandler): HandlerEntry[] {
@@ -126,9 +132,9 @@ export class RouteRecognizer {
   }
 
   /**
-  * Check if this RouteRecognizer recognizes a named route.
+  * Check if this RouteRecognizer recognizes a route by name or RouteConfig (RouteHandler).
   *
-  * @param name The name of the route.
+  * @param nameOrRoute The name of the route or RouteConfig object.
   * @returns True if the named route is recognized.
   */
   hasRoute(nameOrRoute: string | RouteHandler): boolean {
@@ -136,9 +142,9 @@ export class RouteRecognizer {
   }
 
   /**
-  * Generate a path and query string from a route name and params object.
+  * Generate a path and query string from a route name or RouteConfig (RouteHandler) and params object.
   *
-  * @param name The name of the route.
+  * @param nameOrRoute The name of the route or RouteConfig object.
   * @param params The route params to use when populating the pattern.
   *  Properties not required by the pattern will be appended to the query string.
   * @returns The generated absolute path and query string.
