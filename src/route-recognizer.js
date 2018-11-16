@@ -106,7 +106,7 @@ export class RouteRecognizer {
     return currentState;
   }
 
-  getRoute(nameOrRoute: string | RouteHandler): any {
+  getRoute(nameOrRoute: string | RouteHandler): RouteGenerator {
     return typeof(nameOrRoute) === 'string' ? this.names[nameOrRoute] : this.routes.get(nameOrRoute);
   }
 
@@ -131,7 +131,7 @@ export class RouteRecognizer {
   * @param name The name of the route.
   * @returns True if the named route is recognized.
   */
-  hasRoute(nameOrRoute: string | ConfigurableRoute): boolean {
+  hasRoute(nameOrRoute: string | RouteHandler): boolean {
     return !!this.getRoute(nameOrRoute);
   }
 
@@ -143,7 +143,7 @@ export class RouteRecognizer {
   *  Properties not required by the pattern will be appended to the query string.
   * @returns The generated absolute path and query string.
   */
-  generate(nameOrRoute: string, params: Object): string {
+  generate(nameOrRoute: string | RouteHandler, params: object): string {
     let route = this.getRoute(nameOrRoute);
     if (!route) {
       throw new Error(`There is no route named ${nameOrRoute}`);
