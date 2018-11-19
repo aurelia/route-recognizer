@@ -17,6 +17,7 @@ export class RouteRecognizer {
   constructor() {
     this.rootState = new State();
     this.names = {};
+    this.routes = new Map();
   }
 
   /**
@@ -79,13 +80,13 @@ export class RouteRecognizer {
 
     let handlers = [{ handler: route.handler, names: names }];
 
+    this.routes.set(route.handler, { segments, handlers });
     if (routeName) {
       let routeNames = Array.isArray(routeName) ? routeName : [routeName];
       for (let i = 0; i < routeNames.length; i++) {
-        this.names[routeNames[i]] = {
-          segments: segments,
-          handlers: handlers
-        };
+        if (!(routeNames[i] in this.names)) {
+          this.names[routeNames[i]] = { segments, handlers };
+        }
       }
     }
 
@@ -106,42 +107,52 @@ export class RouteRecognizer {
   }
 
   /**
-  * Retrieve the handlers registered for the named route.
+  * Retrieve a RouteGenerator for a route by name or RouteConfig (RouteHandler).
   *
-  * @param name The name of the route.
+  * @param nameOrRoute The name of the route or RouteConfig object.
+  * @returns The RouteGenerator for that route.
+  */
+  getRoute(nameOrRoute: string | RouteHandler): RouteGenerator {
+    return typeof(nameOrRoute) === 'string' ? this.names[nameOrRoute] : this.routes.get(nameOrRoute);
+  }
+
+  /**
+  * Retrieve the handlers registered for the route by name or RouteConfig (RouteHandler).
+  *
+  * @param nameOrRoute The name of the route or RouteConfig object.
   * @returns The handlers.
   */
-  handlersFor(name: string): HandlerEntry[] {
-    let route = this.names[name];
+  handlersFor(nameOrRoute: string | RouteHandler): HandlerEntry[] {
+    let route = this.getRoute(nameOrRoute);
     if (!route) {
-      throw new Error(`There is no route named ${name}`);
+      throw new Error(`There is no route named ${nameOrRoute}`);
     }
 
     return [...route.handlers];
   }
 
   /**
-  * Check if this RouteRecognizer recognizes a named route.
+  * Check if this RouteRecognizer recognizes a route by name or RouteConfig (RouteHandler).
   *
-  * @param name The name of the route.
+  * @param nameOrRoute The name of the route or RouteConfig object.
   * @returns True if the named route is recognized.
   */
-  hasRoute(name: string): boolean {
-    return !!this.names[name];
+  hasRoute(nameOrRoute: string | RouteHandler): boolean {
+    return !!this.getRoute(nameOrRoute);
   }
 
   /**
-  * Generate a path and query string from a route name and params object.
+  * Generate a path and query string from a route name or RouteConfig (RouteHandler) and params object.
   *
-  * @param name The name of the route.
+  * @param nameOrRoute The name of the route or RouteConfig object.
   * @param params The route params to use when populating the pattern.
   *  Properties not required by the pattern will be appended to the query string.
   * @returns The generated absolute path and query string.
   */
-  generate(name: string, params: Object): string {
-    let route = this.names[name];
+  generate(nameOrRoute: string | RouteHandler, params: object): string {
+    let route = this.getRoute(nameOrRoute);
     if (!route) {
-      throw new Error(`There is no route named ${name}`);
+      throw new Error(`There is no route named ${nameOrRoute}`);
     }
 
     let handler = route.handlers[0].handler;
@@ -164,7 +175,7 @@ export class RouteRecognizer {
       let segmentValue = segment.generate(routeParams, consumed);
       if (segmentValue === null || segmentValue === undefined) {
         if (!segment.optional) {
-          throw new Error(`A value is required for route parameter '${segment.name}' in route '${name}'.`);
+          throw new Error(`A value is required for route parameter '${segment.name}' in route '${nameOrRoute}'.`);
         }
       } else {
         output += '/';
@@ -195,7 +206,7 @@ export class RouteRecognizer {
   *  `isDynanic` values for the matched route(s), or undefined if no match
   *  was found.
   */
-  recognize(path: string): RecognizedRoute[] | void {
+  recognize(path: string): RecognizeResults {
     let states = [this.rootState];
     let queryParams = {};
     let isSlashDropped = false;
