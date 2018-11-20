@@ -185,6 +185,14 @@ export class EpsilonSegment {
   }
 }
 
+/*
+* An object that is indexed and used for route generation, particularly for dynamic routes.
+*/
+interface RouteGenerator {
+  segments: Array<StaticSegment | DynamicSegment | StarSegment | EpsilonSegment>;
+  handlers: HandlerEntry[];
+}
+
 interface RouteHandler {
   name: string;
 }
@@ -210,15 +218,6 @@ interface CharSpec {
   invalidChars?: string;
   validChars?: string;
   repeat?: boolean;
-}
-
-type Segment = StaticSegment | DynamicSegment | StarSegment | EpsilonSegment;
-/**
- * An object that is indexed and used for route generation, particularly for dynamic routes.
- */
-interface RouteGenerator {
-  segments: Segment[];
-  handlers: HandlerEntry[];
 }
 
 /**
@@ -420,7 +419,7 @@ export class RouteRecognizer {
   *  `isDynanic` values for the matched route(s), or undefined if no match
   *  was found.
   */
-  recognize(path: string): RecognizeResults {
+  recognize(path: string): RecognizedRoute[] | void {
     let states = [this.rootState];
     let queryParams = {};
     let isSlashDropped = false;

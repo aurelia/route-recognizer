@@ -2,6 +2,14 @@ import {
   buildQueryString,
   parseQueryString
 } from 'aurelia-path';
+
+/*
+* An object that is indexed and used for route generation, particularly for dynamic routes.
+*/
+export declare interface RouteGenerator {
+  segments: Array<StaticSegment | DynamicSegment | StarSegment | EpsilonSegment>;
+  handlers: HandlerEntry[];
+}
 export declare interface RouteHandler {
   name: string;
 }
@@ -23,17 +31,6 @@ export declare interface CharSpec {
   invalidChars?: string;
   validChars?: string;
   repeat?: boolean;
-}
-
-/**
- * An object that is indexed and used for route generation, particularly for dynamic routes.
- */
-/**
- * An object that is indexed and used for route generation, particularly for dynamic routes.
- */
-export declare interface RouteGenerator {
-  segments: Segment[];
-  handlers: HandlerEntry[];
 }
 
 // A State has a character specification and (`charSpec`) and a list of possible
@@ -165,5 +162,5 @@ export declare class RouteRecognizer {
     *  `isDynanic` values for the matched route(s), or undefined if no match
     *  was found.
     */
-  recognize(path: string): RecognizeResults;
+  recognize(path: string): RecognizedRoute[] | void;
 }
