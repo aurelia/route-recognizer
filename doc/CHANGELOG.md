@@ -1,3 +1,13 @@
+<a name="1.3.0"></a>
+# [1.3.0](https://github.com/aurelia/route-recognizer/compare/1.2.0...1.3.0) (2018-11-20)
+
+
+### Features
+
+* **route-recognizer:** Support generating a route by route config in addition to name ([ba9eb61](https://github.com/aurelia/route-recognizer/commit/ba9eb61))
+
+
+
 <a name="1.2.0"></a>
 # [1.2.0](https://github.com/aurelia/route-recognizer/compare/1.1.1...1.2.0) (2018-06-14)
 

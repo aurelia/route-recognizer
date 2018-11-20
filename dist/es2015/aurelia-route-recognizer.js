@@ -141,6 +141,7 @@ export let RouteRecognizer = class RouteRecognizer {
   constructor() {
     this.rootState = new State();
     this.names = {};
+    this.routes = new Map();
   }
 
   add(route) {
@@ -188,13 +189,13 @@ export let RouteRecognizer = class RouteRecognizer {
 
     let handlers = [{ handler: route.handler, names: names }];
 
+    this.routes.set(route.handler, { segments, handlers });
     if (routeName) {
       let routeNames = Array.isArray(routeName) ? routeName : [routeName];
       for (let i = 0; i < routeNames.length; i++) {
-        this.names[routeNames[i]] = {
-          segments: segments,
-          handlers: handlers
-        };
+        if (!(routeNames[i] in this.names)) {
+          this.names[routeNames[i]] = { segments, handlers };
+        }
       }
     }
 
@@ -212,23 +213,27 @@ export let RouteRecognizer = class RouteRecognizer {
     return currentState;
   }
 
-  handlersFor(name) {
-    let route = this.names[name];
+  getRoute(nameOrRoute) {
+    return typeof nameOrRoute === 'string' ? this.names[nameOrRoute] : this.routes.get(nameOrRoute);
+  }
+
+  handlersFor(nameOrRoute) {
+    let route = this.getRoute(nameOrRoute);
     if (!route) {
-      throw new Error(`There is no route named ${name}`);
+      throw new Error(`There is no route named ${nameOrRoute}`);
     }
 
     return [...route.handlers];
   }
 
-  hasRoute(name) {
-    return !!this.names[name];
+  hasRoute(nameOrRoute) {
+    return !!this.getRoute(nameOrRoute);
   }
 
-  generate(name, params) {
-    let route = this.names[name];
+  generate(nameOrRoute, params) {
+    let route = this.getRoute(nameOrRoute);
     if (!route) {
-      throw new Error(`There is no route named ${name}`);
+      throw new Error(`There is no route named ${nameOrRoute}`);
     }
 
     let handler = route.handlers[0].handler;
@@ -251,7 +256,7 @@ export let RouteRecognizer = class RouteRecognizer {
       let segmentValue = segment.generate(routeParams, consumed);
       if (segmentValue === null || segmentValue === undefined) {
         if (!segment.optional) {
-          throw new Error(`A value is required for route parameter '${segment.name}' in route '${name}'.`);
+          throw new Error(`A value is required for route parameter '${segment.name}' in route '${nameOrRoute}'.`);
         }
       } else {
         output += '/';

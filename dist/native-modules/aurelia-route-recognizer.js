@@ -180,6 +180,7 @@ export var RouteRecognizer = function () {
 
     this.rootState = new State();
     this.names = {};
+    this.routes = new Map();
   }
 
   RouteRecognizer.prototype.add = function add(route) {
@@ -233,13 +234,13 @@ export var RouteRecognizer = function () {
 
     var handlers = [{ handler: route.handler, names: names }];
 
+    this.routes.set(route.handler, { segments: segments, handlers: handlers });
     if (routeName) {
       var routeNames = Array.isArray(routeName) ? routeName : [routeName];
       for (var _i2 = 0; _i2 < routeNames.length; _i2++) {
-        this.names[routeNames[_i2]] = {
-          segments: segments,
-          handlers: handlers
-        };
+        if (!(routeNames[_i2] in this.names)) {
+          this.names[routeNames[_i2]] = { segments: segments, handlers: handlers };
+        }
       }
     }
 
@@ -257,23 +258,27 @@ export var RouteRecognizer = function () {
     return currentState;
   };
 
-  RouteRecognizer.prototype.handlersFor = function handlersFor(name) {
-    var route = this.names[name];
+  RouteRecognizer.prototype.getRoute = function getRoute(nameOrRoute) {
+    return typeof nameOrRoute === 'string' ? this.names[nameOrRoute] : this.routes.get(nameOrRoute);
+  };
+
+  RouteRecognizer.prototype.handlersFor = function handlersFor(nameOrRoute) {
+    var route = this.getRoute(nameOrRoute);
     if (!route) {
-      throw new Error('There is no route named ' + name);
+      throw new Error('There is no route named ' + nameOrRoute);
     }
 
     return [].concat(route.handlers);
   };
 
-  RouteRecognizer.prototype.hasRoute = function hasRoute(name) {
-    return !!this.names[name];
+  RouteRecognizer.prototype.hasRoute = function hasRoute(nameOrRoute) {
+    return !!this.getRoute(nameOrRoute);
   };
 
-  RouteRecognizer.prototype.generate = function generate(name, params) {
-    var route = this.names[name];
+  RouteRecognizer.prototype.generate = function generate(nameOrRoute, params) {
+    var route = this.getRoute(nameOrRoute);
     if (!route) {
-      throw new Error('There is no route named ' + name);
+      throw new Error('There is no route named ' + nameOrRoute);
     }
 
     var handler = route.handlers[0].handler;
@@ -296,7 +301,7 @@ export var RouteRecognizer = function () {
       var segmentValue = segment.generate(routeParams, consumed);
       if (segmentValue === null || segmentValue === undefined) {
         if (!segment.optional) {
-          throw new Error('A value is required for route parameter \'' + segment.name + '\' in route \'' + name + '\'.');
+          throw new Error('A value is required for route parameter \'' + segment.name + '\' in route \'' + nameOrRoute + '\'.');
         }
       } else {
         output += '/';

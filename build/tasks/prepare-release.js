@@ -26,7 +26,6 @@ gulp.task('prepare-release', function(callback){
     'build',
     'lint',
     'bump-version',
-    'doc',
     'changelog',
     callback
   );

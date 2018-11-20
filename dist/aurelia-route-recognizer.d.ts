@@ -25,6 +25,17 @@ export declare interface CharSpec {
   repeat?: boolean;
 }
 
+/**
+ * An object that is indexed and used for route generation, particularly for dynamic routes.
+ */
+/**
+ * An object that is indexed and used for route generation, particularly for dynamic routes.
+ */
+export declare interface RouteGenerator {
+  segments: Segment[];
+  handlers: HandlerEntry[];
+}
+
 // A State has a character specification and (`charSpec`) and a list of possible
 // subsequent states (`nextStates`).
 //
@@ -113,30 +124,38 @@ export declare class RouteRecognizer {
   add(route: ConfigurableRoute | ConfigurableRoute[]): State;
   
   /**
-    * Retrieve the handlers registered for the named route.
+    * Retrieve a RouteGenerator for a route by name or RouteConfig (RouteHandler).
     *
-    * @param name The name of the route.
+    * @param nameOrRoute The name of the route or RouteConfig object.
+    * @returns The RouteGenerator for that route.
+    */
+  getRoute(nameOrRoute: string | RouteHandler): RouteGenerator;
+  
+  /**
+    * Retrieve the handlers registered for the route by name or RouteConfig (RouteHandler).
+    *
+    * @param nameOrRoute The name of the route or RouteConfig object.
     * @returns The handlers.
     */
-  handlersFor(name: string): HandlerEntry[];
+  handlersFor(nameOrRoute: string | RouteHandler): HandlerEntry[];
   
   /**
-    * Check if this RouteRecognizer recognizes a named route.
+    * Check if this RouteRecognizer recognizes a route by name or RouteConfig (RouteHandler).
     *
-    * @param name The name of the route.
+    * @param nameOrRoute The name of the route or RouteConfig object.
     * @returns True if the named route is recognized.
     */
-  hasRoute(name: string): boolean;
+  hasRoute(nameOrRoute: string | RouteHandler): boolean;
   
   /**
-    * Generate a path and query string from a route name and params object.
+    * Generate a path and query string from a route name or RouteConfig (RouteHandler) and params object.
     *
-    * @param name The name of the route.
+    * @param nameOrRoute The name of the route or RouteConfig object.
     * @param params The route params to use when populating the pattern.
     *  Properties not required by the pattern will be appended to the query string.
     * @returns The generated absolute path and query string.
     */
-  generate(name: string, params: Object): string;
+  generate(nameOrRoute: string | RouteHandler, params: object): string;
   
   /**
     * Match a path string against registered route patterns.
@@ -146,5 +165,5 @@ export declare class RouteRecognizer {
     *  `isDynanic` values for the matched route(s), or undefined if no match
     *  was found.
     */
-  recognize(path: string): RecognizedRoute[] | void;
+  recognize(path: string): RecognizeResults;
 }
