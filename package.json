@@ -19,6 +19,14 @@
     "type": "git",
     "url": "http://github.com/aurelia/route-recognizer"
   },
+  "files": [
+    "dist",
+    "doc",
+    "src",
+    "typings.json",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "test": "gulp test",
     "ci": "gulp ci"

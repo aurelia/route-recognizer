@@ -1,1 +1,0 @@
-export * from 'aurelia-route-recognizer/aurelia-route-recognizer';
