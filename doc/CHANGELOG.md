@@ -1,3 +1,13 @@
+<a name="1.3.3"></a>
+## [1.3.3](https://github.com/aurelia/route-recognizer/compare/1.3.1...1.3.3) (2019-03-27)
+
+
+### Bug Fixes
+
+* **all:** change es2015 back to native-modules ([2696e84](https://github.com/aurelia/route-recognizer/commit/2696e84))
+
+
+
 <a name="1.3.2"></a>
 ## [1.3.2](https://github.com/aurelia/route-recognizer/compare/1.3.1...1.3.2) (2019-02-04)
 
