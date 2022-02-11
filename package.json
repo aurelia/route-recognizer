@@ -85,7 +85,7 @@
     "istanbul": "github:gotwarlost/istanbul#source-map",
     "jasmine-core": "^2.4.1",
     "jspm": "^0.16.53",
-    "karma": "^1.1.2",
+    "karma": "^6.3.14",
     "karma-babel-preprocessor": "^6.0.1",
     "karma-chrome-launcher": "1.0.1",
     "karma-coverage": "github:douglasduteil/karma-coverage#next",
